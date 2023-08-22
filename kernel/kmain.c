@@ -16,6 +16,18 @@ static void klogv(device dev, const char *msg)
 
 void kmain(void)
 {
+	/**
+	// initialize COM1
+	serial_init(COM1);
+	// initialization
+	gdt_init();
+	idt_init();
+	pic_init();
+	irq_init();
+	//idt_install(1, void (*handler)(void *));
+	vm_init();
+	sti();
+	*/
 	// 0) Serial I/O -- <mpx/serial.h>
 	// If we don't initialize the serial port, we have no way of
 	// performing I/O. So we need to do that before anything else so we
@@ -80,7 +92,6 @@ void kmain(void)
 	// the system.
 	klogv(COM1, "Transferring control to commhand...");
 	// R4: __asm__ volatile ("int $0x60" :: "a"(IDLE));
-
 	// 10) System Shutdown -- *headers to be determined by your design*
 	// After your command handler returns, take care of any clean up that
 	// is necessary.
