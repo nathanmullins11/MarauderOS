@@ -1,5 +1,9 @@
 #include <comhand.h>
 
-void comhand(void) {
-    
+void comhand(void)
+{
+    for ( ;; ) 
+    {
+        
+    }
 }

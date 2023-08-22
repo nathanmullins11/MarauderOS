@@ -5,6 +5,7 @@
 #include <sys_req.h>
 #include <string.h>
 #include <memory.h>
+#include <comhand.h>
 
 static void klogv(device dev, const char *msg)
 {
@@ -16,6 +17,7 @@ static void klogv(device dev, const char *msg)
 
 void kmain(void)
 {
+	serial_init(COM1);
 	// 0) Serial I/O -- <mpx/serial.h>
 	// If we don't initialize the serial port, we have no way of
 	// performing I/O. So we need to do that before anything else so we
@@ -79,6 +81,7 @@ void kmain(void)
 	// Pass execution to your command handler so the user can interact with
 	// the system.
 	klogv(COM1, "Transferring control to commhand...");
+	comhand();
 	// R4: __asm__ volatile ("int $0x60" :: "a"(IDLE));
 
 	// 10) System Shutdown -- *headers to be determined by your design*
