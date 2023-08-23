@@ -70,41 +70,40 @@ int serial_poll(device dev, char *buffer, size_t len)
 	int index = 0;
 	size_t count = len;
 	/* begin polling  loop */
-	 while (count > 0 ) // && (no device error))
-	 {
-	// 	// wait while device is busy
+	// while (count > 0 ) // && (no device error))
+	//{
+ 	// wait while device is busy
 	//	while(device is busy) {}
 
-	// 	// when device becomes not busy 
-	// 	/* process character if no error */
-	// 	/* LSR indicates data is available */
-	 	if ((inb( dev + LSR ) & 1) == 0)
-	 	{
-	 		continue;
-	 	} // no error
+ 	// when device becomes not busy 
+ 	/* process character if no error */
+ 	/* LSR indicates data is available */
+	 	// if ((inb( dev + LSR ) & 1) == 0)
+	 	// {
+	 	// 	continue;
+	 	// } // no error
 		
 	 		// read char into data register
 			unsigned char data = inb(dev);
 	 		// if char is enter key, exit
 			if (data == ENTER_KEY)
 	 		{
-	 			break;
+				buffer[index] = '\0';
+				buffer[index] = '\n';
+	 		 	return len - count;
 	 		}
 	 		// if char is regular, store in buffer
-	 		//if (data == B_KEY)
+	 		//if (data == )
 	 		// {
 	 			// write data to buffer array
-	 			// outb(buffer[index], data);
-	 			// count--;
-	 			// index++;
-			//	buffer = { "hello\n" };
+				buffer[index] = data;
 	 		// }
 	 		// decrement count
-			
+			count--;
 
 	 		//increment index
-		
-	 }
+			index++;
+	// }
 
 
 
@@ -112,12 +111,5 @@ int serial_poll(device dev, char *buffer, size_t len)
 	// insert your code to gather keyboard input via the technique of polling.
 	// You must validate each key and handle special keys such as delete, back space, and
 	// arrow keys
-
-	// REMOVE THIS -- IT ONLY EXISTS TO AVOID UNUSED PARAMETER WARNINGS
-	// Failure to remove this comment and the following line *will* result in
-	// losing points for inattention to detail
-	 // (void)dev; (void)buffer;
-
-	// return # of bytes read from COM1
-	 return count - len;
+	 return len - count;
 }
