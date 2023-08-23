@@ -69,47 +69,30 @@ int serial_poll(device dev, char *buffer, size_t len)
 	/* initialize pointer and index */
 	int index = 0;
 	size_t count = len;
-	/* begin polling  loop */
-	// while (count > 0 ) // && (no device error))
-	//{
- 	// wait while device is busy
-	//	while(device is busy) {}
-
- 	// when device becomes not busy 
- 	/* process character if no error */
- 	/* LSR indicates data is available */
-	 	// if ((inb( dev + LSR ) & 1) == 0)
-	 	// {
-	 	// 	continue;
-	 	// } // no error
 		
-	 		// read char into data register
-			unsigned char data = inb(dev);
-	 		// if char is enter key, exit
-			if (data == ENTER_KEY)
-	 		{
-				buffer[index] = '\0';
-				buffer[index] = '\n';
-	 		 	return len - count;
-	 		}
-	 		// if char is regular, store in buffer
-	 		//if (data == )
-	 		// {
-	 			// write data to buffer array
-				buffer[index] = data;
-	 		// }
-	 		// decrement count
-			count--;
+	// read char into data register
+	unsigned char data = inb(dev);
+	
+	// if char is enter key, exit
+	if (data == 13)
+	{
+		// char test[20] = {"\n"};
+		// sys_req(WRITE, COM1, test, sizeof(test));
+		buffer[index] = '\n';
+		count--;
+		index++;
+		return len - count;
+	}
 
-	 		//increment index
-			index++;
-	// }
+	// write data to device and data to buffer array
+	// outb(dev, data);
+	buffer[index] = data;
 
+	// decrement count
+	count--;
 
+	//increment index
+	index++;
 
-
-	// insert your code to gather keyboard input via the technique of polling.
-	// You must validate each key and handle special keys such as delete, back space, and
-	// arrow keys
-	 return len - count;
+	return len - count;
 }
