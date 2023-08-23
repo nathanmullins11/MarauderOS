@@ -2,6 +2,10 @@
 #include <mpx/serial.h>
 #include <sys_req.h>
 
+#define ENTER_KEY 10
+#define SPACE_KEY 32
+#define B_KEY 98
+
 enum uart_registers {
 	RBR = 0,	// Receive Buffer
 	THR = 0,	// Transmitter Holding
@@ -62,6 +66,49 @@ int serial_out(device dev, const char *buffer, size_t len)
 
 int serial_poll(device dev, char *buffer, size_t len)
 {
+	/* initialize pointer and index */
+	int index = 0;
+	size_t count = len;
+	/* begin polling  loop */
+	 while (count > 0 ) // && (no device error))
+	 {
+	// 	// wait while device is busy
+	//	while(device is busy) {}
+
+	// 	// when device becomes not busy 
+	// 	/* process character if no error */
+	// 	/* LSR indicates data is available */
+	 	if ((inb( dev + LSR ) & 1) == 0)
+	 	{
+	 		continue;
+	 	} // no error
+		
+	 		// read char into data register
+			unsigned char data = inb(dev);
+	 		// if char is enter key, exit
+			if (data == ENTER_KEY)
+	 		{
+	 			break;
+	 		}
+	 		// if char is regular, store in buffer
+	 		//if (data == B_KEY)
+	 		// {
+	 			// write data to buffer array
+	 			// outb(buffer[index], data);
+	 			// count--;
+	 			// index++;
+			//	buffer = { "hello\n" };
+	 		// }
+	 		// decrement count
+			
+
+	 		//increment index
+		
+	 }
+
+
+
+
 	// insert your code to gather keyboard input via the technique of polling.
 	// You must validate each key and handle special keys such as delete, back space, and
 	// arrow keys
@@ -69,8 +116,8 @@ int serial_poll(device dev, char *buffer, size_t len)
 	// REMOVE THIS -- IT ONLY EXISTS TO AVOID UNUSED PARAMETER WARNINGS
 	// Failure to remove this comment and the following line *will* result in
 	// losing points for inattention to detail
-	(void)dev; (void)buffer;
+	 // (void)dev; (void)buffer;
 
-	// THIS MUST BE CHANGED TO RETURN THE CORRECT VALUE
-	return (int)len;
+	// return # of bytes read from COM1
+	 return count - len;
 }
