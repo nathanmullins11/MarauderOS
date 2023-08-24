@@ -6,6 +6,7 @@
 #include <string.h>
 #include <memory.h>
 #include <comhand.h>
+#include <mpx/io.h>
 
 static void klogv(device dev, const char *msg)
 {
@@ -17,7 +18,11 @@ static void klogv(device dev, const char *msg)
 
 void kmain(void)
 {
+	/* initialization */
 	serial_init(COM1);
+	
+
+	// sys_req(WRITE, COM1, bytes_read, strlen(buffer));
 	// 0) Serial I/O -- <mpx/serial.h>
 	// If we don't initialize the serial port, we have no way of
 	// performing I/O. So we need to do that before anything else so we
@@ -32,33 +37,39 @@ void kmain(void)
 	// required by the x86 architecture. This needs to be initialized before
 	// interrupts can be configured.
 	klogv(COM1, "Initializing Global Descriptor Table...");
+	gdt_init();
 
 	// 2) Interrupt Descriptor Table (IDT) -- <mpx/interrupts.h>
 	// Keeps track of where the various Interrupt Vectors are stored. It
 	// needs to be initialized before Interrupt Service Routines (ISRs) can
 	// be installed.
 	klogv(COM1, "Initializing Interrupt Descriptor Table...");
+    idt_init();
 
 	// 3) Disable Interrupts -- <mpx/interrupts.h>
 	// You'll be modifying how interrupts work, so disable them to avoid
 	// crashing.
 	klogv(COM1, "Disabling interrupts...");
+    cli();
 
 	// 4) Interrupt Request (IRQ) -- <mpx/interrupts.h>
 	// The x86 architecture requires ISRs for at least the first 32
 	// Interrupt Request (IRQ) lines.
 	klogv(COM1, "Initializing Interrupt Request routines...");
+    irq_init();
 
 	// 5) Programmable Interrupt Controller (PIC) -- <mpx/interrupts.h>
 	// The x86 architecture uses a Programmable Interrupt Controller (PIC)
 	// to map hardware interrupts to software interrupts that the CPU can
 	// then handle via the IDT and its list of ISRs.
 	klogv(COM1, "Initializing Programmable Interrupt Controller...");
+    pic_init();
 
 	// 6) Reenable interrupts -- <mpx/interrupts.h>
 	// Now that interrupt routines are set up, allow interrupts to happen
 	// again.
 	klogv(COM1, "Enabling Interrupts...");
+    sti();
 
 	// 7) Virtual Memory (VM) -- <mpx/vm.h>
 	// Virtual Memory (VM) allows the CPU to map logical addresses used by
@@ -70,6 +81,7 @@ void kmain(void)
 	// Page Tables, data structures that describe the logical-to-physical
 	// mapping as well as manage permissions and other metadata.
 	klogv(COM1, "Initializing Virtual Memory...");
+    vm_init();
 
 	// 8) MPX Modules -- *headers vary*
 	// Module specific initialization -- not all modules require this.
@@ -81,6 +93,7 @@ void kmain(void)
 	// Pass execution to your command handler so the user can interact with
 	// the system.
 	klogv(COM1, "Transferring control to commhand...");
+
 	comhand();
 	// R4: __asm__ volatile ("int $0x60" :: "a"(IDLE));
 	// 10) System Shutdown -- *headers to be determined by your design*

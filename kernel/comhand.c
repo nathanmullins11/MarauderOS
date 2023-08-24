@@ -1,9 +1,10 @@
-#include <comhand.h>
+#include <sys_req.h>
+#include <string.h>
 
 void comhand(void)
 {
-    for ( ;; ) 
-    {
-        
-    }
+	for ( ; ; ) {
+	char buffer[201] = { 0 };
+	sys_req(READ, COM1, buffer , sizeof(buffer) ) ;
+	}
 }
