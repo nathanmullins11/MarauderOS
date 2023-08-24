@@ -78,14 +78,15 @@ int serial_poll(device dev, char *buffer, size_t len)
 	{
 		// char test[20] = {"\n"};
 		// sys_req(WRITE, COM1, test, sizeof(test));
-		buffer[index] = '\n';
+		buffer[index] = '\0';
+		outb(dev, '\n');
 		count--;
 		index++;
 		return len - count;
 	}
 
 	// write data to device and data to buffer array
-	// outb(dev, data);
+	outb(dev, data);
 	buffer[index] = data;
 
 	// decrement count
