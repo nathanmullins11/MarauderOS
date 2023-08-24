@@ -3,7 +3,6 @@
 #include <sys_req.h>
 
 #define ENTER_KEY 10
-#define SPACE_KEY 32
 #define B_KEY 98
 
 enum uart_registers {
@@ -69,47 +68,49 @@ int serial_poll(device dev, char *buffer, size_t len)
 	/* initialize pointer and index */
 	int index = 0;
 	size_t count = len;
-	/* begin polling  loop */
-	// while (count > 0 ) // && (no device error))
-	//{
- 	// wait while device is busy
-	//	while(device is busy) {}
-
- 	// when device becomes not busy 
- 	/* process character if no error */
- 	/* LSR indicates data is available */
-	 	// if ((inb( dev + LSR ) & 1) == 0)
-	 	// {
-	 	// 	continue;
-	 	// } // no error
 		
-	 		// read char into data register
-			unsigned char data = inb(dev);
-	 		// if char is enter key, exit
-			if (data == ENTER_KEY)
-	 		{
-				buffer[index] = '\0';
-				buffer[index] = '\n';
-	 		 	return len - count;
-	 		}
-	 		// if char is regular, store in buffer
-	 		//if (data == )
-	 		// {
-	 			// write data to buffer array
-				buffer[index] = data;
-	 		// }
-	 		// decrement count
-			count--;
+	// read char into data register
+	unsigned char data = inb(dev);
+	
+	// if char is enter key, new line
+	if (data == 13)
+	{
+		buffer[index] = '\0';
+		outb(dev, '\n');
+		count--;
+		index++;
+		return len - count;
+	}
 
-	 		//increment index
-			index++;
-	// }
+	 // backspace key
+	if (data == 127)
+	{
+		// buffer[index] = '\0';
+		outb(dev, '\b');   // Move the cursor back
+        outb(dev, ' ');    // Overwrite with a space
+        outb(dev, '\b');   // Move the cursor back again
+		index--;
+	}
 
+	// delete key
+	if (data == 37)
+	{
+		// buffer[index] = '\0';
+		outb(dev, '\b');   // Move the cursor back
+        outb(dev, ' ');    // Overwrite with a space
+        outb(dev, '\b');   // Move the cursor back again
+		index--;
+	}
 
+	// write data to device and data to buffer array
+	outb(dev, data);
+	buffer[index] = data;
 
+	// decrement count
+	count--;
 
-	// insert your code to gather keyboard input via the technique of polling.
-	// You must validate each key and handle special keys such as delete, back space, and
-	// arrow keys
-	 return len - count;
+	//increment index
+	index++;
+
+	return len - count;
 }
