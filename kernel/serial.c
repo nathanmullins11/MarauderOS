@@ -68,49 +68,53 @@ int serial_poll(device dev, char *buffer, size_t len)
 	/* initialize pointer and index */
 	int index = 0;
 	size_t count = len;
+
+	while (count > 0) {
+		// read char into data register
+		unsigned char data = inb(dev);
 		
-	// read char into data register
-	unsigned char data = inb(dev);
-	
-	// if char is enter key, new line
-	if (data == 13)
-	{
-		buffer[index] = '\0';
-		outb(dev, '\n');
+		// if char is enter key, new line
+		if (data == 13)
+		{
+			buffer[index] = '\0';
+			count--;
+			index++;
+
+			outb(dev, '\n');
+
+			return index;
+		}
+
+		// backspace key
+		if (data == 127)
+		{
+			// buffer[index] = '\0';
+			outb(dev, '\b');   // Move the cursor back
+			outb(dev, ' ');    // Overwrite with a space
+			outb(dev, '\b');   // Move the cursor back again
+			index--;
+		}
+
+		// delete key
+		if (data == 37)
+		{
+			// buffer[index] = '\0';
+			outb(dev, '\b');   // Move the cursor back
+			outb(dev, ' ');    // Overwrite with a space
+			outb(dev, '\b');   // Move the cursor back again
+			index--;
+		}
+
+		// write data to device and data to buffer array
+		outb(dev, data);
+		buffer[index] = data;
+
+		// decrement count
 		count--;
+
+		//increment index
 		index++;
-		return len - count;
 	}
 
-	 // backspace key
-	if (data == 127)
-	{
-		// buffer[index] = '\0';
-		outb(dev, '\b');   // Move the cursor back
-        outb(dev, ' ');    // Overwrite with a space
-        outb(dev, '\b');   // Move the cursor back again
-		index--;
-	}
-
-	// delete key
-	if (data == 37)
-	{
-		// buffer[index] = '\0';
-		outb(dev, '\b');   // Move the cursor back
-        outb(dev, ' ');    // Overwrite with a space
-        outb(dev, '\b');   // Move the cursor back again
-		index--;
-	}
-
-	// write data to device and data to buffer array
-	outb(dev, data);
-	buffer[index] = data;
-
-	// decrement count
-	count--;
-
-	//increment index
-	index++;
-
-	return len - count;
+	return index;
 }
