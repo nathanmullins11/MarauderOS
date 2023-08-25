@@ -88,7 +88,7 @@ int serial_poll(device dev, char *buffer, size_t len)
 		}
 
 		// backspace key
-		if (data == 127)
+		else if (data == 127)
 		{
 			// buffer[index] = '\0';
 			outb(dev, '\b');   // Move the cursor back
@@ -98,7 +98,7 @@ int serial_poll(device dev, char *buffer, size_t len)
 		}
 
 		// delete key
-		if (data == 37)
+		else if (data == 37)
 		{
 			// buffer[index] = '\0';
 			outb(dev, '\b');   // Move the cursor back
@@ -106,7 +106,8 @@ int serial_poll(device dev, char *buffer, size_t len)
 			outb(dev, '\b');   // Move the cursor back again
 			index--;
 		}
-
+		else if (data > 0)
+		{
 		// write data to device and data to buffer array
 		outb(dev, data);
 		buffer[index] = data;
@@ -116,6 +117,7 @@ int serial_poll(device dev, char *buffer, size_t len)
 
 		//increment index
 		index++;
+		}
 	}
 
 	return index;
