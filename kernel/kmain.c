@@ -7,6 +7,7 @@
 #include <memory.h>
 #include <comhand.h>
 #include <mpx/io.h>
+#include <version.h>
 
 static void klogv(device dev, const char *msg)
 {
@@ -94,7 +95,9 @@ void kmain(void)
 	// the system.
 	klogv(COM1, "Transferring control to commhand...");
 
+	// version();  **version test**
 	comhand();
+	
 	// R4: __asm__ volatile ("int $0x60" :: "a"(IDLE));
 	// 10) System Shutdown -- *headers to be determined by your design*
 	// After your command handler returns, take care of any clean up that
@@ -105,4 +108,5 @@ void kmain(void)
 	// Execution of kmain() will complete and return to where it was called
 	// in boot.s, which will then attempt to power off Qemu or halt the CPU.
 	klogv(COM1, "Halting CPU...");
+	
 }

@@ -1,6 +1,7 @@
-#include <mpx/io.h>
 #include <mpx/serial.h>
+#include <mpx/io.h>
 #include <sys_req.h>
+#include <string.h>
 
 #define ENTER_KEY 10
 #define B_KEY 98
@@ -67,6 +68,7 @@ int serial_poll(device dev, char *buffer, size_t len)
 {
 	/* initialize pointer and index */
 	int index = 0;
+	// int cursor = index;
 	size_t count = len;
 
 	while (count > 0) {
