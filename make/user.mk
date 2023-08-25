@@ -5,4 +5,5 @@ user/core.o: user/core.c include/string.h include/mpx/serial.h \
 
 USER_OBJECTS=\
 	user/core.o\
-	user/itoa.o
+	user/itoa.o\
+	user/version.o
