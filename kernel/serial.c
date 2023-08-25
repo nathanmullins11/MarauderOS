@@ -1,5 +1,5 @@
-#include <mpx/io.h>
 #include <mpx/serial.h>
+#include <mpx/io.h>
 #include <sys_req.h>
 #include <string.h>
 
