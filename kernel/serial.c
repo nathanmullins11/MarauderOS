@@ -2,6 +2,9 @@
 #include <mpx/io.h>
 #include <sys_req.h>
 
+#define ENTER_KEY 10
+#define B_KEY 98
+
 enum uart_registers {
 	RBR = 0,	// Receive Buffer
 	THR = 0,	// Transmitter Holding
@@ -62,15 +65,52 @@ int serial_out(device dev, const char *buffer, size_t len)
 
 int serial_poll(device dev, char *buffer, size_t len)
 {
-	// insert your code to gather keyboard input via the technique of polling.
-	// You must validate each key and handle special keys such as delete, back space, and
-	// arrow keys
+	/* initialize pointer and index */
+	int index = 0;
+	size_t count = len;
+		
+	// read char into data register
+	unsigned char data = inb(dev);
+	
+	// if char is enter key, new line
+	if (data == 13)
+	{
+		buffer[index] = '\0';
+		outb(dev, '\n');
+		count--;
+		index++;
+		return len - count;
+	}
 
-	// REMOVE THIS -- IT ONLY EXISTS TO AVOID UNUSED PARAMETER WARNINGS
-	// Failure to remove this comment and the following line *will* result in
-	// losing points for inattention to detail
-	(void)dev; (void)buffer;
+	 // backspace key
+	if (data == 127)
+	{
+		// buffer[index] = '\0';
+		outb(dev, '\b');   // Move the cursor back
+        outb(dev, ' ');    // Overwrite with a space
+        outb(dev, '\b');   // Move the cursor back again
+		index--;
+	}
 
-	// THIS MUST BE CHANGED TO RETURN THE CORRECT VALUE
-	return (int)len;
+	// delete key
+	if (data == 37)
+	{
+		// buffer[index] = '\0';
+		outb(dev, '\b');   // Move the cursor back
+        outb(dev, ' ');    // Overwrite with a space
+        outb(dev, '\b');   // Move the cursor back again
+		index--;
+	}
+
+	// write data to device and data to buffer array
+	outb(dev, data);
+	buffer[index] = data;
+
+	// decrement count
+	count--;
+
+	//increment index
+	index++;
+
+	return len - count;
 }
