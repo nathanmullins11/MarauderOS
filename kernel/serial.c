@@ -3,7 +3,6 @@
 #include <sys_req.h>
 
 #define ENTER_KEY 10
-#define SPACE_KEY 32
 #define B_KEY 98
 
 enum uart_registers {
@@ -73,16 +72,34 @@ int serial_poll(device dev, char *buffer, size_t len)
 	// read char into data register
 	unsigned char data = inb(dev);
 	
-	// if char is enter key, exit
+	// if char is enter key, new line
 	if (data == 13)
 	{
-		// char test[20] = {"\n"};
-		// sys_req(WRITE, COM1, test, sizeof(test));
 		buffer[index] = '\0';
 		outb(dev, '\n');
 		count--;
 		index++;
 		return len - count;
+	}
+
+	 // backspace key
+	if (data == 127)
+	{
+		// buffer[index] = '\0';
+		outb(dev, '\b');   // Move the cursor back
+        outb(dev, ' ');    // Overwrite with a space
+        outb(dev, '\b');   // Move the cursor back again
+		index--;
+	}
+
+	// delete key
+	if (data == 37)
+	{
+		// buffer[index] = '\0';
+		outb(dev, '\b');   // Move the cursor back
+        outb(dev, ' ');    // Overwrite with a space
+        outb(dev, '\b');   // Move the cursor back again
+		index--;
 	}
 
 	// write data to device and data to buffer array
