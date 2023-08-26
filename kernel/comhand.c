@@ -12,7 +12,7 @@ void comhand(void)
         int size_buffer = sys_req(READ, COM1, buf, sizeof(buf));
 
 		// check if the buffer is ended with a null terminator before evaluating content
-		if (buf[size_buffer] == '\0') {
+		if (buf[size_buffer-1] == '\0') {
 			// check if to run 'version' command
 			if ( strcmp("version", buf) == 0 ) {
 				version();
