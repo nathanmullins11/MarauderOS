@@ -1,2 +1,5 @@
 *.o
 kernel.bin
+.vscode
+compile_commands.json
+.cache
