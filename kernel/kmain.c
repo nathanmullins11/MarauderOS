@@ -8,6 +8,7 @@
 #include <comhand.h>
 #include <mpx/io.h>
 #include <version.h>
+#include <time.h>
 
 static void klogv(device dev, const char *msg)
 {
@@ -95,7 +96,7 @@ void kmain(void)
 	// the system.
 	klogv(COM1, "Transferring control to commhand...");
 
-	// version();  **version test**
+	// get_date(); 
 	comhand();
 	
 	// R4: __asm__ volatile ("int $0x60" :: "a"(IDLE));
