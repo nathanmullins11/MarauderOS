@@ -42,7 +42,7 @@ int serial_init(device dev)
 	if (dno == -1) {
 		return -1;
 	}
-	outb(dev + IER, 0x00);	//disable interrupts
+ 	outb(dev + IER, 0x00);	//disable interrupts
 	outb(dev + LCR, 0x80);	//set line control register
 	outb(dev + DLL, 115200 / 9600);	//set bsd least sig bit
 	outb(dev + DLM, 0x00);	//brd most significant bit
@@ -66,14 +66,24 @@ int serial_out(device dev, const char *buffer, size_t len)
 	return (int)len;
 }
 
+void clear_input_buffer(device dev) {
+    while (inb(dev) != 0) {
+        // Keep reading and discarding characters until the input buffer is empty
+    }
+}
+
 int serial_poll(device dev, char *buffer, size_t len)
 {
+	// clear the input buffer so no left over chars are read in
+    clear_input_buffer(dev);
+
 	/* initialize pointer and index */
 	int index = 0;
 	int cursor = index;
 	size_t count = len;
 
 	while (count > 0) {
+
 		// read char into data register
 		unsigned char data = inb(dev);
 		// if char is enter key, new line
@@ -89,37 +99,77 @@ int serial_poll(device dev, char *buffer, size_t len)
 			return index;
 		}
 
+		// space key
+		else if (data == 32)
+		{
+				// move characters to the right of the cursor
+				for (int i = index; i >= cursor; i--)
+				{
+					buffer[i + 1] = buffer[i];
+				}
+
+				// insert a space at the cursor position
+				buffer[cursor] = ' ';
+
+				// print the updated characters
+				for (int i = cursor; i <= index; i++)
+				{
+					outb(dev, buffer[i]);
+				}
+
+				// move cursor back to correct position
+				for (int temp_cursor = index; temp_cursor > cursor; temp_cursor--)
+				{
+					outb(dev, '\b');
+				}
+
+				// increment index and cursor
+				index++;
+				cursor++;
+		}
+
+
+
 		// backspace key
 		else if (data == 127)
 		{
-			outb(dev, '\b');   // Move the cursor back
-			outb(dev, ' ');    // Overwrite with a space
-			outb(dev, '\b');   // Move the cursor back again
-			// move chars after backspace to left
-			// for(int i = cursor; i < index; i++)
-			// {
-			// 	buffer[i-1] = buffer[i];
-			// 	outb(dev, buffer[i-1]);  // Print the updated character to the terminal
-			// }
-
-			// check if variables are 0
-			if(index > 0)
-			{
-				index--;
-			}
-			if(cursor > 0)
-			{
+			if (index > 0 && cursor > 0) {
+				// Move cursor back
+				outb(dev, '\b');
 				cursor--;
+
+				// shift characters in buffer left
+				for (int i = cursor; i < index - 1; i++) {
+					buffer[i] = buffer[i + 1];
+					outb(dev, buffer[i]);  // Print the updated character to the terminal
+				}
+
+				// overwrite last character with space
+				buffer[index - 1] = ' ';
+				outb(dev, ' ');
+
+				// Move cursor back to correct position
+				for (int temp_cursor = index; temp_cursor > cursor; temp_cursor--) {
+					outb(dev, '\b');
+				}
+
+				// Decrement index
+				index--;
+				// place null terminator at end of buffer
+				buffer[index] = '\0';
 			}
 		}
 
+		
 		// catches arrows, delete key, esc key
-		else if (data == '\033')
+		else if (data == '\033' || data == 27)
 		{
-			char esc_seq[3];  // Read the next two characters for the escape sequence
+			char esc_seq[5];  // Read the next two characters for the escape sequence
 			esc_seq[0] = inb(dev);
 			esc_seq[1] = inb(dev);
-			esc_seq[2] = '\0';
+			esc_seq[2] = inb(dev);
+			esc_seq[3] = inb(dev);
+			esc_seq[4] = '\0';
 
 			if (strcmp(esc_seq, "[C") == 0 && (cursor < index)) {
 				// Right arrow key pressed
@@ -127,50 +177,87 @@ int serial_poll(device dev, char *buffer, size_t len)
 				outb(dev, '\033');  // Escape character
 				outb(dev, '[');     // [
 				outb(dev, 'C');     // C
-				count--;
 				cursor++;
 			} else if (strcmp(esc_seq, "[D") == 0 && (cursor > 0)) {
 				// Left arrow key pressed
 				// Handle left arrow logic here
-				outb(dev, '\033');  // Escape character
+				outb(dev, '\033');  // escape character
 				outb(dev, '[');     // [
 				outb(dev, 'D');     // D
-				count--;
-				// check if cursor is at position 0
 				cursor--;
 			} else if (strcmp(esc_seq, "[A") == 0) {
 				// up arrow key pressed
 				// Handle up arrow logic here
 				// implement showing last command
-				count--;
 			} else if (strcmp(esc_seq, "[B") == 0) {
 				// down arrow key pressed
 				// Handle down arrow logic here
 				// nothing as of now
-				count--;
-			} else if (strcmp(esc_seq, "[3~") == 0) {
+			} else if ((strcmp(esc_seq, "[3~")) == 0) {
 				// delete key pressed
 				// Handle delete key logic here
-				outb(dev, ' ');
-				outb(dev, '\b');
+				if (index > cursor) 
+				{
+					// delete char right of the cursor
+					for (int i = cursor + 1; i < index; i++) {
+						buffer[i - 1] = buffer[i];
+						outb(dev, buffer[i - 1]);
+					}
+
+					// overwrite last character with space
+					buffer[index - 1] = ' ';
+					outb(dev, ' ');
+
+					// move cursor back to correct position
+					for (int temp_cursor = index; temp_cursor > cursor; temp_cursor--) {
+						outb(dev, '\b');
+					}
+
+					// decrement index
+					index--;
+				}
 			}
 		}
 		else if (data > 0)
 		{
-			// write data to device and data to buffer array
-			outb(dev, data);
-			buffer[index] = data;
+			if (index == 0)
+			{
+				outb(dev, data);
+				buffer[cursor] = data;
+				count--;
+				index++;
+				cursor++;
+			}
+			else
+			{
+			// move characters to the right of the cursor
+				for (int i = index; i >= cursor; i--)
+				{
+					buffer[i + 1] = buffer[i];
+				}
 
-			// decrement count
-			count--;
+				// insert a space at the cursor position
+				buffer[cursor] = data;
 
-			//increment index
-			index++;
+				// print the updated characters
+				for (int i = cursor; i <= index; i++)
+				{
+					outb(dev, buffer[i]);
+				}
 
-			// increment cursor
-			cursor++;
+				// move cursor back to correct position
+				for (int temp_cursor = index; temp_cursor > cursor; temp_cursor--)
+				{
+					outb(dev, '\b');
+				}
+
+				// increment index and cursor
+				index++;
+				cursor++;
+			}
 		}
-	}
 
+	}
 	return index;
 }
+
