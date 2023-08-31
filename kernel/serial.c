@@ -2,6 +2,7 @@
 #include <mpx/io.h>
 #include <sys_req.h>
 #include <string.h>
+#include <time.h>
 
 #define ENTER_KEY 10
 #define B_KEY 98
@@ -75,6 +76,8 @@ int serial_poll(device dev, char *buffer, size_t len)
 		// read char into data register
 		unsigned char data = inb(dev);
 		
+		//debugging
+	// get_date(); 
 		// if char is enter key, new line
 		if (data == 13)
 		{
@@ -83,7 +86,6 @@ int serial_poll(device dev, char *buffer, size_t len)
 			index++;
 
 			outb(dev, '\n');
-
 			return index;
 		}
 
