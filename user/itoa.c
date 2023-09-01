@@ -1,10 +1,5 @@
-// Nathan Mullins
+#include <string.h>
 
-/* FUTURE QUESTIONS
-    1. what do we do wuth negative numbers?
-    2. what is our max input # of type integer
-    3. do i need to account for if the user inputs something other than an integer
-*/
 // function will convert an integer to a string, will take in an integer
 // value, a place to store the string, and the base of the integer provided
 

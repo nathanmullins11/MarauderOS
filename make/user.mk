@@ -7,4 +7,5 @@ USER_OBJECTS=\
 	user/core.o\
 	user/itoa.o\
 	user/version.o\
-	user/time.o
+	user/time.o \
+	user/help.o 
