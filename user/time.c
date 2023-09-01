@@ -1,4 +1,4 @@
-// Riley Stauffer
+// Grant Stumpf - get_date
 
 #include <mpx/serial.h>
 #include <mpx/io.h>

@@ -3,6 +3,7 @@
 #include <itoa.h>
 #include <string.h>
 #include <version.h>
+#include <time.h>
 
 void comhand(void)
 {
@@ -18,7 +19,9 @@ void comhand(void)
 				version();
 			} else if ( strcmp("shutdown", buf) == 0 ) {
 				return;
-			} else {
+			} else if ( strcmp("get date", buf) == 0 ) {
+				get_date();
+			}else {
 				char error_msg[21] = "ERR: Invalid Command\n";
 				sys_req(WRITE, COM1, error_msg, strlen(error_msg));
 			}
