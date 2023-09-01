@@ -16,20 +16,24 @@ void get_date (void) {
     outb(0x70,0x07);
     unsigned char day = inb(0x71);
 
-    // //Read Month
-    // outb(0x70,0x08);
-    // unsigned char month = inb(0x71);
+    //Read Month
+    outb(0x70,0x08);
+    unsigned char month = inb(0x71);
 
-    // //Read Year
-    // outb(0x70,0x09);
-    // unsigned char year = inb(0x71);
+    //Read Year
+    outb(0x70,0x09);
+    unsigned char year = inb(0x71);
 
     char dayReadable[2];
      itoa(hexToDec(day), dayReadable, 10 );
-    //  char monthReadable = hexToDec(month);
-    //   char yearReadable = hexToDec(year);
 
-    char date[2] = {dayReadable[0], dayReadable[1],};
+      char monthReadable[2];
+     itoa(hexToDec(month), monthReadable, 10 );
+
+ char yearReadable[4];
+     itoa(hexToDec(year), yearReadable, 10 );
+
+    char date[8] = {monthReadable[0], monthReadable[1],'-',dayReadable[0], dayReadable[1],'-',yearReadable[0],yearReadable[1]};
 
     sys_req(WRITE, COM1, date , sizeof(date) ) ;
 
@@ -41,7 +45,7 @@ void get_date (void) {
 int hexToDec(uint8_t hex) {
 
     int hexOnes = hex & 0x0F;
-    int hexTens = ((hex & 0xF0)  4 ) * 10;
+    int hexTens = ((hex & 0xF0) >> 4 ) * 10;
 
     return hexOnes + hexTens;
 }
