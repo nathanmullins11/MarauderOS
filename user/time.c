@@ -1,4 +1,4 @@
-// Riley Stauffer
+// Grant Stumpf - get_date
 
 #include <mpx/serial.h>
 #include <mpx/io.h>
@@ -13,16 +13,16 @@ int hexToDec(uint8_t hex);
 void get_date (void) {
     
  //Read Day
-    // outb(0x70,0x07);
-    // unsigned char day = inb(0x71);
+    outb(0x70,0x07);
+    unsigned char day = inb(0x71);
 
-    // //Read Month
-    // outb(0x70,0x08);
-    // unsigned char month = inb(0x71);
+    //Read Month
+     outb(0x70,0x08);
+     unsigned char month = inb(0x71);
 
-    // //Read Year
-    // outb(0x70,0x09);
-    // unsigned char year = inb(0x71);
+     //Read Year
+     outb(0x70,0x09);
+     unsigned char year = inb(0x71);
 
     char dayReadable[2];
      itoa(hexToDec(day), dayReadable, 10 );
@@ -33,7 +33,7 @@ void get_date (void) {
  char yearReadable[4];
      itoa(hexToDec(year), yearReadable, 10 );
 
-    char date[8] = {monthReadable[0], monthReadable[1],'-',dayReadable[0], dayReadable[1],'-',yearReadable[0],yearReadable[1]};
+    char date[9] = {monthReadable[0], monthReadable[1],'-',dayReadable[0], dayReadable[1],'-',yearReadable[0],yearReadable[1],'\n'};
 
     sys_req(WRITE, COM1, date , sizeof(date) ) ;
 
