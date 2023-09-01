@@ -5,6 +5,7 @@
 #include <itoa.h>
 #include <string.h>
 #include <version.h>
+#include <time.h>
 #include <help.h>
 #include <mpx/io.h>
 
@@ -29,13 +30,15 @@ void comhand(void)
 			} else if ( strcmp("shutdown", buf) == 0 ) {
 				// execute shutdown (return to kmain.c)
 				return;
+			} else if ( strcmp("get date", buf) == 0 ) {
+				get_date();
 			} else if ( strcmp("help", buf) <= 0 ) {
 				// execute help command
 				// get the argument from the buffer
 				char argument[95]; 
 				memset(argument, 0, sizeof(argument)); 
 				memcpy(argument, buf + 5, size_buffer - 5);
-
+				
 				// pass argument to help command
 				help(argument);
 			} else {
