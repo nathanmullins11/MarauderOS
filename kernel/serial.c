@@ -2,6 +2,7 @@
 #include <mpx/io.h>
 #include <sys_req.h>
 #include <string.h>
+#include <time.h>
 #include <itoa.h>
 
 
@@ -86,6 +87,7 @@ int serial_poll(device dev, char *buffer, size_t len)
 
 		// read char into data register
 		unsigned char data = inb(dev);
+		
 		// if char is enter key, new line
 		if (data == 13)
 		{
@@ -95,7 +97,6 @@ int serial_poll(device dev, char *buffer, size_t len)
 			// new line means cursor starts at beginning
 			cursor = 0;
 			outb(dev, '\n');
-
 			return index;
 		}
 

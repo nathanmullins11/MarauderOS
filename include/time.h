@@ -5,4 +5,4 @@
 
 void time(void);
 
-// void get_date(void);
+void get_date(void);

@@ -2,10 +2,13 @@
 
 #include <mpx/serial.h>
 #include <mpx/io.h>
+#include <stdint.h>
 #include <sys_req.h>
 #include <string.h>
 #include <time.h>
+#include <itoa.h>
 
+int hexToDec(uint8_t hex);
 
 void get_date (void) {
     
@@ -21,29 +24,30 @@ void get_date (void) {
     // outb(0x70,0x09);
     // unsigned char year = inb(0x71);
 
-    // char date[] = [month, day, year];
+    char dayReadable[2];
+     itoa(hexToDec(day), dayReadable, 10 );
 
-    // sys_req(WRITE, COM1, date , sizeof(date) ) ;
+      char monthReadable[2];
+     itoa(hexToDec(month), monthReadable, 10 );
 
+ char yearReadable[4];
+     itoa(hexToDec(year), yearReadable, 10 );
 
+    char date[8] = {monthReadable[0], monthReadable[1],'-',dayReadable[0], dayReadable[1],'-',yearReadable[0],yearReadable[1]};
 
-
+    sys_req(WRITE, COM1, date , sizeof(date) ) ;
 
 
 
 }
 
 
-char hexToASCII(char hex) {
-    if (hex >= '0' && hex <= '9') {
-        return hex - '0';
-    } else if (hex >= 'A' && hex <= 'F') {
-        return hex - 'A' + 10;
-    } else if (hex >= 'a' && hex <= 'f') {
-        return hex - 'a' + 10;
-    } else {
-        return '\0';
-    }
+int hexToDec(uint8_t hex) {
+
+    int hexOnes = hex & 0x0F;
+    int hexTens = ((hex & 0xF0) >> 4 ) * 10;
+
+    return hexOnes + hexTens;
 }
 
 
