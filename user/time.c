@@ -10,20 +10,20 @@
 void get_date (void) {
     
  //Read Day
-    outb(0x70,0x07);
-    unsigned char day = inb(0x71);
+    // outb(0x70,0x07);
+    // unsigned char day = inb(0x71);
 
-    //Read Month
-    outb(0x70,0x08);
-    unsigned char month = inb(0x71);
+    // //Read Month
+    // outb(0x70,0x08);
+    // unsigned char month = inb(0x71);
 
-    //Read Year
-    outb(0x70,0x09);
-    unsigned char year = inb(0x71);
+    // //Read Year
+    // outb(0x70,0x09);
+    // unsigned char year = inb(0x71);
 
-    char date[] = [month, day, year];
+    // char date[] = [month, day, year];
 
-    sys_req(WRITE, COM1, date , sizeof(date) ) ;
+    // sys_req(WRITE, COM1, date , sizeof(date) ) ;
 
 
 
