@@ -165,36 +165,49 @@ int serial_poll(device dev, char *buffer, size_t len)
 		// catches arrows, delete key, esc key
 		else if (data == '\033' || data == 27)
 		{
-			char esc_seq[5];  // Read the next two characters for the escape sequence
+			char esc_seq[1] = {0};  // Read the next two characters for the escape sequence
+			inb(dev); // rid of bracket
+			while (esc_seq[0] != 'C' || esc_seq[0] != 'D' || esc_seq[0] != 'A' || esc_seq[0] != 'B' || esc_seq[0] != '3')
+			{
 			esc_seq[0] = inb(dev);
-			esc_seq[1] = inb(dev);
-			esc_seq[2] = inb(dev);
-			esc_seq[3] = inb(dev);
-			esc_seq[4] = '\0';
-
-			if (strcmp(esc_seq, "[C") == 0 && (cursor < index)) {
+			//esc_seq[1] = '\0';
+			
+			if (esc_seq[0] == 'C') {
+				while (cursor != index )
+				{
 				// Right arrow key pressed
 				// Handle right arrow logic here
 				outb(dev, '\033');  // Escape character
 				outb(dev, '[');     // [
 				outb(dev, 'C');     // C
 				cursor++;
-			} else if (strcmp(esc_seq, "[D") == 0 && (cursor > 0)) {
+				break;
+				}
+				break;
+			} else if (esc_seq[0] == 'D') {
+				while (cursor != 0)
+				{
 				// Left arrow key pressed
 				// Handle left arrow logic here
 				outb(dev, '\033');  // escape character
 				outb(dev, '[');     // [
 				outb(dev, 'D');     // D
 				cursor--;
-			} else if (strcmp(esc_seq, "[A") == 0) {
+				break;
+				}
+				break;
+			} else if (esc_seq[0] == 'A') {
 				// up arrow key pressed
 				// Handle up arrow logic here
 				// implement showing last command
-			} else if (strcmp(esc_seq, "[B") == 0) {
+				break;
+			} else if (esc_seq[0] == 'B') {
 				// down arrow key pressed
 				// Handle down arrow logic here
 				// nothing as of now
-			} else if ((strcmp(esc_seq, "[3~")) == 0) {
+				break;
+			} else if (esc_seq[0] == '3') {
+				inb(dev); // rid of ~
 				// delete key pressed
 				// Handle delete key logic here
 				if (index > cursor) 
@@ -217,7 +230,18 @@ int serial_poll(device dev, char *buffer, size_t len)
 					// decrement index
 					index--;
 				}
-			}
+			  // }
+		    }
+
+		  }
+			// while(esc_seq[0] == 'C' || esc_seq[0] == 'D' || esc_seq[0] == 'A' || esc_seq[0] == 'B')
+			// esc_seq[0] = inb(dev);
+			// while (esc_seq[0] == '[' || esc_seq[0] == 'C' || esc_seq[0] == 'D' || esc_seq[0] == 'A' || esc_seq[0] == 'B' || esc_seq[0] == '3' || esc_seq[0] == '~')
+			// {
+			// 	// inb(dev); // rid of bracket
+			// 	inb(dev);
+			// 	esc_seq[0] = inb(dev);
+			// }
 		}
 		else if (data > 0)
 		{
