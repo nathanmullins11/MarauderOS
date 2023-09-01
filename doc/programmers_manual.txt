@@ -1,0 +1,28 @@
+Programmers Manual
+
+Function
+    char* itoa(int value, char* destination, int base) 
+Description
+    converts an integer to a string value with a specified base (ie. binary, hex, decimal, etc.) Function takes in an integer of base 10, an array to store the converted integer, and a numerical base used to represent the value as a string. Returns the converted string into the destination array. 
+Parameters: 
+    int value - integer to convert to string. Integers must be non-negative and not exceed ((2^31)-1), since an int is 4 bytes, or 32 bits. 
+
+    char* destination - array to store string. Size of destination must not exceed 50 bytes of storage. 
+
+    int base - numerical base used to represent the value as a string. Base must be between and including 2-36 (after 36, the number of unique symbols required to represent the digits exceeds the number of standard alphanumeric characters (0-9, A-Z) available)
+
+
+Function
+    void version(void) 
+Description
+    prints the most updated/current version of the MarauderOS along with the last compilation date. Function is called by the user in the terminal by typing “version” when running MarauderOS. 
+Parameters
+    version() takes no parameters and does not return anything. 
+
+
+Function
+    void clear_input_buffer(device dev) 
+Description
+    clears the specified device of characters to flush unwanted/extra output characters, ideally before writing then reading output to the device. Does not return anything. 
+Parameters: 
+    device dev - a communication port for serial communication limited to predefined devices COM1, CMO2, COM3, COM4, which represent addresses for serial communication ports. 
