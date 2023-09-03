@@ -3,19 +3,22 @@ Programmers Manual
 Function
     char* itoa(int value, char* destination, int base) 
 Description
-    converts an integer to a string value with a specified base (ie. binary, hex, decimal, etc.) Function takes in an integer of base 10, an array to store the converted integer, and a numerical base used to represent the value as a string. Returns the converted string into the destination array. 
+    converts an integer to a string value with a specified base (ie. binary, hex, decimal, etc.) Function takes in an integer of base 10, an array to 
+    store the converted integer, and a numerical base used to represent the value as a string. Returns the converted string into the destination array. 
 Parameters: 
     int value - integer to convert to string. Integers must be non-negative and not exceed ((2^31)-1), since an int is 4 bytes, or 32 bits. 
 
     char* destination - array to store string. Size of destination must not exceed 50 bytes of storage. 
 
-    int base - numerical base used to represent the value as a string. Base must be between and including 2-36 (after 36, the number of unique symbols required to represent the digits exceeds the number of standard alphanumeric characters (0-9, A-Z) available)
+    int base - numerical base used to represent the value as a string. Base must be between and including 2-36 (after 36, the number of unique symbols 
+    required to represent the digits exceeds the number of standard alphanumeric characters (0-9, A-Z) available)
 
 
 Function
     void version(void) 
 Description
-    prints the most updated/current version of the MarauderOS along with the last compilation date. Function is called by the user in the terminal by typing “version” when running MarauderOS. 
+    prints the most updated/current version of the MarauderOS along with the last compilation date. Function is called by the user in the terminal by 
+    typing “version” when running MarauderOS. 
 Parameters
     version() takes no parameters and does not return anything. 
 
@@ -23,6 +26,54 @@ Parameters
 Function
     void clear_input_buffer(device dev) 
 Description
-    clears the specified device of characters to flush unwanted/extra output characters, ideally before writing then reading output to the device. Does not return anything. 
+    clears the specified device of characters to flush unwanted/extra output characters, ideally before writing then reading output to the device. 
+    Does not return anything. 
 Parameters: 
-    device dev - a communication port for serial communication limited to predefined devices COM1, CMO2, COM3, COM4, which represent addresses for serial communication ports. 
+    device dev - a communication port for serial communication limited to predefined devices COM1, CMO2, COM3, COM4, which represent addresses for 
+    serial communication ports. 
+
+
+Function
+    int serial_poll(device dev, char *buffer, size_t len) 
+Description
+    polls a device dev for data and will store it in an array one character at a time until a new line (enter key) is encountered or the buffer is 
+    full. Returns the number of bytes read from dev, or a negative number if an error has occurred.
+Parameters:
+    device dev - a communication port for serial communication limited to predefined devices COM1, COM2, COM3, COM4, which represent addresses for 
+    serial communication ports. 
+
+    char* buffer - user provided buffer that stores chars being polled from dev. Size is predefined. 
+
+    size_t len - length of buffer, allowable amount of characters to enter buffer without overflow. 
+
+
+Function
+    void help(const char* cmd)
+Description
+    Provides usage instructions/ description for all available commands given to the user. Does not return anything.
+Parameters
+    const char* cmd - Optional parameter cmd that provides specific instruction/description about the parameter if it is a command that exists. 
+    Parameter cmd must be of length smaller than the defined buffer size.
+
+
+Function
+    void comhand(void)
+Description
+
+Parameters
+
+
+Function
+    char hexToDec(uint8_t hex)
+Description
+
+Parameters
+    uint8_t hex -
+
+
+Function
+    void get_date(void)
+Description
+
+Parameters
+
