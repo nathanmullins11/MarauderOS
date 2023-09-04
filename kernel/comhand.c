@@ -30,7 +30,7 @@ void comhand(void)
 			} else if ( strcmp("shutdown", buf) == 0 ) {
 				// execute shutdown (return to kmain.c)
 				return;
-			} else if ( strcmp("get date", buf) == 0 ) {
+			} else if ( strcmp("getdate", buf) == 0 ) {
 				get_date();
 			} else if ( strcmp("help", buf) <= 0 ) {
 				// execute help command
