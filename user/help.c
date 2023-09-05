@@ -8,7 +8,7 @@ void help(const char *cmd) {
     char msg_version[] = "Command: version\n\nDescription:\n  Prints the current version of MarauderOS and last build date to the terminal.\n\nUsage:\n  version\n";
     char msg_shutdown[] = "Command: shutdown\n\nDescription:\n  Exits MarauderOS immediately.\n\nUsage:\n  shutdown\n";
     char msg_getdate[] = "Command: getdate\n\nDescription:\n  Prints the current date of MarauderOS to the terminal.\n\nUsage:\n  getdate\n";
-    char msg_all[] = "Available Commands\n - version\n - shutdown\n - getdate\n";
+    char msg_all[] = "Available Commands\n - version\n - shutdown\n - getdate\n - setdate\n";
 
     if ( strcmp(cmd, "version") == 0 ) {
         // print help message for 'version' command

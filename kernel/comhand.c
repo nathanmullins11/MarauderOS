@@ -14,6 +14,8 @@ void comhand(void)
 	// print welcoming message
 	char msg[] = "Welcome to MarauderOS | Use 'help' command to see list of commands\n";
 	sys_req(WRITE, COM1, msg, sizeof(msg));
+			
+	char *command;
 
 	// loop forever until shutdown
     for ( ;; ) 
@@ -24,34 +26,45 @@ void comhand(void)
 
 		// check if the buffer is ended with a null terminator before evaluating content
 		if (buf[size_buffer] == '\0') {
-			if ( strcmp("version", buf) == 0 ) {
-				// execute verion command
-				version();
-			} else if ( strcmp("shutdown", buf) == 0 ) {
-				// execute shutdown (return to kmain.c)
-				return;
-			} else if ( strcmp("getdate", buf) == 0 ) {
-				get_date();
-			} else if ( strcmp("get time", buf) == 0 ) {
-				get_time();
-			}else if ( strcmp("set time", buf) <= 0 ) {
-				char argument[100]; 
-				memset(argument, 0, sizeof(argument)); 
-				memcpy(argument, buf + 9, size_buffer - 9);
-				set_time(argument);
-			}else if ( strcmp("help", buf) <= 0 ) {
-				// execute help command
-				// get the argument from the buffer
-				char argument[95]; 
-				memset(argument, 0, sizeof(argument)); 
-				memcpy(argument, buf + 5, size_buffer - 5);
-				
-				// pass argument to help command
-				help(argument);
-			} else {
-				// command not recognized 
-				char error_msg[] = "ERR: Invalid Command\n";
-				sys_req(WRITE, COM1, error_msg, strlen(error_msg));
+
+			// get the user's command from input
+			command = strtok(buf, " ");
+
+			// if there is a command, start comparing
+			if (command) {
+				if ( strcmp(command, "version") == 0 ) {
+					// run the version command
+                	version();
+				} else if ( strcmp(command, "shutdown") == 0 ) {
+					// return to kmain() to shutdown OS
+                	return;
+				} else if ( strcmp(command, "help") == 0 ) {
+					// get parameters from the buffer
+                	char *param = strtok(NULL, " ");
+
+					// pass parameter to help command
+					if (param) {
+                    	help(param);
+					} else {
+						help(" ");
+					}
+				} else if ( strcmp(command, "getdate") == 0 ) {
+					// run the get date command
+					get_date();
+				} else if ( strcmp(command, "setdate") == 0 ) {
+					// run the set date command
+
+				} else if ( strcmp(command, "settime") == 0 ) {
+					// run the set time command
+					
+				} else if ( strcmp(command, "gettime") == 0 ) {
+					// run the get time command
+					
+				} else {
+					// command not recognized
+					char error_msg[] = "ERR: Invalid Command\n";
+					sys_req(WRITE, COM1, error_msg, strlen(error_msg));
+				}
 			}
 
 		}
