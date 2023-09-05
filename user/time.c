@@ -9,6 +9,8 @@
 #include <itoa.h>
 
 int hexToDec(uint8_t hex);
+//const char* extract_time(const char* command);
+int strncmp(const char* str1, const char* str2, size_t n);
 
 void get_date (void) {
     
@@ -38,9 +40,79 @@ void get_date (void) {
     sys_req(WRITE, COM1, date , sizeof(date) ) ;
 
 
-
 }
 
+void get_time(void)
+{
+    // Read hours
+    outb(0x70, 0x04);
+    unsigned char hour = inb(0x71);
+
+    // Read minutes
+    outb(0x70, 0x02);
+    unsigned char min = inb(0x71);
+
+    // Read seconds
+    outb(0x70, 0x00);
+    unsigned char sec = inb(0x71);
+
+    int decimalHour = hexToDec(hour);
+    int decimalMin = hexToDec(min);
+    int decimalSec = hexToDec(sec);
+
+    char time[9];
+
+    // Format time with leading zeros
+    if (decimalHour < 10) 
+    {
+        itoa(decimalHour, &time[1], 10);
+        time[0] = '0';
+    } 
+    else 
+    {
+        itoa(decimalHour, &time[0], 10);
+    }
+
+    time[2] = ':';
+
+    if (decimalMin < 10) 
+    {
+        itoa(decimalMin, &time[4], 10);
+        time[3] = '0';
+    } 
+    else 
+    {
+        itoa(decimalMin, &time[3], 10);
+    }
+
+    time[5] = ':';
+
+    if (decimalSec < 10) 
+    {
+        itoa(decimalSec, &time[7], 10);
+        time[6] = '0';
+    } 
+    else 
+    {
+        itoa(decimalSec, &time[6], 10);
+    }
+
+    time[8] = '\n';
+    
+    // Display time
+    sys_req(WRITE, COM1, time, sizeof(time));
+}
+
+void set_time(const char *command)
+{
+    //command[8] = '\n';
+    sys_req(WRITE, COM1, command, 9);
+
+    
+    
+
+
+}
 
 int hexToDec(uint8_t hex) {
 
@@ -50,63 +122,35 @@ int hexToDec(uint8_t hex) {
     return hexOnes + hexTens;
 }
 
+/**const char* extract_time(const char* command)
+{
+    const char* delimiter = "set time ";
+    const char* timeStart = strstr(command, delimiter);
 
-// #define RTC_INDEX_PORT 0x70
-// #define RTC_DATA_PORT 0x71
+    if (timeStart != NULL) 
+    {
+        return timeStart + strlen(delimiter);
+    } 
+    else 
+    {
+        return NULL;
+    }
+}*/
+
+int strncmp(const char* str1, const char* str2, size_t n) 
+{
+    for (size_t i = 0; i < n; i++) 
+    {
+        if (str1[i] != str2[i]) 
+        {
+            return (int)(str1[i]) - (int)(str2[i]);
+        }
+    }
+    return 0; // The first n characters match
+}
 
 
-// void get_time() //get time and date
-// {
-//     //Read Hours
-//     outb(RTC_INDEX_PORT,0x04);
-//     unsigned char hour = inb(0x71);
 
-//     //Read Minutes
-//     outb(RTC_INDEX_PORT,0x02);
-//     unsigned char minute = inb(0x71);
-
-//     //Read Seconds
-//     outb(RTC_INDEX_PORT,0x00);
-//     unsigned char second = inb(0x71);
-// }
-
-// unsigned char convert_from_cdb(unsigned char dec)
-// {
-//     switch(dec)
-//     {
-//         case '0x00': 
-//             return 0x30;
-//             break;
-//         case '0x01':
-//             return 0x31;
-//             break;
-//         case '0x02': 
-//             return 0x32;
-//             break;
-//         case '0x03':
-//             return 0x33;
-//             break;
-//         case '0x04': 
-//             return 0x34;
-//             break;
-//         case '0x05':
-//             return 0x35;
-//             break;
-//         case '0x06': 
-//             return 0x36;
-//             break;
-//         case '0x07':
-//             return 0x37;
-//             break;
-//         case '0x08': 
-//             return 0x39;
-//             break;
-//         case '0x09':
-//             return 0x39;
-//             break;
-//     }
-
-// }
 
 
 

@@ -32,7 +32,14 @@ void comhand(void)
 				return;
 			} else if ( strcmp("getdate", buf) == 0 ) {
 				get_date();
-			} else if ( strcmp("help", buf) <= 0 ) {
+			} else if ( strcmp("get time", buf) == 0 ) {
+				get_time();
+			}else if ( strcmp("set time", buf) <= 0 ) {
+				char argument[100]; 
+				memset(argument, 0, sizeof(argument)); 
+				memcpy(argument, buf + 9, size_buffer - 9);
+				set_time(argument);
+			}else if ( strcmp("help", buf) <= 0 ) {
 				// execute help command
 				// get the argument from the buffer
 				char argument[95]; 
