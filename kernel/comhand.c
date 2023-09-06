@@ -54,13 +54,16 @@ void comhand(void)
 				} else if ( strcmp(command, "setdate") == 0 ) {
 					// run the set date command
 
-				} else if ( strcmp(command, "settime") == 0 ) {
-					// run the set time command
-					
 				} else if ( strcmp(command, "gettime") == 0 ) {
 					// run the get time command
-					
-				} else {
+					get_time();
+				} else if ( strcmp(command, "settime") <= 0 ) {
+					// run the set time command
+					char argument[100]; 
+					memset(argument, 0, sizeof(argument)); 
+					memcpy(argument, command + 8, size_buffer - 8);
+					set_time(argument);
+				}  else {
 					// command not recognized
 					char error_msg[] = "ERR: Invalid Command\n";
 					sys_req(WRITE, COM1, error_msg, strlen(error_msg));
