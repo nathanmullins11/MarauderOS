@@ -8,4 +8,5 @@ USER_OBJECTS=\
 	user/itoa.o\
 	user/version.o\
 	user/time.o \
-	user/help.o 
+	user/help.o \
+	user/doubly_linked_list.o
