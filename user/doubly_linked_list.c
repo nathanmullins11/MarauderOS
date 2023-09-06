@@ -5,33 +5,33 @@
 
 // insert node at the front
 void insertFront(struct Node** head, char* data) {
-    // Allocate memory for newNode
+    // dynamically allocate memory for newNode
     struct Node* newNode = (struct Node*)sys_alloc_mem(sizeof(struct Node));
 
-    // Determine the length of the data
+    // get length of data
     size_t data_len = strlen(data);
 
-    // Allocate memory for data in the new node
+    // dynamically allocate memory for data in the new node
     newNode->data = (char*)sys_alloc_mem(data_len + 1); // +1 for null terminator
 
-    // Copy the data character by character
+    // copy data into new node
     for (size_t i = 0; i < data_len; i++) {
         newNode->data[i] = data[i];
     }
 
-    // Null-terminate the data in the new node
+    // null-terminate data in the new node at end
     newNode->data[data_len] = '\0';
 
-    // Make newNode the new head
+    // make newNode the head of linked list
     newNode->next = (*head);
     newNode->prev = NULL;
 
-    // Update the previous of the current head (if it exists) to point to newNode
+    // update previous of the current head if it is not null to point to newNode
     if ((*head) != NULL) {
         (*head)->prev = newNode;
     }
 
-    // Update head to point to newNode
+    // update head to point to newNode
     (*head) = newNode;
 }
 
@@ -40,14 +40,13 @@ void insertFront(struct Node** head, char* data) {
 void insertAfter(struct Node* prev_node, char* data) {
   // check if previous node is null
   if (prev_node == NULL) {
-   // printf("previous node cannot be null");
     return;
   }
 
-  // allocate memory for newNode
+  // dynamically allocate memory for newNode
   struct Node* newNode = (struct Node*)sys_alloc_mem(sizeof(struct Node));
 
-  // assign data to newNode
+  // add data to newNode
   newNode->data = data;
 
   // set next of newNode to next of prev node
@@ -66,7 +65,7 @@ void insertAfter(struct Node* prev_node, char* data) {
 
 // insert a newNode at the end of the list
 void insertEnd(struct Node** head, char* data) {
-  // allocate memory for node
+  // dynamically allocate memory for node
   struct Node* newNode = (struct Node*)sys_alloc_mem(sizeof(struct Node));
 
   // assign data to newNode
@@ -75,7 +74,7 @@ void insertEnd(struct Node** head, char* data) {
   // assign null to next of newNode
   newNode->next = NULL;
 
-  // store the head node temporarily (for later use)
+  // store the head node temporarily
   struct Node* temp = *head;
 
   // if the linked list is empty, make the newNode as head node
