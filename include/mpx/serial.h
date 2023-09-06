@@ -32,7 +32,13 @@ int serial_out(device dev, const char *buffer, size_t len);
  @param count The maximum number of bytes to read
  @return The number of bytes read on success, a negative number on failure
 */   		   
-
 int serial_poll(device dev, char *buffer, size_t len);
+
+/**
+ * @brief reads and discards characters until the input buffer is empty
+ * 
+ * @param dev address of communication port for serial communication
+ */
+void clear_input_buffer(device dev);
 
 #endif

@@ -77,3 +77,40 @@ Description
 
 Parameters
 
+
+Function
+    void insertFront(struct Node** head, char* data);
+Description
+
+Parameters
+
+
+Function
+    void insertAfter(struct Node* prev_node, char* data);
+Description
+
+Parameters
+
+
+Function
+    void insertEnd(struct Node** head, char* data);
+Description
+
+Parameters
+
+
+Function
+    void deleteNode(struct Node** head, struct Node* del_node);
+Description
+
+Parameters
+
+Structure
+    struct Node {
+    char* data;
+    struct Node* next;
+    struct Node* prev;
+    };
+Description
+
+Parameters

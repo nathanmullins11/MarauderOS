@@ -1,7 +1,5 @@
 #include <string.h>
 
-// function will convert an integer to a string, will take in an integer
-// value, a place to store the string, and the base of the integer provided
 
 char* itoa(int value, char* destination, int base)
 {
