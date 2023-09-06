@@ -97,7 +97,14 @@ int serial_poll(device dev, char *buffer, size_t len)
 	/* initialize pointer, index, and count */
 	int index = 0;
 	int cursor = index;
+
+	size_t count = len;
+			
+	outb(dev, '>');
+	outb(dev, ' ');
+
 	size_t count = len; // keep track of room left in buffer
+
 
 	// while buffer is not full
 	while (count > 0) {

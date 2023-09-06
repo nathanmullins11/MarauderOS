@@ -44,6 +44,27 @@ void get_date (void) {
 
 }
 
+void set_date(uint8_t day, uint8_t month, uint8_t year) {
+
+    //needs input filtering
+
+     cli();
+      outb(0x70,0x07);
+      outb(0x71,day);
+      sti(); 
+
+       cli(); 
+      outb(0x70,0x08);
+      outb(0x71,month);
+      sti(); 
+
+     cli(); 
+      outb(0x70,0x09);
+      outb(0x71,year);
+      sti(); 
+
+}
+
 void get_time(void)
 {
     // Read hours

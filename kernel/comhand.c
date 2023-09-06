@@ -1,6 +1,7 @@
 #include "mpx/device.h"
 #include "mpx/serial.h"
 #include <comhand.h>
+#include <stdlib.h>
 #include <sys_req.h>
 #include <itoa.h>
 #include <string.h>
@@ -9,12 +10,24 @@
 #include <help.h>
 #include <mpx/io.h>
 
+/*
+ TODO list
+ - top of code documentation 
+ - help command
+	- update to include all commands 
+ - time.c -> error message for settime
+ - add doxygen for h files
+	- help.h
+	- comhand.h
+*/
+
 void comhand(void)
 {
 	// print welcoming message
 	char msg[] = "Welcome to MarauderOS | Use 'help' command to see list of commands\n";
 	sys_req(WRITE, COM1, msg, sizeof(msg));
 			
+	// pointer to store command from user input
 	char *command;
 
 	// loop forever until shutdown
@@ -53,17 +66,46 @@ void comhand(void)
 					get_date();
 				} else if ( strcmp(command, "setdate") == 0 ) {
 					// run the set date command
+					char *param = strtok(NULL, " ");
 
+					// check if there is a parameter
+					if (param) {
+						// extrapolate the day, month, and year
+						char *day_str = strtok(param, "-");
+						char *month_str = strtok(NULL, "-");
+						char *year_str = strtok(NULL, "-");
+
+						// convert to integer
+						int day = atoi(day_str);
+						int month = atoi(month_str);
+						int year = atoi(year_str);
+						
+						// pass into setdate function
+						set_date(day, month, year);
+					} else {
+						// no param, display error code 
+						char error_msg[] = "ERR: command needs parameter | run `help setdate`\n";
+						sys_req(WRITE, COM1, error_msg, strlen(error_msg));
+					}
 				} else if ( strcmp(command, "gettime") == 0 ) {
 					// run the get time command
 					get_time();
-				} else if ( strcmp(command, "settime") <= 0 ) {
+				} else if ( strcmp(command, "settime") == 0 ) {
 					// run the set time command
-					char argument[100]; 
-					memset(argument, 0, sizeof(argument)); 
-					memcpy(argument, command + 8, size_buffer - 8);
-					set_time(argument);
-				}  else {
+					char *param = strtok(NULL, " ");
+
+					// pass command into settime function 
+					if (param) {
+						set_time(param);
+					} else {
+						// no param, print error
+						char error_msg[] = "ERR: command needs parameter | run `help settime`\n";
+						sys_req(WRITE, COM1, error_msg, strlen(error_msg));
+					}
+				} else if ( strcmp(command, "clear") == 0 ) {
+					// run the clear command
+					sys_req(WRITE, COM1, '\033[2J', 4);
+				} else {
 					// command not recognized
 					char error_msg[] = "ERR: Invalid Command\n";
 					sys_req(WRITE, COM1, error_msg, strlen(error_msg));
