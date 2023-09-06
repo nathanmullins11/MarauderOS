@@ -9,12 +9,27 @@
 #include <help.h>
 #include <mpx/io.h>
 
+/*
+ TODO list
+ - implement all commands in comhand
+	- setdate -> get param and pass into function
+	- settime -> updated to use strtok
+ - top of code documentation 
+ - help command
+	- update to include all commands 
+ - time.c -> error message for settime
+ - add doxygen for h files
+	- help.h
+	- comhand.h
+*/
+
 void comhand(void)
 {
 	// print welcoming message
 	char msg[] = "Welcome to MarauderOS | Use 'help' command to see list of commands\n";
 	sys_req(WRITE, COM1, msg, sizeof(msg));
 			
+	// pointer to store command from user input
 	char *command;
 
 	// loop forever until shutdown
@@ -63,7 +78,10 @@ void comhand(void)
 					memset(argument, 0, sizeof(argument)); 
 					memcpy(argument, command + 8, size_buffer - 8);
 					set_time(argument);
-				}  else {
+				} else if ( strcmp(command, "clear") == 0 ) {
+					// run the clear command
+					sys_req(WRITE, COM1, '\033[2J', 4);
+				} else {
 					// command not recognized
 					char error_msg[] = "ERR: Invalid Command\n";
 					sys_req(WRITE, COM1, error_msg, strlen(error_msg));

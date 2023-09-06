@@ -82,6 +82,9 @@ int serial_poll(device dev, char *buffer, size_t len)
 	int index = 0;
 	int cursor = index;
 	size_t count = len;
+			
+	outb(dev, '>');
+	outb(dev, ' ');
 
 	while (count > 0) {
 
