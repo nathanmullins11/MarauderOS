@@ -72,15 +72,6 @@ void insertAfter(struct Node* prev_node, char* data);
 void insertEnd(struct Node** head, char* data);
 
 /**
-<<<<<<< HEAD
- * @brief delete specified node from linked list
- * 
- * @param head points to the front or "head" of linked list
- * @param del_node points to node to be deleted from linked list
- */
-void deleteNode(struct Node** head, struct Node* del_node);
-
-=======
  * @brief 
  * 
  * @param head 
@@ -95,7 +86,6 @@ void deleteNode(struct Node** head, struct Node* del_node);
  */
 void displayList(struct Node* node);
 
->>>>>>> a54a4c8 (update/clean serail.c)
 
 
 
