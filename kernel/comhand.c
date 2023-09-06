@@ -25,6 +25,19 @@ void comhand(void)
 {
 	// print welcoming message
 	char msg[] = "Welcome to MarauderOS | Use 'help' command to see list of commands\n";
+	// secondary welcome message
+	char picture_msg[] =
+	"	 __  __                                 _                     ____    _____ \n"
+	"	|  |/  |                               | |                   / __ |  / ____|\n"
+	"	| |  / |  __ _  _ __   __ _  _   _   __| |  ___  _ __  ___  | |  | || (___  \n"
+	"	| |||| | / _` || '__| / _` || | | | / _` | / _ || '__|/ __| | |  | | |___ | \n"
+	"	| |  | || (_| || |   | (_| || |_| || (_| ||  __/| |   |__ | | |__| | ____) |\n"
+	"        |_|  |_| |__,_||_|    |__,_| |__,_| |__,_| |___||_|   |___/  |____/ |_____/ \n"
+    "                                                                               \n"
+    "                                                                               \n";
+
+
+	sys_req(WRITE, COM1, picture_msg, sizeof(picture_msg));
 	sys_req(WRITE, COM1, msg, sizeof(msg));
 			
 	// pointer to store command from user input
