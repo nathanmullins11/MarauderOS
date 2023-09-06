@@ -7,10 +7,12 @@
 #include <string.h>
 #include <time.h>
 #include <itoa.h>
+#include <stdlib.h>
+#include <mpx/interrupts.h>
 
 int hexToDec(uint8_t hex);
-//const char* extract_time(const char* command);
-int strncmp(const char* str1, const char* str2, size_t n);
+uint8_t decToHex(int decimal);
+int isValidTimeFormat(const char* input);
 
 void get_date (void) {
     
@@ -105,13 +107,83 @@ void get_time(void)
 
 void set_time(const char *command)
 {
-    //command[8] = '\n';
-    sys_req(WRITE, COM1, command, 9);
+    char newLine[1] = "\n";
+    if(isValidTimeFormat(command) != 1)
+    {
+        //sys_req(WRITE, COM1, command, 9);
+        sys_req(WRITE, COM1, "try again", 9);
+        sys_req(WRITE, COM1, newLine, 1);
+        return;
+    }
 
-    
-    
+    // Convert to integer
+    int hh = atoi(command);
+    int mm = atoi(command + 3);
+    int ss = atoi(command + 6);
 
+    // Convert to hexadecimal
+    uint8_t hexHH = decToHex(hh);
+    uint8_t hexMM = decToHex(mm);
+    uint8_t hexSS = decToHex(ss);
 
+    // Set Hours
+    cli(); // disable interrupt
+    outb(0x70,0x04);
+    outb(0x71, hexHH);
+    sti(); //enable interrupt
+
+    // Set Minutes
+    cli(); 
+    outb(0x70,0x02);
+    outb(0x71, hexMM);
+    sti(); 
+
+    // Set Seconds
+    cli(); 
+    outb(0x70,0x00);
+    outb(0x71, hexSS);
+    sti();
+
+    sys_req(WRITE, COM1, newLine, 1);
+}
+
+int isValidTimeFormat(const char* input)
+{
+    size_t len = strlen(input);
+    if (len != 8)
+    {
+        return 0; // Incorrect length
+    }
+
+    for (int i = 0; i < 8; i++) 
+    {
+        if (i == 2 || i == 5) 
+        {
+            if (input[i] != ':') 
+            {
+                return 0; // Expected ':' at these positions
+            }
+        } 
+        else 
+        {
+            if (input[i] < '0' || input[i] > '9') 
+            {
+                return 0; // Invalid character
+            }
+        }
+    }
+
+    int hh = atoi(input);
+    int mm = atoi(input + 3);
+    int ss = atoi(input + 6);
+
+    // Checks if time is within valid range (00:00:00 - 23:59:59)
+    if (hh < 0 || hh > 24 || mm < 0 || mm > 59 || ss < 0 || ss > 59) 
+    {
+        return 0;
+    }
+
+    return 1;
 }
 
 int hexToDec(uint8_t hex) {
@@ -122,22 +194,13 @@ int hexToDec(uint8_t hex) {
     return hexOnes + hexTens;
 }
 
-/**const char* extract_time(const char* command)
+uint8_t decToHex(int decimal) 
 {
-    const char* delimiter = "set time ";
-    const char* timeStart = strstr(command, delimiter);
+    return (uint8_t)((decimal / 10) << 4 | (decimal % 10));
+}
 
-    if (timeStart != NULL) 
-    {
-        return timeStart + strlen(delimiter);
-    } 
-    else 
-    {
-        return NULL;
-    }
-}*/
 
-int strncmp(const char* str1, const char* str2, size_t n) 
+/*int strncmp(const char* str1, const char* str2, size_t n) 
 {
     for (size_t i = 0; i < n; i++) 
     {
@@ -148,37 +211,4 @@ int strncmp(const char* str1, const char* str2, size_t n)
     }
     return 0; // The first n characters match
 }
-
-
-
-
-
-
-
-
-
-// void set_time(uint8_t data_get_time) 
-// {
-//     // Set Hours
-//     cli(); // disable interrupt
-//     outb(RTC_INDEX_PORT,0x04);
-//     outb(RTC_DATA_PORT, data_get_time);
-//     sti(); //enable interrupt
-
-//     // Set Minutes
-//     cli(); 
-//     outb(RTC_INDEX_PORT,0x02);
-//     outb(RTC_DATA_PORT, data_get_time);
-//     sti(); 
-
-//     // Set Seconds
-//     cli(); 
-//     outb(RTC_INDEX_PORT,0x00);
-//     outb(RTC_DATA_PORT, data_get_time);
-//     sti(); 
-
-
-
-    
-
-// }
+**/
