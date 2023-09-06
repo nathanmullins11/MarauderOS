@@ -2,8 +2,6 @@
 #include "sys_req.h"
 #include <doubly_linked_list.h>
 
-
-// insert node at the front
 void insertFront(struct Node** head, char* data) {
     // dynamically allocate memory for newNode
     struct Node* newNode = (struct Node*)sys_alloc_mem(sizeof(struct Node));
@@ -35,8 +33,6 @@ void insertFront(struct Node** head, char* data) {
     (*head) = newNode;
 }
 
-
-// insert a node after a specific node
 void insertAfter(struct Node* prev_node, char* data) {
   // check if previous node is null
   if (prev_node == NULL) {
@@ -63,7 +59,6 @@ void insertAfter(struct Node* prev_node, char* data) {
     newNode->next->prev = newNode;
 }
 
-// insert a newNode at the end of the list
 void insertEnd(struct Node** head, char* data) {
   // dynamically allocate memory for node
   struct Node* newNode = (struct Node*)sys_alloc_mem(sizeof(struct Node));
@@ -97,7 +92,6 @@ void insertEnd(struct Node** head, char* data) {
   newNode->prev = temp;
 }
 
-// delete a node from the doubly linked list
 void deleteNode(struct Node** head, struct Node* del_node) {
   // if head or del is null, deletion is not possible
   if (*head == NULL || del_node == NULL)
