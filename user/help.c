@@ -8,7 +8,11 @@ void help(const char *cmd) {
     char msg_version[] = "Command: version\n\nDescription:\n  Prints the current version of MarauderOS and last build date to the terminal.\n\nUsage:\n  version\n";
     char msg_shutdown[] = "Command: shutdown\n\nDescription:\n  Exits MarauderOS immediately.\n\nUsage:\n  shutdown\n";
     char msg_getdate[] = "Command: getdate\n\nDescription:\n  Prints the current date of MarauderOS to the terminal.\n\nUsage:\n  getdate\n";
-    char msg_all[] = "Available Commands\n - version\n - shutdown\n - getdate\n - setdate\n";
+    char msg_setdate[] = "Command: setdate\n\nDescription:\n  Sets the date of the MarauderOS.\n\nUsage:\n  setdate dd-mm-yyyy\n\nExample:\n  setdate 09-01-2007\n";
+    char msg_gettime[] = "Command: gettime\n\nDescription:\n  Prints the current time of MarauderOS to the terminal.\n\nUsage:\n  gettime\n";
+    char msg_settime[] = "Command: settime\n\nDescription:\n  Sets the time of the MarauderOS, in 24 hour time.\n\nUsage:\n  settime hh:mm:ss\n\nExample:\n  settime 09:41:00\n";
+    char msg_clear[] = "Command: clear\n\nDescription:\n  Clears the MarauderOS terminal.\n\nUsage:\n  clear\n";
+    char msg_all[] = "Available Commands\n - version\n - shutdown\n - getdate\n - setdate\n - gettime\n - settime\n - clear\n";
 
     if ( strcmp(cmd, "version") == 0 ) {
         // print help message for 'version' command
@@ -19,6 +23,18 @@ void help(const char *cmd) {
     } else if ( strcmp(cmd, "getdate") == 0 ) {
         // print help message for 'getdate' command
         sys_req(WRITE, COM1, msg_getdate, sizeof(msg_getdate));
+    } else if ( strcmp(cmd, "setdate") == 0 ) {
+        // print help message for 'setdate' command
+        sys_req(WRITE, COM1, msg_setdate, sizeof(msg_setdate));
+    } else if ( strcmp(cmd, "gettime") == 0 ) {
+        // print help message for 'gettime' command
+        sys_req(WRITE, COM1, msg_gettime, sizeof(msg_gettime));
+    } else if ( strcmp(cmd, "settime") == 0 ) {
+        // print help message for 'settime' command
+        sys_req(WRITE, COM1, msg_settime, sizeof(msg_settime));
+    } else if ( strcmp(cmd, "clear") == 0 ) {
+        // print help message for 'clear' command
+        sys_req(WRITE, COM1, msg_clear, sizeof(msg_clear));
     } else {
         // if not parameters -> print all help messages
         sys_req(WRITE, COM1, msg_all, sizeof(msg_all));
