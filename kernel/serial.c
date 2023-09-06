@@ -5,7 +5,10 @@
 #include <string.h>
 #include <time.h>
 #include <itoa.h>
+#include <doubly_linked_list.h>
 
+// Declare a global pointer to keep track of the current command being displayed
+struct Node* currentCommand = NULL;
 
 #define ENTER_KEY 10
 #define B_KEY 98
@@ -79,7 +82,12 @@ void clear_input_buffer(device dev) {
 
 // error message for full buffer
 char err_buf_msg[53] = "\nBuffer Full Error. Clearing buffer/creating new line";
-char histroy_buffer[100];
+struct Node* head = NULL;
+char temp_buffer[100] = {0};
+struct Node* lastNode = NULL;
+
+// Initialize the currentCommand pointer to the last command when the list is not empty
+
 
 int serial_poll(device dev, char *buffer, size_t len)
 {
@@ -93,7 +101,6 @@ int serial_poll(device dev, char *buffer, size_t len)
 
 	// while buffer is not full
 	while (count > 0) {
-
 		// read char into data register
 		unsigned char data = inb(dev);
 		
@@ -102,12 +109,36 @@ int serial_poll(device dev, char *buffer, size_t len)
 		{
 			// clear buffer
 			buffer[index] = '\0';
-			for(size_t i = 0; i < strlen(buffer); i++)
+
+			if (temp_buffer[0] != '0')
 			{
-				histroy_buffer[i] = buffer[i];
+				// remove all chars except '0'
+				size_t temp_len = strlen(temp_buffer);
+				while (temp_len > 1) {
+					for (size_t i = 0; i < temp_len - 1; i++) {
+						temp_buffer[i] = temp_buffer[i + 1];
+					}
+					temp_len--;
+				}
+				temp_buffer[1] = '\0'; // Null-terminate after '0'
 			}
 
-			histroy_buffer[strlen(buffer)] = '\0';
+			// Copy data from buffer to temp_buffer here
+			for (size_t i = 0; i < strlen(buffer); i++)
+			{
+				temp_buffer[i] = buffer[i];
+			}
+			temp_buffer[strlen(buffer)] = '\0';
+
+			// add buffer contents to the linked list
+			insertFront(&head, temp_buffer);
+
+			// update the last node
+			lastNode = head;
+
+			// update currentCommand pointer
+			currentCommand = lastNode->prev;
+
 			// decrement count
 			count--;
 			// increment index
@@ -117,6 +148,7 @@ int serial_poll(device dev, char *buffer, size_t len)
 			outb(dev, '\n');
 			return index;
 		}
+
 
 		// if space key
 		else if (data == 32)
@@ -213,22 +245,132 @@ int serial_poll(device dev, char *buffer, size_t len)
 					}
 					break;
 				// if up arrow key pressed
+				// Inside your up arrow key handling code
 				} else if (esc_seq[0] == 'A') {
-					// implement showing last command
-					for(size_t i = 0; i <= strlen(histroy_buffer); i++)
-					{
-						buffer[i] = histroy_buffer[i];
-						outb(dev, buffer[i]);
-						count--;
-						index++;
-						cursor++;
-					}
+					// if(currentCommand != NULL) {
+					// 	if(currentCommand->data == currentCommand->next->data)
+					// 	{
+					// 		return index;
+					// 	}
+					// }
 
+				// If currentCommand is NULL, set it to the last command (tail of the list)
+				if (currentCommand == NULL && lastNode != NULL) {
+					currentCommand = lastNode;
+				} else if (currentCommand != NULL && currentCommand->next != NULL) {
+					// Move to the previous command (if available)
+					currentCommand = currentCommand->next;
+				}
+				
+				// Display the content of the current command
+				if (currentCommand != NULL) {
+					// clear terminal 
+					for(size_t length = strlen(buffer); length > 0; length--)
+					{
+									if (index > 0 && cursor > 0) {
+							// Move cursor back
+							outb(dev, '\b');
+							cursor--;
+
+							// shift characters in buffer left
+							for (int i = cursor; i < index - 1; i++) {
+								buffer[i] = buffer[i + 1];
+								outb(dev, buffer[i]);  // print the updated char to terminal
+							}
+
+							// overwrite last character with space
+							buffer[index - 1] = ' ';
+							outb(dev, ' ');
+
+							// move cursor back to correct position
+							for (int temp_cursor = index; temp_cursor > cursor; temp_cursor--) {
+								outb(dev, '\b');
+							}
+
+							// decrement index
+							index--;
+							// place null terminator at end of buffer
+							buffer[index] = '\0';
+						}
+					}
+					// write last command to terminal
+					// sys_req(WRITE, COM1, currentCommand->data, strlen(currentCommand->data));
+					// add last command to buffer
+					for(size_t i = 0; i < strlen(currentCommand->data); i++)
+					{
+						buffer[i] = currentCommand->data[i];
+						outb(dev, buffer[i]);
+						cursor++;
+						index++;
+						count--;
+					}
+					// set last place to null terminator in buffer
 					buffer[strlen(buffer)] = '\0';
-					break;
+				}
+				
+				break;
 				// if down arrow key pressed
 				} else if (esc_seq[0] == 'B') {
-					// nothing as of now
+					// if(currentCommand != NULL) {
+					// 	if(currentCommand->data == currentCommand->prev->data)
+					// 	{
+					// 		return index;
+					// 	}
+					// }
+
+				// If currentCommand is NULL, set it to the last command (tail of the list)
+				if (currentCommand == NULL && lastNode != NULL) {
+					currentCommand = lastNode;
+				} else if (currentCommand != NULL && currentCommand->prev != NULL) {
+					// Move to the previous command (if available)
+					currentCommand = currentCommand->prev;
+				}
+				
+				// Display the content of the current command
+				if (currentCommand != NULL) {
+					for(size_t length = strlen(buffer); length > 0; length--)
+					{
+									if (index > 0 && cursor > 0) {
+							// Move cursor back
+							outb(dev, '\b');
+							cursor--;
+		
+							// shift characters in buffer left
+							for (int i = cursor; i < index - 1; i++) {
+								buffer[i] = buffer[i + 1];
+								outb(dev, buffer[i]);  // print the updated char to terminal
+							}
+
+							// overwrite last character with space
+							buffer[index - 1] = ' ';
+							outb(dev, ' ');
+
+							// move cursor back to correct position
+							for (int temp_cursor = index; temp_cursor > cursor; temp_cursor--) {
+								outb(dev, '\b');
+							}
+
+							// decrement index
+							index--;
+							// place null terminator at end of buffer
+							buffer[index] = '\0';
+						}
+					}
+					// write last command to terminal
+					sys_req(WRITE, COM1, currentCommand->data, strlen(currentCommand->data));
+					// add last command to buffer
+					for(size_t i = 0; i < strlen(currentCommand->data); i++)
+					{
+						buffer[i] = currentCommand->data[i];
+						//outb(dev, buffer[i]);
+						cursor++;
+						index++;
+						count--;
+					}
+					// set last place to null terminator in buffer
+					buffer[strlen(buffer)] = '\0';
+
+				}
 					break;
 				// if delete key pressed
 				} else if (esc_seq[0] == '3' || esc_seq[0] == '~') {
