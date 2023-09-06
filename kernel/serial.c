@@ -91,7 +91,11 @@ int serial_poll(device dev, char *buffer, size_t len)
 	int index = 0;
 	int cursor = index;
 	
+<<<<<<< HEAD
 	// indent terminal to differentiate between input and output
+=======
+	// indent terminal o differentiate between input and output
+>>>>>>> ff3b247 (small fix)
 	outb(dev, '>');
 	outb(dev, ' ');
 
