@@ -41,8 +41,10 @@ void get_date (void) {
 
     sys_req(WRITE, COM1, date , sizeof(date) ) ;
 
-
+<<<<<<< HEAD
+=======
 }
+
 
 void set_date(uint8_t day, uint8_t month, uint8_t year) {
 
@@ -57,13 +59,10 @@ void set_date(uint8_t day, uint8_t month, uint8_t year) {
       outb(0x70,0x08);
       outb(0x71,month);
       sti(); 
-
-     cli(); 
-      outb(0x70,0x09);
-      outb(0x71,year);
-      sti(); 
+>>>>>>> 7495652 (branch update with main)
 
 }
+
 
 void get_time(void)
 {
