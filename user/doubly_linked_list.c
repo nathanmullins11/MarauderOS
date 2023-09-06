@@ -2,11 +2,6 @@
 #include "sys_req.h"
 #include <doubly_linked_list.h>
 
-// struct Node {
-//   char* data;
-//   struct Node* next;
-//   struct Node* prev;
-// };
 
 // insert node at the front
 void insertFront(struct Node** head, char* data) {
@@ -123,19 +118,6 @@ void deleteNode(struct Node** head, struct Node* del_node) {
 
   // free the memory of del_node
   sys_free_mem(del_node);
-}
-
-// print the doubly linked list
-void displayList(struct Node* node) {
-  // struct Node* last = NULL;
-
-  while (node != NULL) {
-    //printf("%d->", node->data);
-    sys_req(WRITE, COM1, node->data, strlen(node->data));
-    outb(COM1, '\n');
-    //last = node;
-    node = node->next;
-  }
 }
 
 
