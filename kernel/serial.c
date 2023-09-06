@@ -245,6 +245,7 @@ int serial_poll(device dev, char *buffer, size_t len)
 					break;
 				// UP ARROW KEY
 				} else if (esc_seq[0] == 'A') {
+<<<<<<< HEAD
 					// If currentCommand is NULL, set it to the last command/tail of linked list
 					if (currentCommand == NULL && lastNode != NULL) {
 						currentCommand = lastNode;
@@ -254,16 +255,36 @@ int serial_poll(device dev, char *buffer, size_t len)
 					}
 					
 					// display the current command
+=======
+					// If currentCommand is NULL, set it to the last command (tail of the list)
+					if (currentCommand == NULL && lastNode != NULL) {
+						currentCommand = lastNode;
+					} else if (currentCommand != NULL && currentCommand->next != NULL) {
+						// Move to the previous command (if available)
+						currentCommand = currentCommand->next;
+					}
+					
+					// Display the content of the current command
+>>>>>>> a54a4c8 (update/clean serail.c)
 					if (currentCommand != NULL) {
 						// clear terminal 
 						for(size_t length = strlen(buffer); length > 0; length--)
 						{
+<<<<<<< HEAD
 							if (index > 0 && cursor > 0) {
 								// move cursor back
 								outb(dev, '\b');
 								cursor--;
 
 								// shift chars in buffer left
+=======
+										if (index > 0 && cursor > 0) {
+								// Move cursor back
+								outb(dev, '\b');
+								cursor--;
+
+								// shift characters in buffer left
+>>>>>>> a54a4c8 (update/clean serail.c)
 								for (int i = cursor; i < index - 1; i++) {
 									buffer[i] = buffer[i + 1];
 									outb(dev, buffer[i]);  // print the updated char to terminal
@@ -284,7 +305,13 @@ int serial_poll(device dev, char *buffer, size_t len)
 								buffer[index] = '\0';
 							}
 						}
+<<<<<<< HEAD
 						/* write last command to terminal and add last command to buffer */
+=======
+						// write last command to terminal
+						// sys_req(WRITE, COM1, currentCommand->data, strlen(currentCommand->data));
+						// add last command to buffer
+>>>>>>> a54a4c8 (update/clean serail.c)
 						for(size_t i = 0; i < strlen(currentCommand->data); i++)
 						{
 							buffer[i] = currentCommand->data[i];
@@ -300,6 +327,7 @@ int serial_poll(device dev, char *buffer, size_t len)
 					break;
 				// DOWN ARROW KEY
 				} else if (esc_seq[0] == 'B') {
+<<<<<<< HEAD
 					// ff currentCommand is NULL, set it to the last command/end of linked list
 					if (currentCommand == NULL && lastNode != NULL) {
 						currentCommand = lastNode;
@@ -318,6 +346,26 @@ int serial_poll(device dev, char *buffer, size_t len)
 								cursor--;
 			
 								// shift chars in buffer left
+=======
+					// If currentCommand is NULL, set it to the last command (tail of the list)
+					if (currentCommand == NULL && lastNode != NULL) {
+						currentCommand = lastNode;
+					} else if (currentCommand != NULL && currentCommand->prev != NULL) {
+						// Move to the previous command (if available)
+						currentCommand = currentCommand->prev;
+					}
+					
+					// Display the content of the current command
+					if (currentCommand != NULL) {
+						for(size_t length = strlen(buffer); length > 0; length--)
+						{
+										if (index > 0 && cursor > 0) {
+								// Move cursor back
+								outb(dev, '\b');
+								cursor--;
+			
+								// shift characters in buffer left
+>>>>>>> a54a4c8 (update/clean serail.c)
 								for (int i = cursor; i < index - 1; i++) {
 									buffer[i] = buffer[i + 1];
 									outb(dev, buffer[i]);  // print the updated char to terminal
@@ -338,11 +386,21 @@ int serial_poll(device dev, char *buffer, size_t len)
 								buffer[index] = '\0';
 							}
 						}
+<<<<<<< HEAD
 						/* write last command to terminal and add last command to buffer */
 						for(size_t i = 0; i < strlen(currentCommand->data); i++)
 						{
 							buffer[i] = currentCommand->data[i];
 							outb(dev, buffer[i]);
+=======
+						// write last command to terminal
+						sys_req(WRITE, COM1, currentCommand->data, strlen(currentCommand->data));
+						// add last command to buffer
+						for(size_t i = 0; i < strlen(currentCommand->data); i++)
+						{
+							buffer[i] = currentCommand->data[i];
+							//outb(dev, buffer[i]);
+>>>>>>> a54a4c8 (update/clean serail.c)
 							cursor++;
 							index++;
 							count--;

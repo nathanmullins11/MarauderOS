@@ -2,6 +2,11 @@
 #include "sys_req.h"
 #include <doubly_linked_list.h>
 
+<<<<<<< HEAD
+=======
+
+// insert node at the front
+>>>>>>> a54a4c8 (update/clean serail.c)
 void insertFront(struct Node** head, char* data) {
     // dynamically allocate memory for newNode
     struct Node* newNode = (struct Node*)sys_alloc_mem(sizeof(struct Node));
