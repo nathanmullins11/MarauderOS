@@ -81,29 +81,44 @@ Parameters
 Function
     void insertFront(struct Node** head, char* data);
 Description
-
+    Inserts a new node at the front/head of a doubly linked list. If the list is not empty, moves nodes over and places the new node at the beginning. 
+    Returns nothing.
 Parameters
+    struct Node** head - points to first/front node within a doubly linked list. head must be a pointer to a pointer
 
+    char* data - array of data to be placed in the front node. data must be of type char* and data length must be less than length of buffer.
 
 Function
     void insertAfter(struct Node* prev_node, char* data);
 Description
-
+    Inserts a new node after the specified node prev_node passed into the function into the doubly linked list. If previous node is null/does not exist, 
+    returns immediately from function. Otherwise, returns nothing. 
 Parameters
-
+    struct Node* prev_node - points to the node that the new node will be placed after. prev_node must be a pointer of type struct.
+    
+    char* data - array of data to be placed in new node. data must be of type char* and data length must be less than length of buffer.
 
 Function
     void insertEnd(struct Node** head, char* data);
 Description
-
+    Inserts a new node at the end of the doubly linked list. If the list is empty, places the new node at the front of list. Otherwise, traverses through list
+    until the next node is null, and places the new node in. 
 Parameters
+    struct Node** head - points to the node that will be placed at the end of list. must be a pointer of type struct.
+    
+    char* data - array of data to be placed in new node. data must be of type char* and data length must be less than length of buffer.
 
 
 Function
     void deleteNode(struct Node** head, struct Node* del_node);
 Description
+    Deletes the specified node del_node from the doubly linked list. If the list is empty of the del_node is empty, immediately returns becaue deletion is not 
+    possible. Otherwise, removes del_node and corrects pointers of previous and next nodes in list. 
 
 Parameters
+    struct Node** head - points to first/front node within a doubly linked list. head must be a pointer to a pointer
+    
+    struct Node* del_node - points to the node that will be deleted. must be a pointer of type struct.
 
 Structure
     struct Node {
@@ -112,5 +127,11 @@ Structure
     struct Node* prev;
     };
 Description
-
+    Structure/layout of each node in a doubly linked list. Each node will contain a pointer to the next node, a pointer to the previous node, and data associated
+    with the node. 
 Parameters
+    char* data - array of data associated with a node. data must be of type char* and data length must be less than length of buffer.
+    
+    struct Node* next - points to the next node in a list. must be a pointer.
+    
+    struct Node* prev - points to the previous node in a list. must be a pointer.
