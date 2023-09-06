@@ -97,9 +97,8 @@ int serial_poll(device dev, char *buffer, size_t len)
 	/* initialize pointer, index, and count */
 	int index = 0;
 	int cursor = index;
-
-	size_t count = len;
-			
+	
+	// indent terminal o differentiate between input and output
 	outb(dev, '>');
 	outb(dev, ' ');
 
