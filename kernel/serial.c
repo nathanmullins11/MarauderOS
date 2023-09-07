@@ -453,8 +453,3 @@ int serial_poll(device dev, char *buffer, size_t len)
 	return index;
 
 }
-
-
-
-
-
