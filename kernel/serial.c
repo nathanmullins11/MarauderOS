@@ -353,8 +353,13 @@ int serial_poll(device dev, char *buffer, size_t len)
 					}
 					break;
 				// DELETE KEY
-				} else if (esc_seq[0] == '3' || esc_seq[0] == '~') {
-					inb(dev); // rid of '~' read in
+				} else if (esc_seq[0] == '3') {
+					// read until a ~ is found
+					while (esc_seq[0] != '~')
+					{
+						esc_seq[0] = inb(dev);
+					}
+					// inb(dev); // rid of '~' read in
 
 					while (index > cursor) 
 					{
@@ -393,6 +398,8 @@ int serial_poll(device dev, char *buffer, size_t len)
 
 					break;
 
+				} else if (strlen(esc_seq) == 0) {
+					// read in to try and catch
 				}
 
 		  	}
