@@ -16,51 +16,105 @@ int isValidTimeFormat(const char* input);
 
 void get_date (void) {
     
- //Read Day
-    outb(0x70,0x07);
+   // Read Day
+    outb(0x70, 0x07);
     unsigned char day = inb(0x71);
 
-    //Read Month
-     outb(0x70,0x08);
-     unsigned char month = inb(0x71);
+    // Read Month
+    outb(0x70, 0x08);
+    unsigned char month = inb(0x71);
 
-     //Read Year
-     outb(0x70,0x09);
-     unsigned char year = inb(0x71);
+    // Read Year
+    outb(0x70, 0x09);
+    unsigned char year = inb(0x71);
 
-    char dayReadable[2];
-     itoa(hexToDec(day), dayReadable, 10 );
+    // Convert hexadecimal values to decimal strings
+    char dayReadable[3];
+    itoa(hexToDec(day), dayReadable, 10);
 
-      char monthReadable[2];
-     itoa(hexToDec(month), monthReadable, 10 );
+    char monthReadable[3];
+    itoa(hexToDec(month), monthReadable, 10);
 
- char yearReadable[4];
-     itoa(hexToDec(year), yearReadable, 10 );
+    char yearReadable[3];
+    itoa(hexToDec(year), yearReadable, 10);
 
-    char date[9] = {monthReadable[0], monthReadable[1],'-',dayReadable[0], dayReadable[1],'-',yearReadable[0],yearReadable[1],'\n'};
+    // Create the date string in MM-DD-YYYY format
+    char date[9];
+    if (hexToDec(month) < 10) {
+        //initialize index
+    date[0] = monthReadable[0];
+    date[1] = monthReadable[1];
 
-    sys_req(WRITE, COM1, date , sizeof(date) ) ;
+    // swap to ones place and add a zero infront
+        date[1] = date[0];
+        date[0] = '0'; 
+    } else {
+        //print normal
+    date[0] = monthReadable[0];
+    date[1] = monthReadable[1];
+    }
+   
+    date[2] = '-';
+    if (hexToDec(day) < 10) {
+        //initialize index
+    date[3] = dayReadable[0];
+    date[4] = dayReadable[1];
+
+    // swap to ones place and add a zero infront
+        date[4] = date[3];
+        date[3] = '0'; 
+    } else {
+        //print normal
+    date[3] = dayReadable[0];
+    date[4] = dayReadable[1];
+    }
+    date[5] = '-';
+     if (hexToDec(year) < 10) {
+        //initialize index
+    date[6] = yearReadable[0];
+    date[7] = yearReadable[1];
+
+    // swap to ones place and add a zero infront
+        date[7] = date[6];
+        date[6] = '0'; 
+    } else {
+        //print normal
+    date[6] = yearReadable[0];
+    date[7] = yearReadable[1];
+    }
+    date[8] = '\0';
 
 
+  
+	sys_req(WRITE, COM1, date , sizeof(date) );
+
+    char newLine[1];
+   newLine[0] = '\n';
+	sys_req(WRITE, COM1, newLine , sizeof(newLine) ) ;
 }
 
 void set_date(uint8_t day, uint8_t month, uint8_t year) {
+
+     uint8_t hexDay = decToHex(day);
+    uint8_t hexMonth = decToHex(month);
+    uint8_t hexYear = decToHex(year);
+
 
     //needs input filtering
 
      cli();
       outb(0x70,0x07);
-      outb(0x71,day);
+      outb(0x71,hexDay);
       sti(); 
 
        cli(); 
       outb(0x70,0x08);
-      outb(0x71,month);
+      outb(0x71,hexMonth);
       sti(); 
 
      cli(); 
       outb(0x70,0x09);
-      outb(0x71,year);
+      outb(0x71,hexYear);
       sti(); 
 
 }
