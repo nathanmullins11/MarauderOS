@@ -93,9 +93,24 @@ void comhand(void)
 						int day = atoi(day_str);
 						int month = atoi(month_str);
 						uint8_t year = atoi(year_str);
-						
-						// pass into setdate function
-						set_date(day, month, year);
+
+						// input check
+						if (day < 1 || day > 31) {
+							// day out of range
+							char error_msg[] = "ERR: day is out of the range 1-31. Please Try Again\n";
+							sys_req(WRITE, COM1, error_msg, strlen(error_msg));
+						} else if (month < 1 || month > 12) {
+							// month out of range
+							char error_msg[] = "ERR: month is out of the range 1-12. Please Try Again\n";
+							sys_req(WRITE, COM1, error_msg, strlen(error_msg));
+						} else if (year < 0 || year > 99) {
+							// year out of range
+							char error_msg[] = "ERR: year is out of the range 0-99. Please Try Again\n";
+							sys_req(WRITE, COM1, error_msg, strlen(error_msg));
+						} else {
+							// pass into setdate function
+							set_date(day, month, year);
+						}
 					} else {
 						// no param, display error code 
 						char error_msg[] = "ERR: command needs parameter | run `help setdate`\n";
