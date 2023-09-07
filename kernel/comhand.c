@@ -95,7 +95,15 @@ void comhand(void)
 						uint8_t year = atoi(year_str);
 
 						// input check
-						if (day < 1 || day > 31) {
+						if ((month == 1 || month == 3 || month == 5 || month == 7 || month == 8 || month == 10 || month == 12) && (day < 1 || day > 31)) { //months with 31 days
+							// day out of range
+						char error_msg[] = "ERR: day is out of the range (1-31) for the desired month. Please Try Again`\n";
+						sys_req(WRITE, COM1, error_msg, strlen(error_msg));
+						} else if ((month == 4 || month == 6 || month == 9 || month == 11) && (day < 1 || day > 30)) { //months with 30 days
+							// day out of range
+						char error_msg[] = "ERR: day is out of the range (1-30) for the desired month. Please Try Again`\n";
+						sys_req(WRITE, COM1, error_msg, strlen(error_msg));
+						} else if (month == 2 && (day < 1 || day > 28)) { // February :/
 							// day out of range
 							char error_msg[] = "ERR: day is out of the range 1-31. Please Try Again\n";
 							sys_req(WRITE, COM1, error_msg, strlen(error_msg));
