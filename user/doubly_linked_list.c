@@ -3,7 +3,6 @@
 #include <doubly_linked_list.h>
 
 
-// insert node at the front
 void insertFront(struct Node** head, char* data) {
     // dynamically allocate memory for newNode
     struct Node* newNode = (struct Node*)sys_alloc_mem(sizeof(struct Node));
