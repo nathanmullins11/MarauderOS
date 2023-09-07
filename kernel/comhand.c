@@ -1,6 +1,7 @@
 #include "mpx/device.h"
 #include "mpx/serial.h"
 #include <comhand.h>
+#include <stdint.h>
 #include <stdlib.h>
 #include <sys_req.h>
 #include <itoa.h>
@@ -84,14 +85,14 @@ void comhand(void)
 					// check if there is a parameter
 					if (param) {
 						// extrapolate the day, month, and year
-						char *day_str = strtok(param, "-");
-						char *month_str = strtok(NULL, "-");
+						char *month_str = strtok(param, "-");
+						char *day_str = strtok(NULL, "-");
 						char *year_str = strtok(NULL, "-");
 
 						// convert to integer
 						int day = atoi(day_str);
 						int month = atoi(month_str);
-						int year = atoi(year_str);
+						uint8_t year = atoi(year_str);
 						
 						// pass into setdate function
 						set_date(day, month, year);
