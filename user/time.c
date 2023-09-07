@@ -1,5 +1,3 @@
-// Grant Stumpf - get_date
-
 #include <mpx/serial.h>
 #include <mpx/io.h>
 #include <stdint.h>
@@ -9,10 +7,6 @@
 #include <itoa.h>
 #include <stdlib.h>
 #include <mpx/interrupts.h>
-
-int hexToDec(uint8_t hex);
-uint8_t decToHex(int decimal);
-int isValidTimeFormat(const char* input);
 
 void get_date (void) {
     
