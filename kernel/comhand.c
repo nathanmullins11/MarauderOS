@@ -11,17 +11,6 @@
 #include <help.h>
 #include <mpx/io.h>
 
-/*
- TODO list
- - top of code documentation 
- - help command
-	- update to include all commands 
- - time.c -> error message for settime
- - add doxygen for h files
-	- help.h
-	- comhand.h
-*/
-
 void comhand(void)
 {
 	// print welcoming message
@@ -139,9 +128,6 @@ void comhand(void)
 						char error_msg[] = "ERR: command needs parameter | run `help settime`\n";
 						sys_req(WRITE, COM1, error_msg, strlen(error_msg));
 					}
-				} else if ( strcmp(command, "clear") == 0 ) {
-					// run the clear command
-					sys_req(WRITE, COM1, '\033[2J', 4);
 				} else {
 					// command not recognized
 					char error_msg[] = "ERR: Invalid Command\n";

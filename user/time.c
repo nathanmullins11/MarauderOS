@@ -180,7 +180,7 @@ void set_time(const char *command)
     if(isValidTimeFormat(command) != 1)
     {
         //sys_req(WRITE, COM1, command, 9);
-        sys_req(WRITE, COM1, "try again", 9);
+        sys_req(WRITE, COM1, "ERR: Invalid time format | use 'help' command", 46);
         sys_req(WRITE, COM1, newLine, 1);
         return;
     }
