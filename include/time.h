@@ -6,6 +6,7 @@
 
 #include <stdint.h>
 
+
 /**
  @brief Obtains the date from the clock registers and displays it to the user
 */
@@ -23,6 +24,7 @@ void set_time(const char *command);
 
 
 /**
+
  * @brief Checks if the user inputted time is a valid time
  * 
  * @param input the user inputted time
@@ -31,6 +33,7 @@ void set_time(const char *command);
 int isValidTimeFormat(const char* input);
 
 /**
+
  * @brief Takes the users input and writes the proper date to the clock
  * 
  * @param day   The day the user wants to set the date to
