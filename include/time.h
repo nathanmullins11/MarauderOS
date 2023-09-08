@@ -3,11 +3,13 @@
  * @brief time function, includes set time, set date, get time, get date
  */
 
-//void time(void);
 
 #include <stdint.h>
 
-/* */
+
+/**
+ @brief Obtains the date from the clock registers and displays it to the user
+*/
 void get_date(void);
 
 /* */
@@ -20,45 +22,46 @@ void get_time(void);
  */
 void set_time(const char *command);
 
-//int strncmp(const char* str1, const char* str2, size_t n);
 
 /**
- * @brief 
+
+ * @brief Checks if the user inputted time is a valid time
  * 
- * @param input 
- * @return int 
+ * @param input the user inputted time
+ * @return returns 0 if time is not valid
  */
 int isValidTimeFormat(const char* input);
 
 /**
- * @brief Set the date object
+
+ * @brief Takes the users input and writes the proper date to the clock
  * 
- * @param day 
- * @param month 
- * @param year 
+ * @param day   The day the user wants to set the date to
+ * @param month The month the user wants to set the date to
+ * @param year The year the user wants to set the date to
  */
 void set_date(uint8_t day, uint8_t month, uint8_t year);
 
 /**
- * @brief 
+ * @brief Takes a hexidecimal value and converts it to its equivalent decimal value
  * 
- * @param hex 
- * @return int 
+ * @param hex The hexidecimal value that needs to be converted
+ * @return int returns the decimal value from the hexidecimal value
  */
 int hexToDec(uint8_t hex);
 
 /**
- * @brief 
+ * @brief takes a decimal value and converts it to a hexidecimal value
  * 
- * @param decimal 
- * @return uint8_t 
+ * @param decimal the decimal value that needs to be converted
+ * @return uint8_t returns the hexidecimal value from the decimal
  */
 uint8_t decToHex(int decimal);
 
 /**
- * @brief 
+ * @brief Checks if the user inputted time is a valid time
  * 
- * @param input 
- * @return int 
+ * @param input the user inputted time
+ * @return returns 0 if time is not valid
  */
 int isValidTimeFormat(const char* input);
