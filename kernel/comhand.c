@@ -11,17 +11,6 @@
 #include <help.h>
 #include <mpx/io.h>
 
-/*
- TODO list
- - top of code documentation 
- - help command
-	- update to include all commands 
- - time.c -> error message for settime
- - add doxygen for h files
-	- help.h
-	- comhand.h
-*/
-
 void comhand(void)
 {
 	// print welcoming message
