@@ -10,7 +10,7 @@
 
 void version(void) {
     
-	char cur_ver[] = "v1.9 last compiled on ";
+	char cur_ver[] = "v1.10 last compiled on ";
 	sys_req(WRITE, COM1, cur_ver , sizeof(cur_ver) ) ;
 	get_date();
 
