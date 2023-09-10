@@ -31,6 +31,7 @@ void help(const char *cmd) {
     } else if ( strcmp(cmd, "settime") == 0 ) {
         // print help message for 'settime' command
         sys_req(WRITE, COM1, msg_settime, sizeof(msg_settime));
+        sys_req(WRITE, COM1,"UTC", 3);
     } else {
         // if not parameters -> print all help messages
         sys_req(WRITE, COM1, msg_all, sizeof(msg_all));
