@@ -212,8 +212,6 @@ void set_time(const char *command)
     outb(0x70,0x00);
     outb(0x71, hexSS);
     sti();
-
-    sys_req(WRITE, COM1, newLine, 1);
 }
 
 int isValidTimeFormat(const char* input)
