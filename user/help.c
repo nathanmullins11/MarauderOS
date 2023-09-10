@@ -9,8 +9,8 @@ void help(const char *cmd) {
     char msg_shutdown[] = "Command: shutdown\n\nDescription:\n  Exits MarauderOS immediately.\n\nUsage:\n  shutdown\n";
     char msg_getdate[] = "Command: getdate\n\nDescription:\n  Prints the current date of MarauderOS to the terminal.\n\nUsage:\n  getdate\n";
     char msg_setdate[] = "Command: setdate\n\nDescription:\n  Sets the date of the MarauderOS.\n\nUsage:\n  setdate mm-dd-yy\n\nExample:\n  setdate 06-29-07\n";
-    char msg_gettime[] = "Command: gettime\n\nDescription:\n  Prints the current time of MarauderOS to the terminal.\n\nUsage:\n  gettime\n";
-    char msg_settime[] = "Command: settime\n\nDescription:\n  Sets the time of the MarauderOS, in 24 hour time.\n\nUsage:\n  settime hh:mm:ss\n\nExample:\n  settime 09:41:00\n";
+    char msg_gettime[] = "Command: gettime\n\nDescription:\n  Prints the current time of MarauderOS to the terminal, format in 24-hour GMT.\n\nUsage:\n  gettime\n";
+    char msg_settime[] = "Command: settime\n\nDescription:\n  Sets the time of the MarauderOS, in 24-hour GMT format.\n\nUsage:\n  settime hh:mm:ss\n\nExample:\n  settime 09:41:00\n";
     char msg_all[] = "Available Commands\n - version\n - shutdown\n - getdate\n - setdate\n - gettime\n - settime\n";
 
     if ( strcmp(cmd, "version") == 0 ) {
