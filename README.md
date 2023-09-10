@@ -15,9 +15,3 @@ For a quick reference on commands, run the `help` command with a specified comma
 * Nathan Mullins
 * Grant Stumpf
 * Riley Stauffer
-
-<p align="center">
-  <a href="https://github.com/WVU-CS450/Morgantown-Marauders-/graphs/contributors">
-    <img src="https://contrib.rocks/image?repo=WVU-CS450/Morgantown-Marauders-" />
-  </a>
-</p>
