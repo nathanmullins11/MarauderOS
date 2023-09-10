@@ -6,7 +6,7 @@ To run the MarauderOS, complete the following steps:
 3. Run MarauderOS by running the shell command `./mpx.sh`
 
 ## How to use MarauderOS
-Refer to the User's manual for a complete guide of the commands (here)[https://github.com/WVU-CS450/Morgantown-Marauders-/blob/main/doc/UserManual.pdf].
+Refer to the User's manual for a complete guide of the commands [here](https://github.com/WVU-CS450/Morgantown-Marauders-/blob/main/doc/UserManual.pdf).
 
 For a quick reference on commands, run the `help` command with a specified command in the MarauderOS system.
 
