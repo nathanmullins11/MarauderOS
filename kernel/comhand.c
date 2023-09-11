@@ -50,11 +50,27 @@ void comhand(void)
 			// if there is a command, start comparing
 			if (command) {
 				if ( strcmp(command, "version") == 0 ) {
-					// run the version command
-                	version();
+					// check if there are any invalid params
+					char *param = strtok(NULL, " ");
+					if (param) {
+						// invalid parameter
+						char error_msg[] = "ERR: Invalid parameter | use 'help' command\n";
+						sys_req(WRITE, COM1, error_msg, strlen(error_msg));
+					} else {
+						// run the version command
+                		version();
+					}
 				} else if ( strcmp(command, "shutdown") == 0 ) {
-					// return to kmain() to shutdown OS
-                	return;
+					// check if there are any invalid params
+					char *param = strtok(NULL, " ");
+					if (param) {
+						// invalid parameter
+						char error_msg[] = "ERR: Invalid parameter | use 'help' command\n";
+						sys_req(WRITE, COM1, error_msg, strlen(error_msg));
+					} else {
+						// return to kmain() to shutdown OS
+                		return;
+					}
 				} else if ( strcmp(command, "help") == 0 ) {
 					// get parameters from the buffer
                 	char *param = strtok(NULL, " ");
@@ -66,8 +82,16 @@ void comhand(void)
 						help(" ");
 					}
 				} else if ( strcmp(command, "getdate") == 0 ) {
-					// run the get date command
-					get_date();
+					// check if there are any invalid params
+					char *param = strtok(NULL, " ");
+					if (param) {
+						// invalid parameter
+						char error_msg[] = "ERR: Invalid parameter | use 'help' command\n";
+						sys_req(WRITE, COM1, error_msg, strlen(error_msg));
+					} else {
+						// run getdate command
+						get_date();
+					}
 				} else if ( strcmp(command, "setdate") == 0 ) {
 					// run the set date command
 					char *param = strtok(NULL, " ");
@@ -115,8 +139,16 @@ void comhand(void)
 						sys_req(WRITE, COM1, error_msg, strlen(error_msg));
 					}
 				} else if ( strcmp(command, "gettime") == 0 ) {
-					// run the get time command
-					get_time();
+					// check if there are any invalid params
+					char *param = strtok(NULL, " ");
+					if (param) {
+						// invalid parameter
+						char error_msg[] = "ERR: Invalid parameter | use 'help' command\n";
+						sys_req(WRITE, COM1, error_msg, strlen(error_msg));
+					} else {
+						// run the get time command
+						get_time();
+					}
 				} else if ( strcmp(command, "settime") == 0 ) {
 					// run the set time command
 					char *param = strtok(NULL, " ");
