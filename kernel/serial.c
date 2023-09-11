@@ -359,7 +359,6 @@ int serial_poll(device dev, char *buffer, size_t len)
 					{
 						esc_seq[0] = inb(dev);
 					}
-					// inb(dev); // rid of '~' read in
 
 					while (index > cursor) 
 					{
