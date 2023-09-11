@@ -14,5 +14,8 @@ Refer to the User's manual for a complete guide of the commands [here](https://g
 
 For a quick reference on commands, run the `help` command with a specified command in the MarauderOS system.
 
+## Known Bugs
+1. Hitting the esc key will send serial poll in an infinite loop searching for an escape sequence output. To break out of this, tap one of the arrows. 
+
 ## Members 
 Ian Jackson | Nathan Mullins | Grant Stumpf | Riley Stauffer
