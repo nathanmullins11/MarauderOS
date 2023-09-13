@@ -68,8 +68,26 @@ void comhand(void)
 						char error_msg[] = "ERR: Invalid parameter | use 'help' command\n";
 						sys_req(WRITE, COM1, error_msg, strlen(error_msg));
 					} else {
-						// return to kmain() to shutdown OS
-                		return;
+						// ask user if they want to shutdown
+						char msg[] = "Are you sure you want to shutdown? (y/n)\n";
+						sys_req(WRITE, COM1, msg, strlen(msg));
+
+						// get user input
+						char choice[100] = {0};
+						int size_choice = sys_req(READ, COM1, choice, sizeof(choice));
+						if (choice[size_choice] == '\0') {
+							// check if yes
+							if ( strcmp(choice, "y") == 0 ) {
+								// return to kmain()
+								return;
+							} else if ( strcmp(choice, "n") == 0 ) {
+								// do nothing, return to normal operation
+							} else {
+								// invalid input
+								char error_msg[] = "ERR: Invalid input\n";
+								sys_req(WRITE, COM1, error_msg, strlen(error_msg));
+							}
+						}
 					}
 				} else if ( strcmp(command, "help") == 0 ) {
 					// get parameters from the buffer
