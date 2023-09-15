@@ -33,13 +33,13 @@ struct pcb *queue_head;
 
 struct pcb* pcb_allocate(void);
 
-int pcb_free(struct pcb*);
+int pcb_free(struct pcb* process);
 
-struct pcb* pcb_setup(const char*, int, int);
+struct pcb* pcb_setup(const char* process_name, int class, int priority);
 
-struct pcb* pcb_find(const char*);
+struct pcb* pcb_find(const char* process);
 
-void pcb_insert(struct pcb*);
+void pcb_insert(struct pcb* process);
 
-int pcb_remove(struct pcb*);
+int pcb_remove(struct pcb* process);
 

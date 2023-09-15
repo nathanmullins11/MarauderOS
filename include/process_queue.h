@@ -9,13 +9,6 @@
 #include <memory.h>
 #include <mpx/device.h>
 
-/**
- * @brief struct Node (doubly linked list) holds the data of the node, a pointer to the next node, and a pointer to the previous node
- * @param data points to the char array data to be entered into the linked list
- * @param next points to next node in linked list
- * @param prev points to previous node in linked list
- * @param priority 
- */
 struct ready_node {
   char* data;
   struct ready_node* next;
@@ -23,16 +16,23 @@ struct ready_node {
   int priority;
 };
 
-/**
- * @brief struct Node (doubly linked list) holds the data of the node, a pointer to the next node, and a pointer to the previous node
- * @param data points to the char array data to be entered into the linked list
- * @param next points to next node in linked list
- * @param prev points to previous node in linked list
- */
+struct suspended_ready_node {
+    char* data;
+    struct suspended_ready_node* next;
+    struct suspended_ready_node* prev;
+    int priority;
+};
+
 struct blocked_node {
   char* data;
   struct blocked_node* next;
   struct blocked_node* prev;
+};
+
+struct suspended_blocked_node {
+    char* data;
+    struct suspended_blocked_node* next;
+    struct suspended_blocked_node* prev;
 };
 
 struct ready_queue {
@@ -49,6 +49,10 @@ struct ready_queue* create_ready_queue(void);
 
 struct blocked_queue* create_blocked_queue(void);
 
+struct suspended_ready_queue* create_suspended_ready_queue(void);
+
+struct suspended_blocked_queue* create_suspended_blocked_queue(void);
+
 /**
  * @brief insert a new node in the linked list based on priority 
  * 
@@ -57,6 +61,10 @@ struct blocked_queue* create_blocked_queue(void);
 void insert_ready(char* data, int priority);
 
 void insert_blocked(char* data);
+
+void insert_suspended_ready(char* data, int priority);
+
+void insert_suspended_blocked(char* data);
 
 /**
  * @brief insert a new node at the beggining of the linked list
@@ -68,6 +76,10 @@ void enqueue_ready(struct ready_node** head, char* data);
 
 void enqueue_blocked(struct blocked_node** head, char* data);
 
+void enqueue_suspended_ready(struct suspended_ready_node** head, char* data);
+
+void enqueue_suspended_blocked(struct suspended_blocked_node** head, char* data);
+
 /**
  * @brief delete specified node from linked list
  * 
@@ -77,4 +89,8 @@ void enqueue_blocked(struct blocked_node** head, char* data);
 void deleteNode_ready(struct ready_node** head, struct ready_node* del_node);
 
 void deleteNode_blocked(struct blocked_node** head, struct blocked_node* del_node);
+
+void deleteNode_suspended_ready(struct suspended_ready_node** head, struct suspended_ready_node* del_node);
+
+void deleteNode_suspended_blocked(struct suspended_blocked_node** head, struct suspended_blocked_node* del_node);
 
