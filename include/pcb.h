@@ -3,6 +3,8 @@
  * @brief pcb functions 
  */
 
+#include <process_queue.h>
+
 #define MAX_NAME_LEN 1
 
 struct pcb {
@@ -28,18 +30,54 @@ struct process {
 /* Declaration: Put this in your header file */
 extern struct pcb *queue_head;
 
+
 /* Definition: Put this in exactly one source file */
 struct pcb *queue_head;
 
+/**
+ * @brief 
+ * 
+ * @return struct pcb* 
+ */
 struct pcb* pcb_allocate(void);
 
+/**
+ * @brief 
+ * 
+ * @param process 
+ * @return int 
+ */
 int pcb_free(struct pcb* process);
 
+/**
+ * @brief 
+ * 
+ * @param process_name 
+ * @param priority 
+ * @return struct pcb* 
+ */
 struct pcb* pcb_setup(const char* process_name, int class, int priority);
 
+/**
+ * @brief searches through all process queues to find a process with the provided name
+ * 
+ * @param process name of process to be found
+ * @return struct pcb* pointer to PCB if process with name was found, otherwise returns null
+ */
 struct pcb* pcb_find(const char* process);
 
+/**
+ * @brief 
+ * 
+ * @param process 
+ */
 void pcb_insert(struct pcb* process);
 
+/**
+ * @brief 
+ * 
+ * @param process 
+ * @return int 
+ */
 int pcb_remove(struct pcb* process);
 
