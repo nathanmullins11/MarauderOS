@@ -45,5 +45,5 @@ void enqueue(struct node** rear, struct pcb* pcb);
  * @param front points to the front or "head" of linked list
  * @param del_node points to node to be deleted from linked list
  */
-void dequeue(struct node** front, struct node* del_node);
+void dequeue(struct node** front, struct node* pcb);
 
