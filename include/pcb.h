@@ -10,6 +10,7 @@
 struct pcb {
         char *name_ptr;
         char name_arr[MAX_NAME_LEN];
+        struct process *process_ptr;
 };
 
 struct state {
@@ -67,9 +68,9 @@ struct pcb* pcb_setup(const char* process_name, int class, int priority);
 struct pcb* pcb_find(const char* process);
 
 /**
- * @brief 
+ * @brief insert a PCB into the appropiate queue based on state and priority
  * 
- * @param process 
+ * @param process a pointer to the PCB to enqueue
  */
 void pcb_insert(struct pcb* process);
 

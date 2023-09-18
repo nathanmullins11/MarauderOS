@@ -1,5 +1,6 @@
 #include <pcb.h>
 #include <string.h>
+// #include <process_queue.h>
 
 /* initialize queues in this file*/
 struct ready_queue* global_ready_queue;
@@ -63,5 +64,30 @@ struct pcb* pcb_find(const char* process)
     return NULL;
 }
 
+void pcb_insert(struct pcb* process) {
+    // if the process is running, then do not insert
+    if ( (strcmp(process->process_ptr->pcb_state.execution_state, "running")) == 0 ) {
+        return;
+    }
 
+    // check if the process dispatching state is suspended or not suspended
+    if ( strcmp(process->process_ptr->pcb_state.dispatching_state, "not suspended") == 0 ) {
+        // now check the execution state
+        if ( strcmp(process->process_ptr->pcb_state.execution_state, "ready") == 0 ) {
+            // not suspended & ready -> enqueue in global_ready_queue
 
+        } else if ( strcmp(process->process_ptr->pcb_state.dispatching_state, "blocked") == 0 ) {
+            // not suspended & blocked -> enqueue in global_blocked_queue
+
+        }
+    } else if ( strcmp(process->process_ptr->pcb_state.dispatching_state, "suspended") == 0 ) {
+        // now check the execution state
+        if ( strcmp(process->process_ptr->pcb_state.execution_state, "ready") == 0 ) {
+            // suspended & ready -> enqueue in global_suspended_ready_queue
+
+        } else if ( strcmp(process->process_ptr->pcb_state.dispatching_state, "blocked") == 0 ) {
+            // suspended & blocked -> enqueue in global_suspended_blocked_queue
+
+        }
+    }
+}
