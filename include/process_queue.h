@@ -33,17 +33,17 @@ struct queue* create_queue(void);
 /**
  * @brief insert a new node at the beggining of the linked list
  * 
- * @param head points to the front or "head" of linked list
+ * @param front points to the front or "head" of linked list
  * @param data points to the array of data inserted into the new node
  */
-void enqueue(struct node** head, struct pcb* pcb);
+void enqueue(struct node** rear, struct pcb* pcb);
 
 /**
  * @brief delete specified node from linked list
  * FIX COMMENTS
  * 
- * @param head points to the front or "head" of linked list
+ * @param front points to the front or "head" of linked list
  * @param del_node points to node to be deleted from linked list
  */
-void dequeue(struct node** head, struct node* del_node);
+void dequeue(struct node** front, struct node* del_node);
 

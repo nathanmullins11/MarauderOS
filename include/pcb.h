@@ -5,7 +5,7 @@
 
 #include <process_queue.h>
 
-#define MAX_NAME_LEN 1
+#define MAX_NAME_LEN 8
 
 struct pcb {
         char *name_ptr;
@@ -19,7 +19,7 @@ struct state {
 };
 
 struct process {
-        char* pcb_name;
+        char* process_name;
         int pcb_class; // class = 0 -> user app, class = 1 -> system process
         int pcb_priority; // an int between 0 (high pri) and 9 (low pri)
         struct state pcb_state;
