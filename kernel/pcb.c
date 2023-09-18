@@ -1,5 +1,6 @@
 #include <pcb.h>
 #include <string.h>
+#include <memory.h>
 
 /* initialize queues in this file*/
 struct queue* global_ready_queue;
@@ -89,4 +90,9 @@ void pcb_insert(struct pcb* process) {
             enqueue(&global_suspended_blocked_queue->rear, process);
         }
     }
+}
+
+int pcb_free(struct pcb *process) {
+    // free memory associated with pcb
+    return sys_free_mem(process);
 }
