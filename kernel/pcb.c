@@ -96,3 +96,16 @@ int pcb_free(struct pcb *process) {
     // free memory associated with pcb
     return sys_free_mem(process);
 }
+
+struct pcb* pcb_allocate(void)
+{
+    struct pcb* new_pcb = sys_alloc_mem(sizeof(struct pcb*));
+    
+    if (new_pcb == NULL)
+    {
+        return NULL;
+    }
+
+    return new_pcb;
+}
+
