@@ -1,6 +1,5 @@
 #include <pcb.h>
 #include <string.h>
-// #include <process_queue.h>
 
 /* initialize queues in this file*/
 struct ready_queue* global_ready_queue;
