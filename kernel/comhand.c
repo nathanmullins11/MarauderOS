@@ -36,6 +36,10 @@ void comhand(void)
 	char error_msg_empty_param[] = "ERR: empty parameter | run `help` command\n";
 	char error_msg_inc_flag[] = "ERR: incorrect flag | run `help` command\n";
 	char error_msg_no_flag[] = "ERR: no flag provided | run `help` command\n";
+	char error_msg_missing_name[] = "ERR: missing PCB name | run `help` command\n";
+	char error_msg_missing_class[] = "ERR: missing PCB class | run `help` command\n";
+	char error_msg_missing_priority[] = "ERR: missing PCB priority | run `help` command\n";
+	char error_msg_unknown_suboption[] = "ERR: missing required flag for option | run `help` command\n";
 			
 	// pointer to store command from user input
 	char *command;
@@ -203,6 +207,7 @@ void comhand(void)
 								sys_req(WRITE, COM1, error_msg_inc_flag, strlen(error_msg_inc_flag));
 							}
 						} else {
+							// no flag
 							sys_req(WRITE, COM1, error_msg_no_flag, strlen(error_msg_no_flag));
 						}
 					} else {
@@ -210,6 +215,128 @@ void comhand(void)
 						sys_req(WRITE, COM1, error_msg_no_param, strlen(error_msg_no_param));
 					}
 				} 
+
+				/* PCB */
+				else if (strcmp(command, "pcb") == 0) {
+					char *param = strtok(NULL, " ");
+
+					// store parameters
+					char *name = NULL;
+					char *class = NULL;
+					int pri = -1;
+
+					while (param) {
+						if (param[0] == '-') {
+							// Check if the parameter is a flag
+							if (strcmp(param, "-c") == 0) {
+								name = strtok(NULL, " ");
+								if (!name) {
+									// Missing name, print error
+									sys_req(WRITE, COM1, error_msg_missing_name, strlen(error_msg_missing_name));
+								}
+								while ((param = strtok(NULL, " "))) {
+									if (strcmp(param, "--class") == 0) {
+										class = strtok(NULL, " ");
+										if (!class) {
+											// Missing class, print error
+											sys_req(WRITE, COM1, error_msg_missing_class, strlen(error_msg_missing_class));
+											return;
+										}
+									} else if (strcmp(param, "--pri") == 0) {
+										char *pri_str = strtok(NULL, " ");
+										if (!pri_str) {
+											// Missing priority, print error
+											sys_req(WRITE, COM1, error_msg_missing_priority, strlen(error_msg_missing_priority));
+											return;
+										}
+										pri = atoi(pri_str);
+									} else {
+										// Unknown sub-option, print error
+										sys_req(WRITE, COM1, error_msg_unknown_suboption, strlen(error_msg_unknown_suboption));
+										return;
+									}
+								}
+							} else if (strcmp(param, "-p") == 0) {
+								name = strtok(NULL, " ");
+								if (!name) {
+									// Missing name, print error
+									sys_req(WRITE, COM1, error_msg_missing_name, strlen(error_msg_missing_name));
+									return;
+								}
+								while ((param = strtok(NULL, " "))) {
+									if (strcmp(param, "--pri") == 0) {
+										char *pri_str = strtok(NULL, " ");
+										if (!pri_str) {
+											// Missing priority, print error
+											sys_req(WRITE, COM1, error_msg_missing_priority, strlen(error_msg_missing_priority));
+											return;
+										}
+										pri = atoi(pri_str);
+									} else {
+										// Unknown sub-option, print error
+										sys_req(WRITE, COM1, error_msg_unknown_suboption, strlen(error_msg_unknown_suboption));
+										return;
+									}
+								}
+							} else if (strcmp(param, "-d") == 0 || strcmp(param, "-b") == 0 ||
+									strcmp(param, "-u") == 0 || strcmp(param, "-s") == 0 ||
+									strcmp(param, "-r") == 0 || strcmp(param, "-l") == 0) {
+								name = strtok(NULL, " ");
+								if (!name) {
+									// Missing name, print error
+									sys_req(WRITE, COM1, error_msg_missing_name, strlen(error_msg_missing_name));
+									return;
+								}
+							} else {
+								// Unknown flag, print error
+								sys_req(WRITE, COM1, error_msg_inc_flag, strlen(error_msg_inc_flag));
+								return;
+							}
+						} else {
+							// Invalid parameter format, print error
+							sys_req(WRITE, COM1, error_msg_no_flag, strlen(error_msg_no_flag));
+							return;
+						}
+						param = strtok(NULL, " ");
+					}
+
+					// Check if at least one option was specified
+					if (!name) {
+						// Missing option, print error
+						sys_req(WRITE, COM1, error_msg_no_flag, strlen(error_msg_no_flag));
+					} else {
+						// Call the appropriate function based on the option
+						if (strcmp(param, "-c") == 0) {
+							// PCB create function
+							(void)pri;
+							sys_req(WRITE, COM1, "create\n", strlen("create\n"));
+						} else if (strcmp(param, "-p") == 0) {
+							// PCB priority 
+
+						} else if (strcmp(param, "-d") == 0) {
+							// PCB delete
+
+						} else if (strcmp(param, "-b") == 0) {
+							// PCB block
+
+						} else if (strcmp(param, "-u") == 0) {
+							// PCB unblock
+
+						} else if (strcmp(param, "-s") == 0) {
+							// PCB suspend
+
+						} else if (strcmp(param, "-r") == 0) {
+							// PCB resume
+
+						} else if (strcmp(param, "-l") == 0) {
+							// PCB list 
+
+						} else {
+							// Missing sub-options, print error
+							sys_req(WRITE, COM1, error_msg_no_flag, strlen(error_msg_no_flag));
+						}
+					}
+				}
 
 				/* Error */
 				else {
