@@ -15,6 +15,7 @@ void comhand(void)
 {
 	// print welcoming message
 	char msg[] = "Welcome to MarauderOS | Use 'help' command to see list of commands\n";
+
 	// secondary welcome message
 	char picture_msg[] =
 	"         __  __                                 _                ____    _____\n"
@@ -26,10 +27,15 @@ void comhand(void)
     "                                                                   \n"
     "                                                                   \n";
 
-
-
 	sys_req(WRITE, COM1, picture_msg, sizeof(picture_msg));
 	sys_req(WRITE, COM1, msg, sizeof(msg));
+
+	// error messages
+	char error_msg_inc_param[] = "ERR: Invalid parameter | use `help` command\n";
+	char error_msg_no_param[] = "ERR: command needs parameter | run `help` command\n";
+	char error_msg_empty_param[] = "ERR: empty parameter | run `help` command\n";
+	char error_msg_inc_flag[] = "ERR: incorrect flag | run `help` command\n";
+	char error_msg_no_flag[] = "ERR: no flag provided | run `help` command\n";
 			
 	// pointer to store command from user input
 	char *command;
@@ -49,24 +55,26 @@ void comhand(void)
 
 			// if there is a command, start comparing
 			if (command) {
+				/* VERSION */
 				if ( strcmp(command, "version") == 0 ) {
 					// check if there are any invalid params
 					char *param = strtok(NULL, " ");
 					if (param) {
 						// invalid parameter
-						char error_msg[] = "ERR: Invalid parameter | use 'help' command\n";
-						sys_req(WRITE, COM1, error_msg, strlen(error_msg));
+						sys_req(WRITE, COM1, error_msg_inc_param, strlen(error_msg_inc_param));
 					} else {
 						// run the version command
                 		version();
 					}
-				} else if ( strcmp(command, "shutdown") == 0 ) {
+				}
+
+				/* SHUTDOWN */
+				else if ( strcmp(command, "shutdown") == 0 ) {
 					// check if there are any invalid params
 					char *param = strtok(NULL, " ");
 					if (param) {
 						// invalid parameter
-						char error_msg[] = "ERR: Invalid parameter | use 'help' command\n";
-						sys_req(WRITE, COM1, error_msg, strlen(error_msg));
+						sys_req(WRITE, COM1, error_msg_inc_param, strlen(error_msg_inc_param));
 					} else {
 						// ask user if they want to shutdown
 						char msg[] = "Are you sure you want to shutdown? (y/n)\n";
@@ -89,7 +97,10 @@ void comhand(void)
 							}
 						}
 					}
-				} else if ( strcmp(command, "help") == 0 ) {
+				} 
+
+				/* HELP */
+				else if ( strcmp(command, "help") == 0 ) {
 					// get parameters from the buffer
                 	char *param = strtok(NULL, " ");
 
@@ -99,68 +110,112 @@ void comhand(void)
 					} else {
 						help(" ");
 					}
-				} else if ( strcmp(command, "getdate") == 0 ) {
+				} 
+
+				/* GETDATE */
+				else if ( strcmp(command, "getdate") == 0 ) {
 					// check if there are any invalid params
 					char *param = strtok(NULL, " ");
 					if (param) {
 						// invalid parameter
-						char error_msg[] = "ERR: Invalid parameter | use 'help' command\n";
-						sys_req(WRITE, COM1, error_msg, strlen(error_msg));
+						sys_req(WRITE, COM1, error_msg_inc_param, strlen(error_msg_inc_param));
 					} else {
 						// run getdate command
 						get_date();
 					}
-				} else if ( strcmp(command, "setdate") == 0 ) {
+				} 
+
+				/* SETDATE */
+				else if ( strcmp(command, "setdate") == 0 ) {
 					// run the set date command
-					char *param = strtok(NULL, " ");
+					char *flag = strtok(NULL, " ");
 
 					// check if there is a parameter
-					if (param) {
-						// extrapolate the day, month, and year
-						char *month_str = strtok(param, "-");
-						char *day_str = strtok(NULL, "-");
-						char *year_str = strtok(NULL, "-");
+					if (flag) {
+						// start flag check
+						if (flag[0] == '-') {
+							if ( strcmp(flag, "-d") == 0 ) {
+								// get param from flag and pass into function
+								char *param = strtok(NULL, " ");
+								if (param) {
+									// extrapolate the day, month, and year
+									char *month_str = strtok(param, "-");
+									char *day_str = strtok(NULL, "-");
+									char *year_str = strtok(NULL, "-");
 
-						// convert to integer
-						int day = atoi(day_str);
-						int month = atoi(month_str);
-						uint8_t year = atoi(year_str);
+									// convert to integer
+									int day = atoi(day_str);
+									int month = atoi(month_str);
+									uint8_t year = atoi(year_str);
 
-						// pass into set date function
-						set_date(day, month, year);
-						
+									// pass into set date function
+									set_date(day, month, year);
+								} else {
+									// no value to pass into functon
+									sys_req(WRITE, COM1, error_msg_empty_param, strlen(error_msg_empty_param));
+								}
+							} else {
+								// incorrect flag error
+								sys_req(WRITE, COM1, error_msg_inc_flag, strlen(error_msg_inc_flag));
+							}
+						} else {
+							sys_req(WRITE, COM1, error_msg_no_flag, strlen(error_msg_no_flag));
+						}
 					} else {
 						// no param, display error code 
-						char error_msg[] = "ERR: command needs parameter | run `help setdate`\n";
-						sys_req(WRITE, COM1, error_msg, strlen(error_msg));
+						sys_req(WRITE, COM1, error_msg_no_param, strlen(error_msg_no_param));
 					}
-				} else if ( strcmp(command, "gettime") == 0 ) {
+				} 
+
+				/* GETTIME */
+				else if ( strcmp(command, "gettime") == 0 ) {
 					// check if there are any invalid params
 					char *param = strtok(NULL, " ");
 					if (param) {
 						// invalid parameter
-						char error_msg[] = "ERR: Invalid parameter | use 'help' command\n";
-						sys_req(WRITE, COM1, error_msg, strlen(error_msg));
+						sys_req(WRITE, COM1, error_msg_inc_param, strlen(error_msg_inc_param));
 					} else {
 						// run the get time command
 						get_time();
 					}
-				} else if ( strcmp(command, "settime") == 0 ) {
+				} 
+
+				/* SETTIME */
+				else if ( strcmp(command, "settime") == 0 ) {
 					// run the set time command
-					char *param = strtok(NULL, " ");
+					char *flag = strtok(NULL, " ");
 
 					// pass command into settime function 
-					if (param) {
-						set_time(param);
+					if (flag) {
+						// start flag check
+						if (flag[0] == '-') {
+							if ( strcmp(flag, "-t") == 0 ) {
+								// get param from flag and pass into function
+								char *param = strtok(NULL, " ");
+								if (param) { 
+									set_time(param); 
+								} else {
+									// no value to pass into functon
+									sys_req(WRITE, COM1, error_msg_empty_param, strlen(error_msg_empty_param));
+								}
+							} else {
+								// incorrect flag error
+								sys_req(WRITE, COM1, error_msg_inc_flag, strlen(error_msg_inc_flag));
+							}
+						} else {
+							sys_req(WRITE, COM1, error_msg_no_flag, strlen(error_msg_no_flag));
+						}
 					} else {
 						// no param, print error
-						char error_msg[] = "ERR: command needs parameter | run `help settime`\n";
-						sys_req(WRITE, COM1, error_msg, strlen(error_msg));
+						sys_req(WRITE, COM1, error_msg_no_param, strlen(error_msg_no_param));
 					}
-				} else {
+				} 
+
+				/* Error */
+				else {
 					// command not recognized
-					char error_msg[] = "ERR: Invalid Command\n";
-					sys_req(WRITE, COM1, error_msg, strlen(error_msg));
+					char error_msg_invalid_cmd[] = "ERR: Invalid Command\n";
+					sys_req(WRITE, COM1, error_msg_invalid_cmd, strlen(error_msg_invalid_cmd));
 				}
 			}
 
