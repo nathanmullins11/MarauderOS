@@ -294,11 +294,16 @@ void comhand(void)
 								
 							} else if (strcmp(param, "-d") == 0 || strcmp(param, "-b") == 0 ||
 									strcmp(param, "-u") == 0 || strcmp(param, "-s") == 0 ||
-									strcmp(param, "-r") == 0 || strcmp(param, "-l") == 0) {
+									strcmp(param, "-r") == 0) {
 								name = strtok(NULL, " ");
 								if (!name) {
 									// Missing name, print error
 									sys_req(WRITE, COM1, error_msg_missing_name, strlen(error_msg_missing_name));
+								}
+							} else if ( strcmp(param, "-l") == 0 ) {
+								name = strtok(NULL, " ");
+								if (!name) {
+									name = "all";
 								}
 							} else {
 								// Unknown flag, print error
@@ -314,13 +319,13 @@ void comhand(void)
 					}
 
 					// Check if at least one option was specified
-					if (name) {
+					if (name || strcmp(param, "-l") == 0) {
 						// Call the appropriate function based on the option
 						if (strcmp(param, "-c") == 0) {
 							// PCB create function
 							if (pri != -1 && class) {
 								// run function
-								
+
 							} else {
 								sys_req(WRITE, COM1, error_msg_unknown_suboption, strlen(error_msg_unknown_suboption));
 							}
@@ -342,10 +347,22 @@ void comhand(void)
 
 						} else if (strcmp(param, "-r") == 0) {
 							// PCB resume
-
+							print("resume");
 						} else if (strcmp(param, "-l") == 0) {
 							// PCB list 
+							if ( strcmp(name, "ready") == 0 ) {
+								// list all ready 
+								
+							} else if ( strcmp(name, "blocked") == 0 ) {
+								// list all blocked
 
+							} else if ( strcmp(name, "all") == 0 ) {
+								// list all processes
+
+							} else {
+								// list specific process
+
+							}
 						} else {
 							// Missing sub-options, print error
 							sys_req(WRITE, COM1, error_msg_no_flag, strlen(error_msg_no_flag));
