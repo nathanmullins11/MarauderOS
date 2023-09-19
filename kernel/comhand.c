@@ -126,31 +126,9 @@ void comhand(void)
 						int month = atoi(month_str);
 						uint8_t year = atoi(year_str);
 
-						// input check
-						if ((month == 1 || month == 3 || month == 5 || month == 7 || month == 8 || month == 10 || month == 12) && (day < 1 || day > 31)) { //months with 31 days
-							// day out of range
-						char error_msg[] = "ERR: day is out of the range (1-31) for the desired month. Please Try Again\n";
-						sys_req(WRITE, COM1, error_msg, strlen(error_msg));
-						} else if ((month == 4 || month == 6 || month == 9 || month == 11) && (day < 1 || day > 30)) { //months with 30 days
-							// day out of range
-						char error_msg[] = "ERR: day is out of the range (1-30) for the desired month. Please Try Again\n";
-						sys_req(WRITE, COM1, error_msg, strlen(error_msg));
-						} else if (month == 2 && (day < 1 || day > 28)) { // February :/
-							// day out of range
-							char error_msg[] = "ERR: day is out of the range 1-31. Please Try Again\n";
-							sys_req(WRITE, COM1, error_msg, strlen(error_msg));
-						} else if (month < 1 || month > 12) {
-							// month out of range
-							char error_msg[] = "ERR: month is out of the range 1-12. Please Try Again\n";
-							sys_req(WRITE, COM1, error_msg, strlen(error_msg));
-						} else if (year < 0 || year > 99) {
-							// year out of range
-							char error_msg[] = "ERR: year is out of the range 0-99. Please Try Again\n";
-							sys_req(WRITE, COM1, error_msg, strlen(error_msg));
-						} else {
-							// pass into setdate function
-							set_date(day, month, year);
-						}
+						// pass into set date function
+						set_date(day, month, year);
+						
 					} else {
 						// no param, display error code 
 						char error_msg[] = "ERR: command needs parameter | run `help setdate`\n";
