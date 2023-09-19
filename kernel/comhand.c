@@ -11,6 +11,10 @@
 #include <help.h>
 #include <mpx/io.h>
 
+void print(char *out) {
+	sys_req(WRITE, COM1, out, strlen(out));
+}
+
 void comhand(void)
 {
 	// print welcoming message
@@ -225,7 +229,7 @@ void comhand(void)
 					char *class = NULL;
 					int pri = -1;
 
-					while (param) {
+					if(param) {
 						if (param[0] == '-') {
 							// Check if the parameter is a flag
 							if (strcmp(param, "-c") == 0) {
@@ -233,51 +237,61 @@ void comhand(void)
 								if (!name) {
 									// Missing name, print error
 									sys_req(WRITE, COM1, error_msg_missing_name, strlen(error_msg_missing_name));
-								}
-								while ((param = strtok(NULL, " "))) {
-									if (strcmp(param, "--class") == 0) {
-										class = strtok(NULL, " ");
-										if (!class) {
-											// Missing class, print error
-											sys_req(WRITE, COM1, error_msg_missing_class, strlen(error_msg_missing_class));
-											return;
+								} else {
+									char *param2 = strtok(NULL, " ");
+
+									// get all suboptions
+									do {
+										if(param2) {
+											if (strcmp(param2, "--class") == 0) {
+												// get class
+												class = strtok(NULL, " ");
+												if (!class) {
+													// Missing class, print error
+													sys_req(WRITE, COM1, error_msg_missing_class, strlen(error_msg_missing_class));
+												}
+											} else if (strcmp(param2, "--pri") == 0) {
+												// get priority
+												char *pri_str = strtok(NULL, " ");
+												if (!pri_str) {
+													// Missing priority, print error
+													sys_req(WRITE, COM1, error_msg_missing_priority, strlen(error_msg_missing_priority));
+												} else {
+													pri = atoi(pri_str);
+												}
+											} else {
+												// Unknown sub-option, print error
+												sys_req(WRITE, COM1, error_msg_unknown_suboption, strlen(error_msg_unknown_suboption));
+											}
+
+											param2 = strtok(NULL, " ");
+										} else {
+											sys_req(WRITE, COM1, error_msg_unknown_suboption, strlen(error_msg_unknown_suboption));
 										}
-									} else if (strcmp(param, "--pri") == 0) {
-										char *pri_str = strtok(NULL, " ");
-										if (!pri_str) {
-											// Missing priority, print error
-											sys_req(WRITE, COM1, error_msg_missing_priority, strlen(error_msg_missing_priority));
-											return;
-										}
-										pri = atoi(pri_str);
-									} else {
-										// Unknown sub-option, print error
-										sys_req(WRITE, COM1, error_msg_unknown_suboption, strlen(error_msg_unknown_suboption));
-										return;
-									}
+									} while (param2);
 								}
+								
 							} else if (strcmp(param, "-p") == 0) {
 								name = strtok(NULL, " ");
 								if (!name) {
 									// Missing name, print error
 									sys_req(WRITE, COM1, error_msg_missing_name, strlen(error_msg_missing_name));
-									return;
-								}
-								while ((param = strtok(NULL, " "))) {
-									if (strcmp(param, "--pri") == 0) {
+								} else {
+									char *param2 = strtok(NULL, " ");
+									if (strcmp(param2, "--pri") == 0) {
 										char *pri_str = strtok(NULL, " ");
 										if (!pri_str) {
 											// Missing priority, print error
 											sys_req(WRITE, COM1, error_msg_missing_priority, strlen(error_msg_missing_priority));
-											return;
+										} else {
+											pri = atoi(pri_str);
 										}
-										pri = atoi(pri_str);
 									} else {
 										// Unknown sub-option, print error
 										sys_req(WRITE, COM1, error_msg_unknown_suboption, strlen(error_msg_unknown_suboption));
-										return;
 									}
 								}
+								
 							} else if (strcmp(param, "-d") == 0 || strcmp(param, "-b") == 0 ||
 									strcmp(param, "-u") == 0 || strcmp(param, "-s") == 0 ||
 									strcmp(param, "-r") == 0 || strcmp(param, "-l") == 0) {
@@ -285,31 +299,32 @@ void comhand(void)
 								if (!name) {
 									// Missing name, print error
 									sys_req(WRITE, COM1, error_msg_missing_name, strlen(error_msg_missing_name));
-									return;
 								}
 							} else {
 								// Unknown flag, print error
 								sys_req(WRITE, COM1, error_msg_inc_flag, strlen(error_msg_inc_flag));
-								return;
+
 							}
 						} else {
 							// Invalid parameter format, print error
 							sys_req(WRITE, COM1, error_msg_no_flag, strlen(error_msg_no_flag));
-							return;
 						}
-						param = strtok(NULL, " ");
+					} else {
+						sys_req(WRITE, COM1, error_msg_no_flag, strlen(error_msg_no_flag));
 					}
 
 					// Check if at least one option was specified
-					if (!name) {
-						// Missing option, print error
-						sys_req(WRITE, COM1, error_msg_no_flag, strlen(error_msg_no_flag));
-					} else {
+					if (name) {
 						// Call the appropriate function based on the option
 						if (strcmp(param, "-c") == 0) {
 							// PCB create function
+							if (pri != -1 && class) {
+								// run function
+								
+							} else {
+								sys_req(WRITE, COM1, error_msg_unknown_suboption, strlen(error_msg_unknown_suboption));
+							}
 							(void)pri;
-							sys_req(WRITE, COM1, "create\n", strlen("create\n"));
 						} else if (strcmp(param, "-p") == 0) {
 							// PCB priority 
 
