@@ -29,7 +29,7 @@ void show_pcb(const char *name)
     struct pcb* pcb_to_show = pcb_find(name);
 
     /* set char arrays for data of process to be displayed */
-    char* process_name = pcb_to_show->process_ptr->process_name;
+    const char* process_name = pcb_to_show->process_ptr->process_name;
     int process_class = pcb_to_show->process_ptr->pcb_class;
     char* process_state = pcb_to_show->process_ptr->pcb_state.execution_state;
     char* dispatching_state = pcb_to_show->process_ptr->pcb_state.dispatching_state;
