@@ -30,7 +30,7 @@ extern struct queue* global_suspended_blocked_queue;
 
 /**
  * @brief Create a queue object
- *  NOT SURE THIS IS NEEDED?
+ *
  * @return struct queue* 
  */ 
 struct queue* create_queue(void);

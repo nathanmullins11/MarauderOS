@@ -307,5 +307,18 @@ void dequeue(char* status, struct node *pcb)
     }
 }
 
+struct queue* create_queue(void) {
+    // Allocate memory for the queue structure
+    struct queue* new_queue = (struct queue*)sys_alloc_mem(sizeof(struct queue));
+
+    // Initialize the front and rear pointers to NULL since the queue is empty
+    if (new_queue != NULL) {
+        new_queue->front = NULL;
+        new_queue->rear = NULL;
+    }
+
+    return new_queue; // Return the pointer to the new queue
+}
+
 
 
