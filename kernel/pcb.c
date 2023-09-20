@@ -113,12 +113,12 @@ struct pcb* pcb_allocate(void)
 
 struct pcb* pcb_setup(const char *process_name , int class, int priority)
 {
-    if (name == NULL || (class != 0 && class != 1) || (priority < 0 || priority > 9)) 
+    if (process_name == NULL || (class != 0 && class != 1) || (priority < 0 || priority > 9)) 
     {
         return NULL; // Invalid parameters
     }
 
-    struct pcb* new_pcb = allocate_pcb(); // Allocate new PCB
+    struct pcb* new_pcb = pcb_allocate(); // Allocate new PCB
     if (new_pcb == NULL) 
     {
         pcb_free(new_pcb); 
