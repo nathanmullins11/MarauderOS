@@ -19,7 +19,7 @@ struct state {
 };
 
 struct process {
-        char* process_name;
+        const char* process_name;
         int pcb_class; // class = 0 -> user app, class = 1 -> system process
         int pcb_priority; // an int between 0 (high pri) and 9 (low pri)
         struct state pcb_state;

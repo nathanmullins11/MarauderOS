@@ -8,6 +8,7 @@ struct queue* global_suspended_ready_queue;
 struct queue* global_blocked_queue;
 struct queue* global_suspended_blocked_queue;
 
+
 struct pcb* pcb_find(const char* process)
 {
     /* set queues for each type from parameters */
@@ -109,3 +110,25 @@ struct pcb* pcb_allocate(void)
     return new_pcb;
 }
 
+
+struct pcb* pcb_setup(const char *process_name , int class, int priority)
+{
+    if (process_name == NULL || (class != 0 && class != 1) || (priority < 0 || priority > 9)) 
+    {
+        return NULL; // Invalid parameters
+    }
+
+    struct pcb* new_pcb = pcb_allocate(); // Allocate new PCB
+    if (new_pcb == NULL) 
+    {
+        pcb_free(new_pcb); 
+        return NULL; // Allocation error
+    }
+
+    // Initialize PCB with provided data
+    new_pcb->process_ptr->process_name = process_name;
+    new_pcb->process_ptr->pcb_class = class;
+    new_pcb->process_ptr->pcb_priority = priority;
+
+    return new_pcb;
+}
