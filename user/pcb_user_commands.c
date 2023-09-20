@@ -42,3 +42,11 @@ void show_pcb(const char *name)
     sys_req(WRITE, COM1, dispatching_state, sizeof(dispatching_state));
     sys_req(WRITE, COM1, priority, sizeof(priority));
 }
+
+void create_pcb(const char *name, int class, int priority) {
+    // check if class is valid
+    if (class != 0 && class != 1) {
+        (void)name;
+        (void)priority;
+    }
+}

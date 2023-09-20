@@ -45,6 +45,7 @@ void comhand(void)
 	char error_msg_missing_class[] = "ERR: missing PCB class | run `help` command\n";
 	char error_msg_missing_priority[] = "ERR: missing PCB priority | run `help` command\n";
 	char error_msg_unknown_suboption[] = "ERR: missing required flag for option | run `help` command\n";
+	char error_msg_inc_class[] = "ERR: not an option for PCB class | run `help` command\n";
 			
 	// pointer to store command from user input
 	char *command;
@@ -227,8 +228,9 @@ void comhand(void)
 
 					// store parameters
 					char *name = NULL;
-					char *class = NULL;
+					char *class_str = NULL;
 					int pri = -1;
+					int class = -1;
 					int isList = -1;
 
 					if(param) {
@@ -247,10 +249,18 @@ void comhand(void)
 										if(param2) {
 											if (strcmp(param2, "--class") == 0) {
 												// get class
-												class = strtok(NULL, " ");
+												class_str = strtok(NULL, " ");
 												if (!class) {
 													// Missing class, print error
 													sys_req(WRITE, COM1, error_msg_missing_class, strlen(error_msg_missing_class));
+												} else {
+													if ( strcmp(class_str, "user") == 0 ) {
+														class = 0;
+													} else if ( strcmp(class_str, "system") == 0 ) {
+														class = 1;
+													} else {
+														sys_req(WRITE, COM1, error_msg_inc_class, strlen(error_msg_inc_class));
+													}
 												}
 											} else if (strcmp(param2, "--pri") == 0) {
 												// get priority
@@ -330,7 +340,7 @@ void comhand(void)
 						// Call the appropriate function based on the option
 						if (strcmp(param, "-c") == 0) {
 							// PCB create function
-							if (pri != -1 && class) {
+							if (pri != -1 && class != -1) {
 								// run function
 
 							} else {
