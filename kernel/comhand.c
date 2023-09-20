@@ -250,7 +250,7 @@ void comhand(void)
 											if (strcmp(param2, "--class") == 0) {
 												// get class
 												class_str = strtok(NULL, " ");
-												if (!class) {
+												if (!class_str) {
 													// Missing class, print error
 													sys_req(WRITE, COM1, error_msg_missing_class, strlen(error_msg_missing_class));
 												} else {
@@ -290,7 +290,7 @@ void comhand(void)
 									sys_req(WRITE, COM1, error_msg_missing_name, strlen(error_msg_missing_name));
 								} else {
 									char *param2 = strtok(NULL, " ");
-									if (strcmp(param2, "--pri") == 0) {
+									if (param2 && strcmp(param2, "--pri") == 0) {
 										char *pri_str = strtok(NULL, " ");
 										if (!pri_str) {
 											// Missing priority, print error
@@ -342,14 +342,17 @@ void comhand(void)
 							// PCB create function
 							if (pri != -1 && class != -1) {
 								// run function
-								
+								create_pcb(name, class, pri);
 							} else {
 								sys_req(WRITE, COM1, error_msg_unknown_suboption, strlen(error_msg_unknown_suboption));
 							}
 							(void)pri;
 						} else if (strcmp(param, "-p") == 0) {
 							// PCB priority 
+							if (pri != -1) {
+								// run function
 
+							}
 						} else if (strcmp(param, "-d") == 0) {
 							// PCB delete
 							delete_pcb(name);
@@ -369,13 +372,13 @@ void comhand(void)
 							// PCB list 
 							if ( strcmp(name, "ready") == 0 ) {
 								// list all ready 
-								
+
 							} else if ( strcmp(name, "blocked") == 0 ) {
 								// list all blocked
 
 							} else if ( strcmp(name, "all") == 0 ) {
 								// list all processes
-
+								
 							} else {
 								// list specific process
 								show_pcb(name);
