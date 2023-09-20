@@ -96,3 +96,52 @@ void block_pcb(const char *name) {
     // put back into relevant queue
     pcb_insert(cur_pcb);
 }
+
+void unblock_pcb(const char *name) {
+    // get pcb struct from name
+    struct pcb* cur_pcb = pcb_find(name);
+
+    // remove pcb from current queue
+    int status = pcb_remove(cur_pcb);
+
+    // check if removed
+    if (!status) {
+        char err[] = "ERR: Cannot remove pcb from queue | try again\n";
+        sys_req(WRITE, COM1, err, strlen(err));
+        return;
+    }
+
+    // change the execution state to ready
+    cur_pcb->process_ptr->pcb_state.execution_state = "ready";
+
+    // put back into relevant queue
+    pcb_insert(cur_pcb);
+}
+
+void suspend_pcb(const char *name) {
+    // get pcb struct from name
+    struct pcb* cur_pcb = pcb_find(name);
+
+    // remove pcb from current queue
+    int status = pcb_remove(cur_pcb);
+
+    // check if it is a system process
+    if (cur_pcb->process_ptr->pcb_class == 1) {
+        char err[] = "ERR: System process cannot be suspended\n";
+        sys_req(WRITE, COM1, err, strlen(err));
+        return;
+    }
+
+    // check if removed
+    if (!status) {
+        char err[] = "ERR: Cannot remove pcb from queue | try again\n";
+        sys_req(WRITE, COM1, err, strlen(err));
+        return;
+    }
+
+    // change the dispatching state to suspended
+    cur_pcb->process_ptr->pcb_state.execution_state = "suspended";
+
+    // put back into relevant queue
+    pcb_insert(cur_pcb);
+}
