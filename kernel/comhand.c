@@ -342,7 +342,7 @@ void comhand(void)
 							// PCB create function
 							if (pri != -1 && class != -1) {
 								// run function
-
+								
 							} else {
 								sys_req(WRITE, COM1, error_msg_unknown_suboption, strlen(error_msg_unknown_suboption));
 							}

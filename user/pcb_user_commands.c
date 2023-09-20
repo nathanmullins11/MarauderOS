@@ -1,5 +1,7 @@
+#include "mpx/device.h"
 #include "sys_req.h"
 #include <pcb.h>
+#include <string.h>
 
 void delete_pcb(const char* name)
 {
@@ -44,9 +46,31 @@ void show_pcb(const char *name)
 }
 
 void create_pcb(const char *name, int class, int priority) {
+    /* Run checks */
     // check if class is valid
     if (class != 0 && class != 1) {
-        (void)name;
-        (void)priority;
+        char err_class[] = "ERR: Invalid class\n";
+        sys_req(WRITE, COM1, err_class, strlen(err_class));
     }
+
+    // check priority
+    if (priority > 9 || priority < 0) {
+        char err_pri[] = "ERR: Invalid priority\n";
+        sys_req(WRITE, COM1, err_pri, strlen(err_pri));
+    }
+
+    // check if name is unique
+    if (pcb_find(name) != NULL) {
+        char err_name[] = "ERR: Name already in use\n";
+        sys_req(WRITE, COM1, err_name, strlen(err_name));
+    } else if (name == NULL) {
+        char err_name[] = "ERR: Name cannot be empty\n";
+        sys_req(WRITE, COM1, err_name, strlen(err_name));
+    }
+    
+    // setup new pcb
+    struct pcb* new_pcb = pcb_setup(name, class, priority);
+
+    // insert new pcb into appropiate queue
+    pcb_insert(new_pcb);
 }
