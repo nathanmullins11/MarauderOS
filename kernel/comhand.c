@@ -380,7 +380,7 @@ void comhand(void)
 							suspend_pcb(name);
 						} else if (strcmp(param, "-r") == 0) {
 							// PCB resume
-
+							resume_pcb(name);
 						} else if (strcmp(param, "-l") == 0) {
 							// PCB list 
 							if ( strcmp(name, "ready") == 0 ) {

@@ -80,6 +80,12 @@ void block_pcb(const char *name) {
     // get pcb struct from name
     struct pcb* cur_pcb = pcb_find(name);
 
+    // check if name is valid
+    if (cur_pcb == NULL) {
+        char err[] = "ERR: PCB does not exist\n";
+        sys_req(WRITE, COM1, err, strlen(err));
+    }
+
     // remove pcb from current queue
     int status = pcb_remove(cur_pcb);
 
@@ -100,6 +106,12 @@ void block_pcb(const char *name) {
 void unblock_pcb(const char *name) {
     // get pcb struct from name
     struct pcb* cur_pcb = pcb_find(name);
+
+    // check if name is valid
+    if (cur_pcb == NULL) {
+        char err[] = "ERR: PCB does not exist\n";
+        sys_req(WRITE, COM1, err, strlen(err));
+    }
 
     // remove pcb from current queue
     int status = pcb_remove(cur_pcb);
@@ -122,6 +134,12 @@ void suspend_pcb(const char *name) {
     // get pcb struct from name
     struct pcb* cur_pcb = pcb_find(name);
 
+    // check if name is valid
+    if (cur_pcb == NULL) {
+        char err[] = "ERR: PCB does not exist\n";
+        sys_req(WRITE, COM1, err, strlen(err));
+    }
+
     // remove pcb from current queue
     int status = pcb_remove(cur_pcb);
 
@@ -140,7 +158,34 @@ void suspend_pcb(const char *name) {
     }
 
     // change the dispatching state to suspended
-    cur_pcb->process_ptr->pcb_state.execution_state = "suspended";
+    cur_pcb->process_ptr->pcb_state.dispatching_state = "suspended";
+
+    // put back into relevant queue
+    pcb_insert(cur_pcb);
+}
+
+void resume_pcb(const char *name) {
+    // get pcb struct from name
+    struct pcb* cur_pcb = pcb_find(name);
+
+    // check if name is valid
+    if (cur_pcb == NULL) {
+        char err[] = "ERR: PCB does not exist\n";
+        sys_req(WRITE, COM1, err, strlen(err));
+    }
+
+    // remove pcb from current queue
+    int status = pcb_remove(cur_pcb);
+
+    // check if removed
+    if (!status) {
+        char err[] = "ERR: Cannot remove pcb from queue | try again\n";
+        sys_req(WRITE, COM1, err, strlen(err));
+        return;
+    }
+
+    // change the dispatching state to not suspended
+    cur_pcb->process_ptr->pcb_state.dispatching_state = "not suspended";
 
     // put back into relevant queue
     pcb_insert(cur_pcb);
