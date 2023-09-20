@@ -228,6 +228,7 @@ void comhand(void)
 					char *name = NULL;
 					char *class = NULL;
 					int pri = -1;
+					int isList = -1;
 
 					if(param) {
 						if (param[0] == '-') {
@@ -318,8 +319,13 @@ void comhand(void)
 						sys_req(WRITE, COM1, error_msg_no_flag, strlen(error_msg_no_flag));
 					}
 
+					// check if -l flag
+					if (param) {
+						isList = strcmp(param, "-l");
+					}
+					
 					// Check if at least one option was specified
-					if (name || strcmp(param, "-l") == 0) {
+					if (name || isList == 0) {
 						// Call the appropriate function based on the option
 						if (strcmp(param, "-c") == 0) {
 							// PCB create function
