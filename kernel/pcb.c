@@ -1,6 +1,7 @@
 #include <pcb.h>
 #include <string.h>
 #include <memory.h>
+#include <comhand.h>
 
 /* initialize queues in this file*/
 struct queue* global_ready_queue;
@@ -101,6 +102,7 @@ int pcb_free(struct pcb *process) {
 struct pcb* pcb_allocate(void)
 {
     struct pcb* new_pcb = (struct pcb*)sys_alloc_mem(sizeof(struct pcb*));
+    new_pcb->process_ptr = (struct process*)sys_alloc_mem(sizeof(struct process));
     
     if (new_pcb == NULL)
     {
