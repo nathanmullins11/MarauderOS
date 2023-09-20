@@ -9,4 +9,6 @@ USER_OBJECTS=\
 	user/version.o\
 	user/time.o \
 	user/help.o \
-	user/doubly_linked_list.o
+	user/doubly_linked_list.o \
+	user/pcb_user_commands.o \
+	user/process_queue.o

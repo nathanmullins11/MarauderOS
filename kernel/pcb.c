@@ -132,3 +132,9 @@ struct pcb* pcb_setup(const char *process_name , int class, int priority)
 
     return new_pcb;
 }
+
+int pcb_remove(struct pcb *process)
+{
+    process->process_ptr->pcb_priority = 1;
+    return 1;
+}

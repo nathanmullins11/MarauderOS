@@ -28,13 +28,6 @@ struct process {
         struct process* next_process; // related pcbs
 };
 
-/* Declaration: Put this in your header file */
-extern struct pcb *queue_head;
-
-
-/* Definition: Put this in exactly one source file */
-struct pcb *queue_head;
-
 /**
  * @brief 
  * 
