@@ -109,6 +109,19 @@ void comhand(void)
 					}
 				} 
 
+				/* IMMEDIATE SHUTDOWN */
+				else if ( strcmp(command, "shutdown!") == 0 ) {
+					// check if there are any invalid params
+					char *param = strtok(NULL, " ");
+					if (param) {
+						// invalid parameter
+						sys_req(WRITE, COM1, error_msg_inc_param, strlen(error_msg_inc_param));
+					} else {
+						// run the version command
+                		return;
+					}
+				}
+
 				/* HELP */
 				else if ( strcmp(command, "help") == 0 ) {
 					// get parameters from the buffer
