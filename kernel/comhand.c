@@ -374,13 +374,13 @@ void comhand(void)
 
 						} else if (strcmp(param, "-u") == 0) {
 							// PCB unblock
-
+							unblock_pcb(name);
 						} else if (strcmp(param, "-s") == 0) {
 							// PCB suspend
-
+							suspend_pcb(name);
 						} else if (strcmp(param, "-r") == 0) {
 							// PCB resume
-
+							resume_pcb(name);
 						} else if (strcmp(param, "-l") == 0) {
 							// PCB list 
 							if ( strcmp(name, "ready") == 0 ) {

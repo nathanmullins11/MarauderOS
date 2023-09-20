@@ -14,8 +14,8 @@ struct pcb {
 };
 
 struct state {
-    char* execution_state; // ready, running, or blocked
-    char* dispatching_state; // suspended or not suspended
+        char* execution_state; // ready, running, or blocked
+        char* dispatching_state; // suspended or not suspended
 };
 
 struct process {
