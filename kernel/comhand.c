@@ -10,6 +10,7 @@
 #include <time.h>
 #include <help.h>
 #include <mpx/io.h>
+#include <pcb.h>
 
 void print(char *out) {
 	sys_req(WRITE, COM1, out, strlen(out));
@@ -341,7 +342,7 @@ void comhand(void)
 
 						} else if (strcmp(param, "-d") == 0) {
 							// PCB delete
-
+							delete_pcb(name);
 						} else if (strcmp(param, "-b") == 0) {
 							// PCB block
 
@@ -353,7 +354,7 @@ void comhand(void)
 
 						} else if (strcmp(param, "-r") == 0) {
 							// PCB resume
-							print("resume");
+
 						} else if (strcmp(param, "-l") == 0) {
 							// PCB list 
 							if ( strcmp(name, "ready") == 0 ) {
@@ -367,7 +368,7 @@ void comhand(void)
 
 							} else {
 								// list specific process
-
+								show_pcb(name);
 							}
 						} else {
 							// Missing sub-options, print error
