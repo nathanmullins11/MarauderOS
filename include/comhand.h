@@ -9,3 +9,10 @@
  * 
  */
 void comhand(void);
+
+/**
+ * @brief prints a string out to the COM1 port using sys_req()
+ * 
+ * @param out the char* to print out
+ */
+void print(char *out);

@@ -2,6 +2,7 @@
 #include "sys_req.h"
 #include <pcb.h>
 #include <string.h>
+#include <comhand.h>
 
 void delete_pcb(const char* name)
 {
@@ -73,4 +74,25 @@ void create_pcb(const char *name, int class, int priority) {
 
     // insert new pcb into appropiate queue
     pcb_insert(new_pcb);
+}
+
+void block_pcb(const char *name) {
+    // get pcb struct from name
+    struct pcb* cur_pcb = pcb_find(name);
+
+    // remove pcb from current queue
+    int status = pcb_remove(cur_pcb);
+
+    // check if removed
+    if (!status) {
+        char err[] = "ERR: Cannot remove pcb from queue | try again\n";
+        sys_req(WRITE, COM1, err, strlen(err));
+        return;
+    }
+
+    // change the execution state to blocked
+    cur_pcb->process_ptr->pcb_state.execution_state = "blocked";
+
+    // put back into relevant queue
+    pcb_insert(cur_pcb);
 }
