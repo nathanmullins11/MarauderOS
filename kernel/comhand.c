@@ -103,10 +103,15 @@ void comhand(void)
 							// day out of range
 						char error_msg[] = "ERR: day is out of the range (1-30) for the desired month. Please Try Again\n";
 						sys_req(WRITE, COM1, error_msg, strlen(error_msg));
-						} else if (month == 2 && (day < 1 || day > 28)) { // February :/
+						} else if ((month == 2) && ((year % 4) == 0) && (day < 1 || day > 29) ) { // February Leap Year
 							// day out of range
-							char error_msg[] = "ERR: day is out of the range 1-31. Please Try Again\n";
+							char error_msg[] = "ERR: day is out of the range 1-29. Please Try Again\n";
 							sys_req(WRITE, COM1, error_msg, strlen(error_msg));
+						 } else if ((month == 2) && ((year % 4) != 0) && (day < 1 || day > 28) ) { // February non-Leap Year
+							// day out of range
+							char error_msg[] = "ERR: day is out of the range 1-28. Please Try Again\n";
+							sys_req(WRITE, COM1, error_msg, strlen(error_msg));
+				
 						} else if (month < 1 || month > 12) {
 							// month out of range
 							char error_msg[] = "ERR: month is out of the range 1-12. Please Try Again\n";
