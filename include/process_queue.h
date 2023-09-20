@@ -28,15 +28,20 @@ extern struct queue* global_suspended_ready_queue;
 extern struct queue* global_blocked_queue;
 extern struct queue* global_suspended_blocked_queue;
 
+/**
+ * @brief Create a queue object
+ *  NOT SURE THIS IS NEEDED?
+ * @return struct queue* 
+ */ 
 struct queue* create_queue(void);
 
 /**
- * @brief insert a new node at the beggining of the linked list
+ * @brief insert a new node at the end/tail of the linked list
  * 
- * @param front points to the front or "head" of linked list
- * @param data points to the array of data inserted into the new node
+ * @param rear points to the end of the linked list
+ * @param pcb points to the pcb to be placed into the queue
  */
-void enqueue(struct node** rear, struct pcb* pcb);
+void enqueue(char* status, struct pcb* pcb);
 
 /**
  * @brief delete specified node from linked list
@@ -45,5 +50,21 @@ void enqueue(struct node** rear, struct pcb* pcb);
  * @param front points to the front or "head" of linked list
  * @param del_node points to node to be deleted from linked list
  */
-void dequeue(struct node** front, struct node* pcb);
+void dequeue(char* status, struct node* pcb);
+
+/**
+ * @brief search for a process in each of the queues by checking for execution and dispatch state
+ * 
+ * @param pcb_ptr pointer to the relative pcb of the process
+ * @return char* returns which queue the pcb is in. i.e. returns "ready", "blocked", "suspended ready", or "suspended blocked" when function is called, should be stored in a variable
+ */
+char* search(struct pcb* pcb_ptr);
+
+/**
+ * @brief Create a node object
+ * 
+ * @param pcb 
+ * @return struct node* 
+ */
+struct node* create_node(struct pcb* pcb);
 

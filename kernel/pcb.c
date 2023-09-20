@@ -75,19 +75,19 @@ void pcb_insert(struct pcb* process) {
         // now check the execution state
         if ( strcmp(process->process_ptr->pcb_state.execution_state, "ready") == 0 ) {
             // not suspended & ready -> enqueue in global_ready_queue
-            enqueue(&global_ready_queue->rear, process);
+            enqueue("ready", process);
         } else if ( strcmp(process->process_ptr->pcb_state.dispatching_state, "blocked") == 0 ) {
             // not suspended & blocked -> enqueue in global_blocked_queue
-            enqueue(&global_blocked_queue->rear, process);
+            enqueue("blocked", process);
         }
     } else if ( strcmp(process->process_ptr->pcb_state.dispatching_state, "suspended") == 0 ) {
         // now check the execution state
         if ( strcmp(process->process_ptr->pcb_state.execution_state, "ready") == 0 ) {
             // suspended & ready -> enqueue in global_suspended_ready_queue
-            enqueue(&global_suspended_ready_queue->rear, process);
+            enqueue("suspended ready", process);
         } else if ( strcmp(process->process_ptr->pcb_state.dispatching_state, "blocked") == 0 ) {
             // suspended & blocked -> enqueue in global_suspended_blocked_queue
-            enqueue(&global_suspended_blocked_queue->rear, process);
+            enqueue("suspended blocked", process);
         }
     }
 }
@@ -99,7 +99,7 @@ int pcb_free(struct pcb *process) {
 
 struct pcb* pcb_allocate(void)
 {
-    struct pcb* new_pcb = sys_alloc_mem(sizeof(struct pcb*));
+    struct pcb* new_pcb = (struct pcb*)sys_alloc_mem(sizeof(struct pcb*));
     
     if (new_pcb == NULL)
     {
