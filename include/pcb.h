@@ -82,7 +82,7 @@ int pcb_remove(struct pcb* process);
  * @param class process class
  * @param priority process priority
  */
-void create_pcb(const char* name, const char* class, int priority);
+void create_pcb(const char* name, int class, int priority);
 
 /**
  * @brief finds requested process and removed it from the queue
