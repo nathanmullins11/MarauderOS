@@ -2,6 +2,7 @@
 #include "sys_req.h"
 #include <pcb.h>
 #include <string.h>
+#include <comhand.h>
 
 void delete_pcb(const char* name)
 {
