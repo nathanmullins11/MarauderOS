@@ -50,7 +50,7 @@ void enqueue(char* status, struct pcb* pcb);
  * @param front points to the front or "head" of linked list
  * @param del_node points to node to be deleted from linked list
  */
-void dequeue(char* status, struct node* pcb);
+void dequeue(char* status, struct pcb* pcb);
 
 /**
  * @brief search for a process in each of the queues by checking for execution and dispatch state
