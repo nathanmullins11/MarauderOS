@@ -14,15 +14,15 @@ struct pcb {
 };
 
 struct state {
-        char* execution_state; // ready, running, or blocked
-        char* dispatching_state; // suspended or not suspended
+        const char* execution_state; // ready, running, or blocked
+        const char* dispatching_state; // suspended or not suspended
 };
 
 struct process {
         const char* process_name;
         int pcb_class; // class = 0 -> user app, class = 1 -> system process
         int pcb_priority; // an int between 0 (high pri) and 9 (low pri)
-        struct state pcb_state;
+        struct state *pcb_state;
         char pcb_stack[1024]; // process stack of at least 1024
         void* stack_ptr; // pointer to current location in stack
         struct process* next_process; // related pcbs
