@@ -152,6 +152,13 @@ void show_blocked(void) {
 
 }
 
+void show_all(void) {
+
+    show_ready();
+    show_blocked();
+
+}
+
 void create_pcb(const char *name, int class, int priority) {
     /* Run checks */
     // check if class is valid
