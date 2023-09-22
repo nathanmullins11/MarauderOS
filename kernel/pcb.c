@@ -139,7 +139,9 @@ struct pcb* pcb_setup(const char *process_name , int class, int priority)
     new_pcb->process_ptr->pcb_priority = priority;
 
     // init with initial state
+    print("before using ENUM\n");
     new_pcb->process_ptr->pcb_state = READY_NOT_SUSPENDED;
+    print("after creating ENUM\n");
 
     return new_pcb;
 }
