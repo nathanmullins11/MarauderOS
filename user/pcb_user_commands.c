@@ -68,10 +68,14 @@ void create_pcb(const char *name, int class, int priority) {
         char err_name[] = "ERR: Name cannot be empty\n";
         sys_req(WRITE, COM1, err_name, strlen(err_name));
     }
+
+    print("before setting up new pcb\n");
     
     // setup new pcb
     print("setting up pcb\n");
     struct pcb* new_pcb = pcb_setup(name, class, priority);
+
+    print("after setting up pcb\n");
 
     // insert new pcb into appropiate queue
     print("setup pcb\ninserting\n");
