@@ -34,15 +34,14 @@ void show_pcb(const char *name)
     /* set char arrays for data of process to be displayed */
     const char* process_name = pcb_to_show->process_ptr->process_name;
     int process_class = pcb_to_show->process_ptr->pcb_class;
-    const char* process_state = pcb_to_show->process_ptr->pcb_state->execution_state;
-    const char* dispatching_state = pcb_to_show->process_ptr->pcb_state->dispatching_state;
+    enum state process_state = pcb_to_show->process_ptr->pcb_state;
     int priority = pcb_to_show->process_ptr->pcb_priority;
 
     /* display char arrays to the terminal */
     sys_req(WRITE, COM1, process_name, sizeof(process_name));
     sys_req(WRITE, COM1, process_class, sizeof(process_class));
     sys_req(WRITE, COM1, process_state, sizeof(process_state));
-    sys_req(WRITE, COM1, dispatching_state, sizeof(dispatching_state));
+    // sys_req(WRITE, COM1, dispatching_state, sizeof(dispatching_state));
     sys_req(WRITE, COM1, priority, sizeof(priority));
 }
 
@@ -191,8 +190,12 @@ void resume_pcb(const char *name) {
         return;
     }
 
-    // change the dispatching state to not suspended
-    cur_pcb->process_ptr->pcb_state->dispatching_state = "not suspended";
+    // change the pcb to not suspended based off of its cur state
+    if (cur_pcb->process_ptr->pcb_state == READY_SUSPENDED) {
+        cur_pcb->process_ptr->pcb_state = READY_NOT_SUSPENDED;
+    } else if (cur_pcb->process_ptr->pcb_state == BLOCKED_SUSPENDED) {
+        cur_pcb->process_ptr->pcb_state = BLOCKED_NOT_SUSPENDED;
+    }
 
     // put back into relevant queue
     pcb_insert(cur_pcb);
