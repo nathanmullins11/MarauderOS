@@ -46,6 +46,31 @@ void show_pcb(const char *name)
     sys_req(WRITE, COM1, priority, sizeof(priority));
 }
 
+void show_ready(void) {
+     // readying up the ready queue
+    struct node* current_ready = global_ready_queue->front;
+
+    /* search for process in ready queue*/
+    while(current_ready != NULL)
+    {
+     const char* name = current_ready->pcb->process_ptr->process_name;
+     int class = current_ready->pcb->process_ptr->pcb_class;
+  //  STATE IS UNDER CONSTRUCTION... status also in the works  struct state state = current_ready->pcb->process_ptr;
+    int priority = current_ready->pcb->process_ptr->pcb_priority;
+
+    print("Process Name: ");
+    sys_req(WRITE, COM1, name, sizeof(name));
+     print("\nProcess Class: ");
+    sys_req(WRITE, COM1, class, sizeof(class));
+     print("\nProcess Priority: ");
+    sys_req(WRITE, COM1, priority, sizeof(priority));
+
+
+
+        current_ready = current_ready->next;
+    }
+}
+
 void create_pcb(const char *name, int class, int priority) {
     /* Run checks */
     // check if class is valid
@@ -194,3 +219,4 @@ void resume_pcb(const char *name) {
     // put back into relevant queue
     pcb_insert(cur_pcb);
 }
+
