@@ -5,30 +5,20 @@
 
 char* search(struct pcb* pcb_ptr)
 {
-    // if the process is running, then do not insert
-    if ( (strcmp(pcb_ptr->process_ptr->pcb_state->dispatching_state, "running")) == 0 ) {
+    // if the process is RUNNING, then do not insert
+    if (pcb_ptr->process_ptr->pcb_state == 4) { // RUNNING
         return "running";
     }
 
     // check if the process dispatching state is suspended or not suspended
-    if ( strcmp(pcb_ptr->process_ptr->pcb_state->dispatching_state, "not suspended") == 0 ) {
-        // now check the execution state
-        if ( strcmp(pcb_ptr->process_ptr->pcb_state->execution_state, "ready") == 0 ) {
-            // not suspended & ready -> enqueue in global_ready_queue
-            return "ready";
-        } else if ( strcmp(pcb_ptr->process_ptr->pcb_state->dispatching_state, "blocked") == 0 ) {
-            // not suspended & blocked -> enqueue in global_blocked_queue
-            return "blocked";
-        }
-    } else if ( strcmp(pcb_ptr->process_ptr->pcb_state->dispatching_state, "suspended") == 0 ) {
-        // now check the execution state
-        if ( strcmp(pcb_ptr->process_ptr->pcb_state->execution_state, "ready") == 0 ) {
-            // suspended & ready -> enqueue in global_suspended_ready_queue
-            return "suspended ready";
-        } else if ( strcmp(pcb_ptr->process_ptr->pcb_state->dispatching_state, "blocked") == 0 ) {
-            // suspended & blocked -> enqueue in global_suspended_blocked_queue
-            return "suspended blocked";
-        }
+    if (pcb_ptr->process_ptr->pcb_state == 0) { // READY NOT SUSPENDED
+        return "ready not suspended";
+    } else if (pcb_ptr->process_ptr->pcb_state == 2) { // BLOCKED NOT SUSPENDED
+        return "blocked not suspended";
+    } else if (pcb_ptr->process_ptr->pcb_state == 1) { // READY SUSPENDED
+        return "ready suspended";
+    } else if (pcb_ptr->process_ptr->pcb_state == 3) { // BLOCKED SUSPENDED
+        return "blocked suspended";
     }
 
     // if process/pcb was not found
