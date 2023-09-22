@@ -3,6 +3,7 @@
 #include <pcb.h>
 #include <string.h>
 #include <comhand.h>
+#include <itoa.h>
 
 void delete_pcb(const char* name)
 {
@@ -31,18 +32,71 @@ void show_pcb(const char *name)
     // get associated pcb from name
     struct pcb* pcb_to_show = pcb_find(name);
 
+    print("\nreturned from find array in show_pcb command\n");
+
     /* set char arrays for data of process to be displayed */
     const char* process_name = pcb_to_show->process_ptr->process_name;
     int process_class = pcb_to_show->process_ptr->pcb_class;
     enum state process_state = pcb_to_show->process_ptr->pcb_state;
     int priority = pcb_to_show->process_ptr->pcb_priority;
 
+    print("finsihed setting char arrays in show_pcb command. About to print...\n");
+
     /* display char arrays to the terminal */
+    print("PCB name: ");
+    // print name
     sys_req(WRITE, COM1, process_name, sizeof(process_name));
-    sys_req(WRITE, COM1, process_class, sizeof(process_class));
-    sys_req(WRITE, COM1, process_state, sizeof(process_state));
-    // sys_req(WRITE, COM1, dispatching_state, sizeof(dispatching_state));
-    sys_req(WRITE, COM1, priority, sizeof(priority));
+    print("\n");
+    print("PCB class: ");
+
+    // convert class to string based on int value
+    char* class_as_string = {0};
+    if(process_class == 0)
+    {
+        class_as_string = "user application";
+    } else if (process_class == 1) {
+        class_as_string = "system process";
+    }
+
+    // print class
+    sys_req(WRITE, COM1, class_as_string, sizeof(class_as_string));
+    print("\n");
+    print("PCB state: ");
+
+    // convert state to string based off enum value
+    char* state_as_string = {0};
+    char* suspended_status = {0};
+    if(process_state == READY_NOT_SUSPENDED)
+    {
+        state_as_string = "ready";
+        suspended_status = "not suspended";
+    } else if (process_state == READY_SUSPENDED) {
+        state_as_string = "ready";
+        suspended_status = "suspended";
+    } else if (process_state == BLOCKED_NOT_SUSPENDED) {
+        state_as_string = "blocked";
+        suspended_status = "not suspended";
+    } else if (process_state == BLOCKED_SUSPENDED) {
+        state_as_string = "blocked";
+        suspended_status = "suspended";
+    }
+
+    // print state
+    sys_req(WRITE, COM1, state_as_string, sizeof(state_as_string));
+    print("\n");
+    print("PCB suspended status\n");
+    // print suspended status
+    sys_req(WRITE, COM1, suspended_status, sizeof(suspended_status));
+    print("\n");
+    print("PCB priority: ");
+
+    /* convert priority from int to string */
+    char priority_as_string[10] = {0};
+    itoa(priority, priority_as_string, 10);
+
+    // print priority
+    sys_req(WRITE, COM1, priority_as_string, sizeof(priority_as_string));
+    print("\n");
 }
 
 void show_ready(void) {
