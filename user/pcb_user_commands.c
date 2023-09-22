@@ -102,8 +102,13 @@ void block_pcb(const char *name) {
         return;
     }
 
-    // change the execution state to blocked
-    cur_pcb->process_ptr->pcb_state->execution_state = "blocked";
+    // change the pcb to ready based off of its cur state i.e. in a suspended ready queue or a not suspended ready queue
+    if (cur_pcb->process_ptr->pcb_state == READY_NOT_SUSPENDED) {
+        cur_pcb->process_ptr->pcb_state = BLOCKED_NOT_SUSPENDED;
+    } else if (cur_pcb->process_ptr->pcb_state == READY_SUSPENDED) {
+        cur_pcb->process_ptr->pcb_state = BLOCKED_SUSPENDED;
+    }
+
 
     // put back into relevant queue
     pcb_insert(cur_pcb);
@@ -129,8 +134,13 @@ void unblock_pcb(const char *name) {
         return;
     }
 
-    // change the execution state to ready
-    cur_pcb->process_ptr->pcb_state->execution_state = "ready";
+    // change the pcb to ready based off of its cur state i.e. in a suspended ready queue or a not suspended ready queue
+    if (cur_pcb->process_ptr->pcb_state == BLOCKED_SUSPENDED) {
+        cur_pcb->process_ptr->pcb_state = READY_SUSPENDED;
+    } else if (cur_pcb->process_ptr->pcb_state == BLOCKED_NOT_SUSPENDED) {
+        cur_pcb->process_ptr->pcb_state = READY_NOT_SUSPENDED;
+    }
+
 
     // put back into relevant queue
     pcb_insert(cur_pcb);
