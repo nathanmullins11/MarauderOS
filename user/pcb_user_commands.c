@@ -70,6 +70,33 @@ void show_ready(void) {
     }
 }
 
+void show_blocked(void) {
+
+     // readying up the blocked queue
+     struct node* current_blocked = global_blocked_queue->front;
+
+    /* search for process in ready queue*/
+    while(current_blocked != NULL)
+    {
+     const char* name = current_blocked->pcb->process_ptr->process_name;
+     int class = current_blocked->pcb->process_ptr->pcb_class;
+  //  STATE IS UNDER CONSTRUCTION... status also in the works  struct state state = current_ready->pcb->process_ptr;
+    int priority = current_blocked->pcb->process_ptr->pcb_priority;
+
+    print("Process Name: ");
+    sys_req(WRITE, COM1, name, sizeof(name));
+     print("\nProcess Class: ");
+    sys_req(WRITE, COM1, class, sizeof(class));
+     print("\nProcess Priority: ");
+    sys_req(WRITE, COM1, priority, sizeof(priority));
+
+
+
+        current_blocked = current_blocked->next;
+    }
+
+}
+
 void create_pcb(const char *name, int class, int priority) {
     /* Run checks */
     // check if class is valid
