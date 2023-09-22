@@ -77,31 +77,26 @@ struct pcb* pcb_find(const char* process)
 }
 
 void pcb_insert(struct pcb* process) {
-    // if the process is running, then do not insert
-    if ( (strcmp(process->process_ptr->pcb_state.execution_state, "running")) == 0 ) {
+    // if the process is RUNNING, then do not insert
+    if (process->process_ptr->pcb_state == RUNNING) {
         return;
     }
 
-    // check if the process dispatching state is suspended or not suspended
-    if ( strcmp(process->process_ptr->pcb_state.dispatching_state, "not suspended") == 0 ) {
-        // now check the execution state
-        if ( strcmp(process->process_ptr->pcb_state.execution_state, "ready") == 0 ) {
-            // not suspended & ready -> enqueue in global_ready_queue
-            enqueue("ready", process);
-        } else if ( strcmp(process->process_ptr->pcb_state.dispatching_state, "blocked") == 0 ) {
-            // not suspended & blocked -> enqueue in global_blocked_queue
-            enqueue("blocked", process);
-        }
-    } else if ( strcmp(process->process_ptr->pcb_state.dispatching_state, "suspended") == 0 ) {
-        // now check the execution state
-        if ( strcmp(process->process_ptr->pcb_state.execution_state, "ready") == 0 ) {
-            // suspended & ready -> enqueue in global_suspended_ready_queue
-            enqueue("suspended ready", process);
-        } else if ( strcmp(process->process_ptr->pcb_state.dispatching_state, "blocked") == 0 ) {
-            // suspended & blocked -> enqueue in global_suspended_blocked_queue
-            enqueue("suspended blocked", process);
-        }
+    // check state
+    if (process->process_ptr->pcb_state == READY_NOT_SUSPENDED) {
+        // not suspended & ready -> enqueue in global_ready_queue
+        enqueue("ready", process);
+    } else if (process->process_ptr->pcb_state == BLOCKED_NOT_SUSPENDED) {
+        // not suspended & blocked -> enqueue in global_blocked_queue
+        enqueue("blocked", process);
+    } else if (process->process_ptr->pcb_state == READY_SUSPENDED) {
+        // suspended & ready -> enqueue in global_suspended_ready_queue
+        enqueue("suspended ready", process);
+    } else if (process->process_ptr->pcb_state == BLOCKED_SUSPENDED) {
+        // suspended & blocked -> enqueue in global_suspended_blocked_queue
+        enqueue("suspended blocked", process);
     }
+    
 }
 
 int pcb_free(struct pcb *process) {
@@ -112,6 +107,8 @@ int pcb_free(struct pcb *process) {
 struct pcb* pcb_allocate(void)
 {
     struct pcb* new_pcb = (struct pcb*)sys_alloc_mem(sizeof(struct pcb*));
+    new_pcb->process_ptr = (struct process*)sys_alloc_mem(sizeof(struct process*));
+   // new_pcb->process_ptr->pcb_state = (struct state*)sys_alloc_mem(sizeof(struct state*));
     
     if (new_pcb == NULL)
     {
@@ -141,6 +138,11 @@ struct pcb* pcb_setup(const char *process_name , int class, int priority)
     new_pcb->process_ptr->pcb_class = class;
     new_pcb->process_ptr->pcb_priority = priority;
 
+    // init with initial state
+    print("before using ENUM\n");
+    new_pcb->process_ptr->pcb_state = READY_NOT_SUSPENDED;
+    print("after creating ENUM\n");
+
     return new_pcb;
 }
 
@@ -150,37 +152,28 @@ int pcb_remove(struct pcb *process)
     int error = 1;
     int noError = 0;
 
- // if the process is running, then do not insert
-    if ( (strcmp(process->process_ptr->pcb_state.execution_state, "running")) == 0 ) {
+    // if the process is running, then do not insert
+    if (process->process_ptr->pcb_state == RUNNING) {
         return error;
     }
 
-    // check if the process dispatching state is suspended or not suspended
-    if ( strcmp(process->process_ptr->pcb_state.dispatching_state, "not suspended") == 0 ) {
-        // now check the execution state
-        if ( strcmp(process->process_ptr->pcb_state.execution_state, "ready") == 0 ) {
-            // not suspended & ready -> enqueue in global_ready_queue
-            dequeue("ready", process);
-            return noError;
-        } else if ( strcmp(process->process_ptr->pcb_state.dispatching_state, "blocked") == 0 ) {
-            // not suspended & blocked -> enqueue in global_blocked_queue
-            dequeue("blocked", process);
-            return noError;
-        }
-    } else if ( strcmp(process->process_ptr->pcb_state.dispatching_state, "suspended") == 0 ) {
-        // now check the execution state
-        if ( strcmp(process->process_ptr->pcb_state.execution_state, "ready") == 0 ) {
-            // suspended & ready -> enqueue in global_suspended_ready_queue
-            dequeue("suspended ready", process);
-            return noError;
-        } else if ( strcmp(process->process_ptr->pcb_state.dispatching_state, "blocked") == 0 ) {
-            // suspended & blocked -> enqueue in global_suspended_blocked_queue
-            dequeue("suspended blocked", process);
-            return noError;
-        }
-    } else {
-        
-        return error;
+    // check the state
+    if (process->process_ptr->pcb_state == READY_NOT_SUSPENDED) {
+        // not suspended & ready -> enqueue in global_ready_queue
+        dequeue("ready", process);
+        return noError;
+    } else if (process->process_ptr->pcb_state == BLOCKED_NOT_SUSPENDED) {
+        // not suspended & blocked -> enqueue in global_blocked_queue
+        dequeue("blocked", process);
+        return noError;
+    } else if (process->process_ptr->pcb_state == READY_SUSPENDED) {
+        // suspended & ready -> enqueue in global_suspended_ready_queue
+        dequeue("suspended ready", process);
+        return noError;
+    } else if (process->process_ptr->pcb_state == BLOCKED_SUSPENDED) {
+        // suspended & blocked -> enqueue in global_suspended_blocked_queue
+        dequeue("suspended blocked", process);
+        return noError;
     }
 
     return error;

@@ -34,15 +34,14 @@ void show_pcb(const char *name)
     /* set char arrays for data of process to be displayed */
     const char* process_name = pcb_to_show->process_ptr->process_name;
     int process_class = pcb_to_show->process_ptr->pcb_class;
-    char* process_state = pcb_to_show->process_ptr->pcb_state.execution_state;
-    char* dispatching_state = pcb_to_show->process_ptr->pcb_state.dispatching_state;
+    enum state process_state = pcb_to_show->process_ptr->pcb_state;
     int priority = pcb_to_show->process_ptr->pcb_priority;
 
     /* display char arrays to the terminal */
     sys_req(WRITE, COM1, process_name, sizeof(process_name));
     sys_req(WRITE, COM1, process_class, sizeof(process_class));
     sys_req(WRITE, COM1, process_state, sizeof(process_state));
-    sys_req(WRITE, COM1, dispatching_state, sizeof(dispatching_state));
+    // sys_req(WRITE, COM1, dispatching_state, sizeof(dispatching_state));
     sys_req(WRITE, COM1, priority, sizeof(priority));
 }
 
@@ -97,12 +96,15 @@ void create_pcb(const char *name, int class, int priority) {
     print("before setting up new pcb\n");
     
     // setup new pcb
+    print("setting up pcb\n");
     struct pcb* new_pcb = pcb_setup(name, class, priority);
 
     print("after setting up pcb\n");
 
     // insert new pcb into appropiate queue
+    print("setup pcb\ninserting\n");
     pcb_insert(new_pcb);
+    print("inserted\n");
 }
 
 void block_pcb(const char *name) {
@@ -125,8 +127,13 @@ void block_pcb(const char *name) {
         return;
     }
 
-    // change the execution state to blocked
-    cur_pcb->process_ptr->pcb_state.execution_state = "blocked";
+    // change the pcb to ready based off of its cur state i.e. in a suspended ready queue or a not suspended ready queue
+    if (cur_pcb->process_ptr->pcb_state == READY_NOT_SUSPENDED) {
+        cur_pcb->process_ptr->pcb_state = BLOCKED_NOT_SUSPENDED;
+    } else if (cur_pcb->process_ptr->pcb_state == READY_SUSPENDED) {
+        cur_pcb->process_ptr->pcb_state = BLOCKED_SUSPENDED;
+    }
+
 
     // put back into relevant queue
     pcb_insert(cur_pcb);
@@ -152,8 +159,13 @@ void unblock_pcb(const char *name) {
         return;
     }
 
-    // change the execution state to ready
-    cur_pcb->process_ptr->pcb_state.execution_state = "ready";
+    // change the pcb to ready based off of its cur state i.e. in a suspended ready queue or a not suspended ready queue
+    if (cur_pcb->process_ptr->pcb_state == BLOCKED_SUSPENDED) {
+        cur_pcb->process_ptr->pcb_state = READY_SUSPENDED;
+    } else if (cur_pcb->process_ptr->pcb_state == BLOCKED_NOT_SUSPENDED) {
+        cur_pcb->process_ptr->pcb_state = READY_NOT_SUSPENDED;
+    }
+
 
     // put back into relevant queue
     pcb_insert(cur_pcb);
@@ -186,8 +198,12 @@ void suspend_pcb(const char *name) {
         return;
     }
 
-    // change the dispatching state to suspended
-    cur_pcb->process_ptr->pcb_state.dispatching_state = "suspended";
+    // change the pcb to suspended based off of its cur state
+    if (cur_pcb->process_ptr->pcb_state == READY_NOT_SUSPENDED) {
+        cur_pcb->process_ptr->pcb_state = READY_SUSPENDED;
+    } else if (cur_pcb->process_ptr->pcb_state == BLOCKED_NOT_SUSPENDED) {
+        cur_pcb->process_ptr->pcb_state = BLOCKED_SUSPENDED;
+    }
 
     // put back into relevant queue
     pcb_insert(cur_pcb);
@@ -213,8 +229,12 @@ void resume_pcb(const char *name) {
         return;
     }
 
-    // change the dispatching state to not suspended
-    cur_pcb->process_ptr->pcb_state.dispatching_state = "not suspended";
+    // change the pcb to not suspended based off of its cur state
+    if (cur_pcb->process_ptr->pcb_state == READY_SUSPENDED) {
+        cur_pcb->process_ptr->pcb_state = READY_NOT_SUSPENDED;
+    } else if (cur_pcb->process_ptr->pcb_state == BLOCKED_SUSPENDED) {
+        cur_pcb->process_ptr->pcb_state = BLOCKED_NOT_SUSPENDED;
+    }
 
     // put back into relevant queue
     pcb_insert(cur_pcb);
