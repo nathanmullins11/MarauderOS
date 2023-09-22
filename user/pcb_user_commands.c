@@ -163,8 +163,12 @@ void suspend_pcb(const char *name) {
         return;
     }
 
-    // change the dispatching state to suspended
-    cur_pcb->process_ptr->pcb_state->dispatching_state = "suspended";
+    // change the pcb to suspended based off of its cur state
+    if (cur_pcb->process_ptr->pcb_state == READY_NOT_SUSPENDED) {
+        cur_pcb->process_ptr->pcb_state = READY_SUSPENDED;
+    } else if (cur_pcb->process_ptr->pcb_state == BLOCKED_NOT_SUSPENDED) {
+        cur_pcb->process_ptr->pcb_state = BLOCKED_SUSPENDED;
+    }
 
     // put back into relevant queue
     pcb_insert(cur_pcb);
