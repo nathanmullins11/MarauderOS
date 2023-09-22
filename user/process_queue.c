@@ -6,26 +6,26 @@
 char* search(struct pcb* pcb_ptr)
 {
     // if the process is running, then do not insert
-    if ( (strcmp(pcb_ptr->process_ptr->pcb_state.dispatching_state, "running")) == 0 ) {
+    if ( (strcmp(pcb_ptr->process_ptr->pcb_state->dispatching_state, "running")) == 0 ) {
         return "running";
     }
 
     // check if the process dispatching state is suspended or not suspended
-    if ( strcmp(pcb_ptr->process_ptr->pcb_state.dispatching_state, "not suspended") == 0 ) {
+    if ( strcmp(pcb_ptr->process_ptr->pcb_state->dispatching_state, "not suspended") == 0 ) {
         // now check the execution state
-        if ( strcmp(pcb_ptr->process_ptr->pcb_state.execution_state, "ready") == 0 ) {
+        if ( strcmp(pcb_ptr->process_ptr->pcb_state->execution_state, "ready") == 0 ) {
             // not suspended & ready -> enqueue in global_ready_queue
             return "ready";
-        } else if ( strcmp(pcb_ptr->process_ptr->pcb_state.dispatching_state, "blocked") == 0 ) {
+        } else if ( strcmp(pcb_ptr->process_ptr->pcb_state->dispatching_state, "blocked") == 0 ) {
             // not suspended & blocked -> enqueue in global_blocked_queue
             return "blocked";
         }
-    } else if ( strcmp(pcb_ptr->process_ptr->pcb_state.dispatching_state, "suspended") == 0 ) {
+    } else if ( strcmp(pcb_ptr->process_ptr->pcb_state->dispatching_state, "suspended") == 0 ) {
         // now check the execution state
-        if ( strcmp(pcb_ptr->process_ptr->pcb_state.execution_state, "ready") == 0 ) {
+        if ( strcmp(pcb_ptr->process_ptr->pcb_state->execution_state, "ready") == 0 ) {
             // suspended & ready -> enqueue in global_suspended_ready_queue
             return "suspended ready";
-        } else if ( strcmp(pcb_ptr->process_ptr->pcb_state.dispatching_state, "blocked") == 0 ) {
+        } else if ( strcmp(pcb_ptr->process_ptr->pcb_state->dispatching_state, "blocked") == 0 ) {
             // suspended & blocked -> enqueue in global_suspended_blocked_queue
             return "suspended blocked";
         }
