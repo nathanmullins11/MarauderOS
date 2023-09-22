@@ -6,18 +6,18 @@
 char* search(struct pcb* pcb_ptr)
 {
     // if the process is RUNNING, then do not insert
-    if (pcb_ptr->process_ptr->pcb_state == 4) { // RUNNING
+    if (pcb_ptr->process_ptr->pcb_state == RUNNING) { // RUNNING
         return "running";
     }
 
     // check if the process dispatching state is suspended or not suspended
-    if (pcb_ptr->process_ptr->pcb_state == 0) { // READY NOT SUSPENDED
+    if (pcb_ptr->process_ptr->pcb_state == READY_NOT_SUSPENDED) { // READY NOT SUSPENDED
         return "ready not suspended";
-    } else if (pcb_ptr->process_ptr->pcb_state == 2) { // BLOCKED NOT SUSPENDED
+    } else if (pcb_ptr->process_ptr->pcb_state == BLOCKED_NOT_SUSPENDED) { // BLOCKED NOT SUSPENDED
         return "blocked not suspended";
-    } else if (pcb_ptr->process_ptr->pcb_state == 1) { // READY SUSPENDED
+    } else if (pcb_ptr->process_ptr->pcb_state == READY_SUSPENDED) { // READY SUSPENDED
         return "ready suspended";
-    } else if (pcb_ptr->process_ptr->pcb_state == 3) { // BLOCKED SUSPENDED
+    } else if (pcb_ptr->process_ptr->pcb_state == BLOCKED_SUSPENDED) { // BLOCKED SUSPENDED
         return "blocked suspended";
     }
 
