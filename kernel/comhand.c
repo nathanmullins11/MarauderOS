@@ -392,15 +392,12 @@ void comhand(void)
 							if ( strcmp(name, "ready") == 0 ) {
 								// list all ready 
 								show_ready();
-
 							} else if ( strcmp(name, "blocked") == 0 ) {
 								// list all blocked
 								show_blocked();
-
 							} else if ( strcmp(name, "all") == 0 ) {
 								// list all processes
 								show_all();
-
 							} else {
 								// list specific process
 								show_pcb(name);
