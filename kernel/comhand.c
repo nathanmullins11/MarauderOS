@@ -56,7 +56,6 @@ void comhand(void)
 	global_blocked_queue = create_queue();
 	global_suspended_blocked_queue = create_queue();
 
-
 	// loop forever until shutdown
     for ( ;; ) 
     {

@@ -192,120 +192,98 @@ struct node* create_node(struct pcb* pcb)
     return new_node;
 }
 
-void dequeue(char* status, struct node *pcb)
+void dequeue(const char* status, struct pcb* pcb)
 {
-    // find which queue the pcb node belongs to
-    char *pcb_status = status;
+    // Find which queue the pcb node belongs to
+    const char* pcb_status = status;
 
-    if (strcmp(pcb_status, "ready") == 0)
+    if (strcmp(pcb_status, "ready") == 0 || strcmp(pcb_status, "suspended ready") == 0)
     {
-        // check if the node to dequeue is the front of the ready queue
-        if (global_ready_queue->front == pcb)
+        struct queue* target_queue = (strcmp(pcb_status, "suspended ready") == 0) ? global_suspended_ready_queue : global_ready_queue;
+        struct node* current = target_queue->front;
+
+        while (current != NULL)
         {
-            global_ready_queue->front = pcb->next;
-            if (pcb->next != NULL)
+            if (current->pcb == pcb)
             {
-                pcb->next->prev = NULL;
+                if (current == target_queue->front)
+                {
+                    // PCB to dequeue is at the front of the queue
+                    target_queue->front = current->next;
+                    if (target_queue->front == NULL)
+                    {
+                        // Queue is now empty, update rear pointer
+                        target_queue->rear = NULL;
+                    }
+                    else
+                    {
+                        target_queue->front->prev = NULL;
+                    }
+                }
+                else if (current == target_queue->rear)
+                {
+                    // PCB to dequeue is at the rear of the queue
+                    target_queue->rear = current->prev;
+                    target_queue->rear->next = NULL;
+                }
+                else
+                {
+                    // PCB to dequeue is somewhere in the middle of the queue
+                    current->prev->next = current->next;
+                    current->next->prev = current->prev;
+                }
+
+                return; // PCB found and dequeued, exit the function
             }
-        }
-        // check if the node to dequeue is the rear of the ready queue
-        else if (global_ready_queue->rear == pcb)
-        {
-            global_ready_queue->rear = pcb->prev;
-            if (pcb->prev != NULL)
-            {
-                pcb->prev->next = NULL;
-            }
-        }
-        else
-        {
-            // the node is somewhere in the middle of the ready queue so adjust pointers
-            pcb->prev->next = pcb->next;
-            pcb->next->prev = pcb->prev;
+
+            current = current->next;
         }
     }
-    else if (strcmp(pcb_status, "blocked") == 0)
+    else if (strcmp(pcb_status, "blocked") == 0 || strcmp(pcb_status, "suspended blocked") == 0)
     {
-        // check if the node to dequeue is the front of the blocked queue
-        if (global_blocked_queue->front == pcb)
+        struct queue* target_queue = (strcmp(pcb_status, "suspended blocked") == 0) ? global_suspended_blocked_queue : global_blocked_queue;
+        struct node* current = target_queue->front;
+
+        while (current != NULL)
         {
-            global_blocked_queue->front = pcb->next;
-            if (pcb->next != NULL)
+            if (current->pcb == pcb)
             {
-                pcb->next->prev = NULL;
+                if (current == target_queue->front)
+                {
+                    // PCB to dequeue is at the front of the queue
+                    target_queue->front = current->next;
+                    if (target_queue->front == NULL)
+                    {
+                        // Queue is now empty, update rear pointer
+                        target_queue->rear = NULL;
+                    }
+                    else
+                    {
+                        target_queue->front->prev = NULL;
+                    }
+                }
+                else if (current == target_queue->rear)
+                {
+                    // PCB to dequeue is at the rear of the queue
+                    target_queue->rear = current->prev;
+                    target_queue->rear->next = NULL;
+                }
+                else
+                {
+                    // PCB to dequeue is somewhere in the middle of the queue
+                    current->prev->next = current->next;
+                    current->next->prev = current->prev;
+                }
+
+                return; // PCB found and dequeued, exit the function
             }
-        }
-        // check if the node to dequeue is the rear of the blocked queue
-        else if (global_blocked_queue->rear == pcb)
-        {
-            global_blocked_queue->rear = pcb->prev;
-            if (pcb->prev != NULL)
-            {
-                pcb->prev->next = NULL;
-            }
-        }
-        else
-        {
-            // the node is somewhere in the middle of the blocked queue
-            pcb->prev->next = pcb->next;
-            pcb->next->prev = pcb->prev;
-        }
-    }
-    else if (strcmp(pcb_status, "suspended ready") == 0)
-    {
-        // check if the node to dequeue is the front of the suspended ready queue
-        if (global_suspended_ready_queue->front == pcb)
-        {
-            global_suspended_ready_queue->front = pcb->next;
-            if (pcb->next != NULL)
-            {
-                pcb->next->prev = NULL;
-            }
-        }
-        // check if the node to dequeue is the rear of the suspended ready queue
-        else if (global_suspended_ready_queue->rear == pcb)
-        {
-            global_suspended_ready_queue->rear = pcb->prev;
-            if (pcb->prev != NULL)
-            {
-                pcb->prev->next = NULL;
-            }
-        }
-        else
-        {
-            // the node is somewhere in the middle of the suspended ready queue so adjust pointers
-            pcb->prev->next = pcb->next;
-            pcb->next->prev = pcb->prev;
-        }
-    }
-    else if (strcmp(pcb_status, "suspended blocked") == 0)
-    {
-        // check if the node to dequeue is the front of the suspended blocked queue
-        if (global_suspended_blocked_queue->front == pcb)
-        {
-            global_suspended_blocked_queue->front = pcb->next;
-            if (pcb->next != NULL)
-            {
-                pcb->next->prev = NULL;
-            }
-        }
-        // check if the node to dequeue is the rear of the suspended blocked queue
-        else if (global_suspended_blocked_queue->rear == pcb)
-        {
-            global_suspended_blocked_queue->rear = pcb->prev;
-            if (pcb->prev != NULL)
-            {
-                pcb->prev->next = NULL;
-            }
-        }
-        else
-        {
-            // the node is somewhere in the middle of the suspended blocked queue so adjust pointers
-            pcb->prev->next = pcb->next;
-            pcb->next->prev = pcb->prev;
+
+            current = current->next;
         }
     }
 }
+
+
 
 struct queue* create_queue(void) {
     // Allocate memory for the queue structure
