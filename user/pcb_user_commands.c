@@ -102,6 +102,10 @@ void show_blocked(void) {
 
      // readying up the blocked queue
      struct node* current_blocked = global_blocked_queue->front;
+      struct node* current_suspended_blocked = global_suspended_blocked_queue->front;
+
+    //Blocked Un-suspended Processes Section
+    print("Blocked Un-suspended Processes:");
 
     /* search for process in ready queue*/
     while(current_blocked != NULL)
@@ -121,6 +125,29 @@ void show_blocked(void) {
 
 
         current_blocked = current_blocked->next;
+    }
+
+ //Blocked Suspended Processes Section
+    print("Blocked Suspended Processes:");
+    
+    /* search for process in ready queue*/
+    while(current_suspended_blocked != NULL)
+    {
+     const char* name = current_suspended_blocked->pcb->process_ptr->process_name;
+     int class = current_suspended_blocked->pcb->process_ptr->pcb_class;
+  //  STATE IS UNDER CONSTRUCTION... status also in the works  struct state state = current_ready->pcb->process_ptr;
+    int priority = current_suspended_blocked->pcb->process_ptr->pcb_priority;
+
+    print("Process Name: ");
+    sys_req(WRITE, COM1, name, sizeof(name));
+     print("\nProcess Class: ");
+    sys_req(WRITE, COM1, class, sizeof(class));
+     print("\nProcess Priority: ");
+    sys_req(WRITE, COM1, priority, sizeof(priority));
+
+
+
+        current_suspended_blocked = current_suspended_blocked->next;
     }
 
 }
