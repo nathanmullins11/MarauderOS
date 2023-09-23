@@ -18,8 +18,6 @@ struct pcb* pcb_find(const char* process)
     struct node* current_blocked = global_blocked_queue->front;
     struct node* current_suspended_blocked = global_suspended_blocked_queue->front;
 
-    print("Create pointers to queues\n");
-
     /* search for process in ready queue*/
     while(current_ready != NULL)
     {
@@ -30,8 +28,6 @@ struct pcb* pcb_find(const char* process)
 
         current_ready = current_ready->next;
     }
-
-    print("Done searching ready queue\n");
 
     /* search for process in suspended ready queue*/
     while(current_suspended_ready != NULL)
@@ -44,8 +40,6 @@ struct pcb* pcb_find(const char* process)
         current_suspended_ready = current_suspended_ready->next;
     }
 
-    print("Done searching suspended ready queue\n");
-
     /* search for process in blocked queue*/
     while(current_blocked != NULL)
     {
@@ -57,8 +51,6 @@ struct pcb* pcb_find(const char* process)
         current_blocked = current_blocked->next;
     }
 
-    print("Done searching blocked queue\n");
-
     /* search for process in suspended blocked queue*/
     while(current_suspended_blocked != NULL)
     {
@@ -69,8 +61,6 @@ struct pcb* pcb_find(const char* process)
 
         current_suspended_blocked = current_suspended_blocked->next;
     }
-
-    print("Done searching suspended blocked queue\n");
 
     // if process not found in any queue, return NULL
     return NULL;
@@ -156,9 +146,7 @@ struct pcb* pcb_setup(const char *process_name , int class, int priority)
     new_pcb->process_ptr->pcb_priority = priority;
 
     // init with initial state
-    print("before using ENUM\n");
     new_pcb->process_ptr->pcb_state = READY_NOT_SUSPENDED;
-    print("after creating ENUM\n");
 
     return new_pcb;
 }

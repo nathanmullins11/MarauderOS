@@ -32,22 +32,21 @@ void show_pcb(const char *name)
     // get associated pcb from name
     struct pcb* pcb_to_show = pcb_find(name);
 
-    print("\nreturned from find array in show_pcb command\n");
-
     /* set char arrays for data of process to be displayed */
     const char* process_name = pcb_to_show->process_ptr->process_name;
     int process_class = pcb_to_show->process_ptr->pcb_class;
     enum state process_state = pcb_to_show->process_ptr->pcb_state;
     int priority = pcb_to_show->process_ptr->pcb_priority;
 
-    print("finsihed setting char arrays in show_pcb command. About to print...\n");
+    // header
+    print("PCB Information: \n");
 
     /* display char arrays to the terminal */
-    print("PCB name: ");
+    print("name: ");
     // print name
     sys_req(WRITE, COM1, process_name, sizeof(process_name));
     print("\n");
-    print("PCB class: ");
+    print("class: ");
 
     // convert class to string based on int value
     char* class_as_string = {0};
@@ -61,34 +60,34 @@ void show_pcb(const char *name)
     // print class
     sys_req(WRITE, COM1, class_as_string, sizeof(class_as_string));
     print("\n");
-    print("PCB state: ");
+    print("state: ");
 
     // convert state to string based off enum value
     char* state_as_string = {0};
     char* suspended_status = {0};
     if(process_state == READY_NOT_SUSPENDED)
     {
-        state_as_string = "ready";
-        suspended_status = "not suspended";
+        state_as_string = "ready\0";
+        suspended_status = "not suspended\0";
     } else if (process_state == READY_SUSPENDED) {
-        state_as_string = "ready";
-        suspended_status = "suspended";
+        state_as_string = "ready\0";
+        suspended_status = "suspended\0";
     } else if (process_state == BLOCKED_NOT_SUSPENDED) {
-        state_as_string = "blocked";
-        suspended_status = "not suspended";
+        state_as_string = "blocked\0";
+        suspended_status = "not suspended\0";
     } else if (process_state == BLOCKED_SUSPENDED) {
-        state_as_string = "blocked";
-        suspended_status = "suspended";
+        state_as_string = "blocked\0";
+        suspended_status = "suspended\0";
     }
 
     // print state
-    sys_req(WRITE, COM1, state_as_string, sizeof(state_as_string));
+    sys_req(WRITE, COM1, state_as_string, 7);
     print("\n");
-    print("PCB suspended status\n");
+    print("status: ");
     // print suspended status
-    sys_req(WRITE, COM1, suspended_status, sizeof(suspended_status));
+    sys_req(WRITE, COM1, suspended_status, 14);
     print("\n");
-    print("PCB priority: ");
+    print("priority: ");
 
     /* convert priority from int to string */
     char priority_as_string[10] = {0};
@@ -105,103 +104,129 @@ void show_ready(void) {
     struct node* current_suspended_ready = global_suspended_ready_queue->front;
 
     //Ready Non-suspended Process Section
-    print("Ready Non-suspended Processes: ");
+    print("Ready Non-suspended Processes: \n");
 
-    /* search for process in ready queue*/
-    while(current_ready != NULL)
+    if(current_ready != NULL)
     {
-     const char* name = current_ready->pcb->process_ptr->process_name;
-     int class = current_ready->pcb->process_ptr->pcb_class;
-  //  STATE IS UNDER CONSTRUCTION... status also in the works  struct state state = current_ready->pcb->process_ptr;
-    int priority = current_ready->pcb->process_ptr->pcb_priority;
+        /* search for process in ready queue*/
+        while(current_ready != NULL)
+        {
+    //      const char* name = current_ready->pcb->process_ptr->process_name;
+    //      int class = current_ready->pcb->process_ptr->pcb_class;
+    //   //  STATE IS UNDER CONSTRUCTION... status also in the works  struct state state = current_ready->pcb->process_ptr;
+    //     int priority = current_ready->pcb->process_ptr->pcb_priority;
 
-    print("Process Name: ");
-    sys_req(WRITE, COM1, name, sizeof(name));
-     print("\nProcess Class: ");
-    sys_req(WRITE, COM1, class, sizeof(class));
-     print("\nProcess Priority: ");
-    sys_req(WRITE, COM1, priority, sizeof(priority));
+    //     print("Process Name: ");
+    //     sys_req(WRITE, COM1, name, sizeof(name));
+    //      print("\nProcess Class: ");
+    //     sys_req(WRITE, COM1, class, sizeof(class));
+    //      print("\nProcess Priority: ");
+    //     sys_req(WRITE, COM1, priority, sizeof(priority));
+
+            show_pcb(current_ready->pcb->process_ptr->process_name);
 
 
 
-        current_ready = current_ready->next;
+            current_ready = current_ready->next;
+        }
+    } else {
+        print("NULL\n");
     }
 
 
-    //Ready Suspended Section
-    print("Ready Suspended Processes");
+    // Ready Suspended Section
+    if(current_suspended_ready != NULL)
+    { 
+        print("\nReady Suspended Processes\n");
 
-     /* search for process in suspended ready queue*/
-    while(current_suspended_ready != NULL)
-    {
-     const char* name = current_suspended_ready->pcb->process_ptr->process_name;
-     int class = current_suspended_ready->pcb->process_ptr->pcb_class;
-  //  STATE IS UNDER CONSTRUCTION... status also in the works  struct state state = current_ready->pcb->process_ptr;
-    int priority = current_suspended_ready->pcb->process_ptr->pcb_priority;
+        /* search for process in suspended ready queue*/
+        while(current_suspended_ready != NULL)
+        {
+        // const char* name = current_suspended_ready->pcb->process_ptr->process_name;
+        // int class = current_suspended_ready->pcb->process_ptr->pcb_class;
+        // // STATE IS UNDER CONSTRUCTION... status also in the works  struct state state = current_ready->pcb->process_ptr;
+        // int priority = current_suspended_ready->pcb->process_ptr->pcb_priority;
 
-    print("Process Name: ");
-    sys_req(WRITE, COM1, name, sizeof(name));
-     print("\nProcess Class: ");
-    sys_req(WRITE, COM1, class, sizeof(class));
-     print("\nProcess Priority: ");
-    sys_req(WRITE, COM1, priority, sizeof(priority));
+        // print("Process Name: ");
+        // sys_req(WRITE, COM1, name, sizeof(name));
+        // print("\nProcess Class: ");
+        // sys_req(WRITE, COM1, class, sizeof(class));
+        // print("\nProcess Priority: ");
+        // sys_req(WRITE, COM1, priority, sizeof(priority));
+
+            show_pcb(current_suspended_ready->pcb->process_ptr->process_name);
 
 
-
-        current_suspended_ready = current_suspended_ready->next;
+            current_suspended_ready = current_suspended_ready->next;
+        }
+    }
+    else {
+        print("\nReady Suspended Processes: \n");
+        print("NULL\n");
     }
 }
 
 void show_blocked(void) {
 
-     // readying up the blocked queue
-     struct node* current_blocked = global_blocked_queue->front;
-      struct node* current_suspended_blocked = global_suspended_blocked_queue->front;
+    // readying up the blocked queue
+    struct node* current_blocked = global_blocked_queue->front;
+    struct node* current_suspended_blocked = global_suspended_blocked_queue->front;
 
     //Blocked Un-suspended Processes Section
-    print("Blocked Un-suspended Processes:");
+    print("\nBlocked Non-suspended Processes: \n");
 
-    /* search for process in ready queue*/
-    while(current_blocked != NULL)
+    if (current_blocked != NULL) 
     {
-     const char* name = current_blocked->pcb->process_ptr->process_name;
-     int class = current_blocked->pcb->process_ptr->pcb_class;
-  //  STATE IS UNDER CONSTRUCTION... status also in the works  struct state state = current_ready->pcb->process_ptr;
-    int priority = current_blocked->pcb->process_ptr->pcb_priority;
+        /* search for process in ready queue*/
+        while(current_blocked != NULL)
+        {
+    //      const char* name = current_blocked->pcb->process_ptr->process_name;
+    //      int class = current_blocked->pcb->process_ptr->pcb_class;
+    //   //  STATE IS UNDER CONSTRUCTION... status also in the works  struct state state = current_ready->pcb->process_ptr;
+    //     int priority = current_blocked->pcb->process_ptr->pcb_priority;
 
-    print("Process Name: ");
-    sys_req(WRITE, COM1, name, sizeof(name));
-     print("\nProcess Class: ");
-    sys_req(WRITE, COM1, class, sizeof(class));
-     print("\nProcess Priority: ");
-    sys_req(WRITE, COM1, priority, sizeof(priority));
+    //     print("Process Name: ");
+    //     sys_req(WRITE, COM1, name, sizeof(name));
+    //      print("\nProcess Class: ");
+    //     sys_req(WRITE, COM1, class, sizeof(class));
+    //      print("\nProcess Priority: ");
+    //     sys_req(WRITE, COM1, priority, sizeof(priority));
 
+            show_pcb(current_blocked->pcb->process_ptr->process_name);
 
-
-        current_blocked = current_blocked->next;
+            current_blocked = current_blocked->next;
+        }
+    }
+    else {
+        print("NULL\n");
     }
 
- //Blocked Suspended Processes Section
-    print("Blocked Suspended Processes:");
+   //Blocked Suspended Processes Section
+    print("\nBlocked Suspended Processes: \n");
     
-    /* search for process in ready queue*/
-    while(current_suspended_blocked != NULL)
+    if(current_suspended_blocked != NULL)
     {
-     const char* name = current_suspended_blocked->pcb->process_ptr->process_name;
-     int class = current_suspended_blocked->pcb->process_ptr->pcb_class;
-  //  STATE IS UNDER CONSTRUCTION... status also in the works  struct state state = current_ready->pcb->process_ptr;
-    int priority = current_suspended_blocked->pcb->process_ptr->pcb_priority;
+        /* search for process in ready queue*/
+        while(current_suspended_blocked != NULL)
+        {
+        const char* name = current_suspended_blocked->pcb->process_ptr->process_name;
+        int class = current_suspended_blocked->pcb->process_ptr->pcb_class;
+    //  STATE IS UNDER CONSTRUCTION... status also in the works  struct state state = current_ready->pcb->process_ptr;
+        int priority = current_suspended_blocked->pcb->process_ptr->pcb_priority;
 
-    print("Process Name: ");
-    sys_req(WRITE, COM1, name, sizeof(name));
-     print("\nProcess Class: ");
-    sys_req(WRITE, COM1, class, sizeof(class));
-     print("\nProcess Priority: ");
-    sys_req(WRITE, COM1, priority, sizeof(priority));
+        print("Process Name: ");
+        sys_req(WRITE, COM1, name, sizeof(name));
+        print("\nProcess Class: ");
+        sys_req(WRITE, COM1, class, sizeof(class));
+        print("\nProcess Priority: ");
+        sys_req(WRITE, COM1, priority, sizeof(priority));
 
 
 
-        current_suspended_blocked = current_suspended_blocked->next;
+            current_suspended_blocked = current_suspended_blocked->next;
+        }
+    } else {
+        print("NULL\n");
     }
 
 }
@@ -235,19 +260,13 @@ void create_pcb(const char *name, int class, int priority) {
         char err_name[] = "ERR: Name cannot be empty\n";
         sys_req(WRITE, COM1, err_name, strlen(err_name));
     }
-
-    print("before setting up new pcb\n");
     
     // setup new pcb
-    print("setting up pcb\n");
     struct pcb* new_pcb = pcb_setup(name, class, priority);
 
-    print("after setting up pcb\n");
-
     // insert new pcb into appropiate queue
-    print("setup pcb\ninserting\n");
     pcb_insert(new_pcb);
-    print("inserted\n");
+    print(" new pcb inserted\n");
 }
 
 void block_pcb(const char *name) {
