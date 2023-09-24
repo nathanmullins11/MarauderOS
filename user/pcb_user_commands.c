@@ -194,3 +194,30 @@ void resume_pcb(const char *name) {
     // put back into relevant queue
     pcb_insert(cur_pcb);
 }
+
+void set_priority(const char *name, int priority)
+{
+    struct pcb* cur_pcb = pcb_find(name); // get pcb from name
+
+    if (cur_pcb == NULL) // check if valid name
+    {
+        char err[] = "ERR: PCB does not exist\n";
+        sys_req(WRITE, COM1, err, strlen(err));
+    }
+
+    if (priority < 0 || priority > 9)
+    {
+        char err[] = "ERR: Invalid Priority Number, must be 0-9\n";
+        sys_req(WRITE, COM1, err, strlen(err));
+    }
+
+    cur_pcb->process_ptr->pcb_priority = priority; // set new priority
+
+}
+
+/*void show_all()
+{
+    //show name, class, state, suspended status, priority of every process
+
+
+}*/
