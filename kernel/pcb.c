@@ -32,7 +32,7 @@ struct pcb* pcb_find(const char* process)
     /* search for process in suspended ready queue*/
     while(current_suspended_ready != NULL)
     {
-        if((strcmp(current_suspended_ready->pcb->process_ptr->process_name, process) == 0))
+        if((strcmp(current_suspended_ready->pcb->name_arr, process) == 0))
         {
             return current_suspended_ready->pcb;
         }
@@ -43,7 +43,7 @@ struct pcb* pcb_find(const char* process)
     /* search for process in blocked queue*/
     while(current_blocked != NULL)
     {
-        if((strcmp(current_blocked->pcb->process_ptr->process_name, process) == 0))
+        if((strcmp(current_blocked->pcb->name_arr, process) == 0))
         {
             return current_blocked->pcb;
         }
@@ -54,7 +54,7 @@ struct pcb* pcb_find(const char* process)
     /* search for process in suspended blocked queue*/
     while(current_suspended_blocked != NULL)
     {
-        if((strcmp(current_suspended_blocked->pcb->process_ptr->process_name, process) == 0))
+        if((strcmp(current_suspended_blocked->pcb->name_arr, process) == 0))
         {
             return current_suspended_blocked->pcb;
         }
@@ -98,8 +98,8 @@ struct pcb* pcb_allocate(void)
 {
     struct pcb* new_pcb = (struct pcb*)sys_alloc_mem(sizeof(struct pcb));
     new_pcb->process_ptr = (struct process*)sys_alloc_mem(sizeof(struct process));
-    new_pcb->name_ptr = (char*)sys_alloc_mem(16);
-    new_pcb->process_ptr->process_name = (char*)sys_alloc_mem(16);
+    new_pcb->name_arr = (char*)sys_alloc_mem(16);
+    // new_pcb->process_ptr->process_name = (char*)sys_alloc_mem(16);
    // new_pcb->process_ptr->pcb_state = (enum state)sys_alloc_mem(sizeof(enum state));
     
     if (new_pcb == NULL)
@@ -112,12 +112,12 @@ struct pcb* pcb_allocate(void)
         return NULL;
     }
 
-    if(new_pcb->name_ptr == NULL)
-    {
-        return NULL;
-    }
+    // if(new_pcb->name_ptr == NULL)
+    // {
+    //     return NULL;
+    // }
 
-    if(new_pcb->process_ptr->process_name == NULL)
+    if(new_pcb->name_arr == NULL)
     {
         return NULL;
     }
@@ -141,7 +141,10 @@ struct pcb* pcb_setup(const char *process_name , int class, int priority)
     }
 
     // Initialize PCB with provided data
-    new_pcb->process_ptr->process_name = process_name;
+    print("before setting process name: \n");
+    new_pcb->name_arr = process_name;
+    print("after setting process name: \n");
+   //new_pcb->name_arr = process_name;
     new_pcb->process_ptr->pcb_class = class;
     new_pcb->process_ptr->pcb_priority = priority;
 

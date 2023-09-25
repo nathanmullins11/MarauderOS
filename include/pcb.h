@@ -5,11 +5,11 @@
 
 #include <process_queue.h>
 
-#define MAX_NAME_LEN 8
+// #define MAX_NAME_LEN 16
 
 struct pcb {
-        char *name_ptr;
-        char name_arr[MAX_NAME_LEN];
+        // const char *name_ptr;
+        const char* name_arr;
         struct process *process_ptr;
 };
 
@@ -27,7 +27,7 @@ enum state {
 };
 
 struct process {
-        const char* process_name;
+        //const char* process_name;
         int pcb_class; // class = 0 -> user app, class = 1 -> system process
         enum state pcb_state;
         int pcb_priority; // an int between 0 (high pri) and 9 (low pri)
