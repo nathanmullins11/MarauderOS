@@ -401,7 +401,6 @@ void resume_pcb(const char *name) {
     pcb_insert(cur_pcb);
 }
 
-
 void set_priority(const char *name, int priority)
 {
     struct pcb* cur_pcb = pcb_find(name); // get pcb from name
@@ -421,10 +420,3 @@ void set_priority(const char *name, int priority)
     cur_pcb->process_ptr->pcb_priority = priority; // set new priority
 
 }
-
-/*void show_all()
-{
-    //show name, class, state, suspended status, priority of every process
-
-
-}*/
