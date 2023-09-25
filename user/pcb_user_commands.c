@@ -101,8 +101,7 @@ void show_pcb(const char *name)
         print("\n");
         
     } else {
-        sys_req(WRITE, COM1, name, sizeof(name));
-        print(" does not exist... \n");
+        print("PCB/process you are looking for does not exist... \n");
     }
 }
 
