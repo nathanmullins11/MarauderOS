@@ -44,7 +44,7 @@ void show_pcb(const char *name)
         char* class_as_string = {0};
         if(process_class == 0)
         {
-            class_as_string = "user application";
+            class_as_string = "user process";
         } else if (process_class == 1) {
             class_as_string = "system process";
         }
@@ -75,7 +75,7 @@ void show_pcb(const char *name)
         sys_req(WRITE, COM1, process_name, strlen(process_name));
         print("\t\t");
         sys_req(WRITE, COM1, class_as_string, strlen(class_as_string));
-        print("\t");
+        print("\t\t");
         sys_req(WRITE, COM1, state_as_string, strlen(state_as_string));
         print("\t\t");
         sys_req(WRITE, COM1, suspended_status, strlen(suspended_status));

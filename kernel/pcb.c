@@ -142,10 +142,9 @@ struct pcb* pcb_setup(const char *process_name , int class, int priority)
     }
 
     // Initialize PCB with provided data
-    print("before setting process name: \n");
-    new_pcb->name_arr = process_name;
-    print("after setting process name: \n");
-   //new_pcb->name_arr = process_name;
+    //new_pcb->name_arr = *(&process_name);
+    memcpy((char*)new_pcb->name_arr, process_name, strlen(process_name));
+    //new_pcb->name_arr = process_name;
     new_pcb->process_ptr->pcb_class = class;
     new_pcb->process_ptr->pcb_priority = priority;
 
