@@ -34,7 +34,6 @@ void show_pcb(const char *name)
 
     if(pcb_to_show != NULL)
     {
-
         /* set char arrays for data of process to be displayed */
         const char* process_name = pcb_to_show->process_ptr->process_name;
         int process_class = pcb_to_show->process_ptr->pcb_class;
@@ -90,7 +89,7 @@ void show_pcb(const char *name)
 }
 
 void show_ready(void) {
-     // readying up the ready queue
+    // readying up the ready queue
     struct node* current_ready = global_ready_queue->front;
     struct node* current_suspended_ready = global_suspended_ready_queue->front;
 
@@ -105,6 +104,7 @@ void show_ready(void) {
         /* search for process in ready queue*/
         while(current_ready != NULL)
         {
+            // passes nothing into show pcb // 
             show_pcb(current_ready->pcb->process_ptr->process_name);
 
             current_ready = current_ready->next;
@@ -139,7 +139,6 @@ void show_ready(void) {
 }
 
 void show_blocked(void) {
-
     // readying up the blocked queue
     struct node* current_blocked = global_blocked_queue->front;
     struct node* current_suspended_blocked = global_suspended_blocked_queue->front;
@@ -190,10 +189,9 @@ void show_blocked(void) {
 }
 
 void show_all(void) {
-
+    // show ready and then show blocked
     show_ready();
     show_blocked();
-
 }
 
 void create_pcb(const char *name, int class, int priority) {
@@ -359,7 +357,7 @@ void resume_pcb(const char *name) {
     pcb_insert(cur_pcb);
 }
 
-void set_priority(const char *name, int priority)
+void set_pcb_priority(const char *name, int priority)
 {
     struct pcb* cur_pcb = pcb_find(name); // get pcb from name
 

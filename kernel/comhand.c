@@ -370,14 +370,14 @@ void comhand(void)
 							// PCB priority 
 							if (pri != -1) {
 								// run function
-
+								set_pcb_priority(name, pri);
 							}
 						} else if (strcmp(param, "-d") == 0) {
 							// PCB delete
 							delete_pcb(name);
 						} else if (strcmp(param, "-b") == 0) {
 							// PCB block
-
+							block_pcb(name);
 						} else if (strcmp(param, "-u") == 0) {
 							// PCB unblock
 							unblock_pcb(name);
