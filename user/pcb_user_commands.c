@@ -266,7 +266,6 @@ void create_pcb(const char *name, int class, int priority) {
 
     // insert new pcb into appropiate queue
     pcb_insert(new_pcb);
-    print(" new pcb inserted\n");
 }
 
 void block_pcb(const char *name) {
