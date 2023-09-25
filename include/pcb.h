@@ -13,11 +13,6 @@ struct pcb {
         struct process *process_ptr;
 };
 
-// struct state {
-//         const char* execution_state; // ready, running, or blocked
-//         const char* dispatching_state; // suspended or not suspended
-// };
-
 enum state {
         READY_NOT_SUSPENDED, // 0
         READY_SUSPENDED, // 1

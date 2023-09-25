@@ -1,3 +1,4 @@
+#include "sys_req.h"
 #include <pcb.h>
 #include <string.h>
 #include <memory.h>
@@ -21,7 +22,7 @@ struct pcb* pcb_find(const char* process)
     /* search for process in ready queue*/
     while(current_ready != NULL)
     {
-        if((strcmp(current_ready->pcb->name_arr, process) == 0))
+        if((strcmp(current_ready->pcb->process_ptr->process_name, process) == 0))
         {
             return current_ready->pcb;
         }

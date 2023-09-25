@@ -1,7 +1,8 @@
 #include "memory.h"
+#include "sys_req.h"
 #include <pcb.h>
 #include <string.h>
-
+#include <comhand.h>
 
 char* search(struct pcb* pcb_ptr)
 {
@@ -38,6 +39,7 @@ void enqueue(char* status, struct pcb* pcb) {
 
         if (new_node == NULL) {
             // Handle memory allocation failure
+            print("ERR: Memory error\n");
             return;
         }
 
