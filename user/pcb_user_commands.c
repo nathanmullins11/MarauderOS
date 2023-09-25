@@ -35,7 +35,7 @@ void show_pcb(const char *name)
     if(pcb_to_show != NULL)
     {
         /* set char arrays for data of process to be displayed */
-        const char* process_name = pcb_to_show->process_ptr->process_name;
+        const char* process_name = pcb_to_show->name_arr;
         int process_class = pcb_to_show->process_ptr->pcb_class;
         enum state process_state = pcb_to_show->process_ptr->pcb_state;
         int priority = pcb_to_show->process_ptr->pcb_priority;
@@ -44,7 +44,7 @@ void show_pcb(const char *name)
         char* class_as_string = {0};
         if(process_class == 0)
         {
-            class_as_string = "user application";
+            class_as_string = "user process";
         } else if (process_class == 1) {
             class_as_string = "system process";
         }
@@ -75,7 +75,7 @@ void show_pcb(const char *name)
         sys_req(WRITE, COM1, process_name, strlen(process_name));
         print("\t\t");
         sys_req(WRITE, COM1, class_as_string, strlen(class_as_string));
-        print("\t");
+        print("\t\t");
         sys_req(WRITE, COM1, state_as_string, strlen(state_as_string));
         print("\t\t");
         sys_req(WRITE, COM1, suspended_status, strlen(suspended_status));
@@ -104,8 +104,7 @@ void show_ready(void) {
         /* search for process in ready queue*/
         while(current_ready != NULL)
         {
-            // passes nothing into show pcb // 
-            show_pcb(current_ready->pcb->process_ptr->process_name);
+            show_pcb(current_ready->pcb->name_arr);
 
             current_ready = current_ready->next;
         }
@@ -126,7 +125,7 @@ void show_ready(void) {
         /* search for process in suspended ready queue*/
         while(current_suspended_ready != NULL)
         {
-            show_pcb(current_suspended_ready->pcb->process_ptr->process_name);
+            show_pcb(current_suspended_ready->pcb->name_arr);
 
             current_suspended_ready = current_suspended_ready->next;
         }
@@ -154,7 +153,7 @@ void show_blocked(void) {
         /* search for process in ready queue*/
         while(current_blocked != NULL)
         {
-            show_pcb(current_blocked->pcb->process_ptr->process_name);
+            show_pcb(current_blocked->pcb->name_arr);
 
             current_blocked = current_blocked->next;
         }
@@ -176,7 +175,7 @@ void show_blocked(void) {
         /* search for process in ready queue*/
         while(current_suspended_blocked != NULL)
         {
-            show_pcb(current_suspended_blocked->pcb->process_ptr->process_name);
+            show_pcb(current_suspended_blocked->pcb->name_arr);
 
             current_suspended_blocked = current_suspended_blocked->next;
         }
