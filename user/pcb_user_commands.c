@@ -266,6 +266,7 @@ void block_pcb(const char *name) {
     if (cur_pcb == NULL) {
         char err[] = "ERR: PCB does not exist\n";
         sys_req(WRITE, COM1, err, strlen(err));
+        return;
     }
 
     // remove pcb from current queue
@@ -284,7 +285,6 @@ void block_pcb(const char *name) {
     } else if (cur_pcb->process_ptr->pcb_state == READY_SUSPENDED) {
         cur_pcb->process_ptr->pcb_state = BLOCKED_SUSPENDED;
     }
-
 
     // put back into relevant queue
     pcb_insert(cur_pcb);
