@@ -298,6 +298,7 @@ void unblock_pcb(const char *name) {
     if (cur_pcb == NULL) {
         char err[] = "ERR: PCB does not exist\n";
         sys_req(WRITE, COM1, err, strlen(err));
+        return;
     }
 
     // remove pcb from current queue
@@ -330,6 +331,7 @@ void suspend_pcb(const char *name) {
     if (cur_pcb == NULL) {
         char err[] = "ERR: PCB does not exist\n";
         sys_req(WRITE, COM1, err, strlen(err));
+        return;
     }
 
     // remove pcb from current queue
@@ -368,6 +370,7 @@ void resume_pcb(const char *name) {
     if (cur_pcb == NULL) {
         char err[] = "ERR: PCB does not exist\n";
         sys_req(WRITE, COM1, err, strlen(err));
+        return;
     }
 
     // remove pcb from current queue
