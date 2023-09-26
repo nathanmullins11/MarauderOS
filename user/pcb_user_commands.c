@@ -12,6 +12,14 @@ void delete_pcb(const char* name)
     // find pcb with given name
     struct pcb* pcb_to_delete = pcb_find(name);
 
+    // pcb with given name could not be found
+    if(pcb_to_delete == NULL)
+    {
+        print("Error deleting pcb... ");
+        print("could not be found\n");
+        return;
+    }
+
     // remove pcb from its associated queue
     int status_code = pcb_remove(pcb_to_delete);
 
@@ -22,8 +30,12 @@ void delete_pcb(const char* name)
         return;
     }
 
+    // print successful deletion
+    print("pcb was successfully removed\n");
+
     // free mem
     pcb_free(pcb_to_delete);
+
 
 }
 
@@ -221,6 +233,9 @@ void create_pcb(const char *name, int class, int priority) {
 
     // insert new pcb into appropiate queue
     pcb_insert(new_pcb);
+
+    // print statement for successful creation
+    print("pcb was successfully created\n");
 }
 
 void block_pcb(const char *name) {

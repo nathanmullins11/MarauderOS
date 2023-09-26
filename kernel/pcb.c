@@ -100,9 +100,8 @@ struct pcb* pcb_allocate(void)
     struct pcb* new_pcb = (struct pcb*)sys_alloc_mem(sizeof(struct pcb));
     new_pcb->process_ptr = (struct process*)sys_alloc_mem(sizeof(struct process));
     new_pcb->name_arr = (char*)sys_alloc_mem(16);
-    // new_pcb->process_ptr->process_name = (char*)sys_alloc_mem(16);
-   // new_pcb->process_ptr->pcb_state = (enum state)sys_alloc_mem(sizeof(enum state));
-    
+
+    /* check if memory was dynamically allocated correctly */
     if (new_pcb == NULL)
     {
         return NULL;
@@ -112,11 +111,6 @@ struct pcb* pcb_allocate(void)
     {
         return NULL;
     }
-
-    // if(new_pcb->name_ptr == NULL)
-    // {
-    //     return NULL;
-    // }
 
     if(new_pcb->name_arr == NULL)
     {
@@ -141,10 +135,8 @@ struct pcb* pcb_setup(const char *process_name , int class, int priority)
         return NULL; // Allocation error
     }
 
-    // Initialize PCB with provided data
-    //new_pcb->name_arr = *(&process_name);
+    /* Initialize PCB with provided data */
     memcpy((char*)new_pcb->name_arr, process_name, strlen(process_name));
-    //new_pcb->name_arr = process_name;
     new_pcb->process_ptr->pcb_class = class;
     new_pcb->process_ptr->pcb_priority = priority;
 
