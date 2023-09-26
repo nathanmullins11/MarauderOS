@@ -9,6 +9,7 @@ void delete_pcb(const char* name)
 {
     // error message
     char err_msg[] = "Error deleting pcb..";
+    char system_class_msg[] = "system processes cannot be deleted..\n";
     // find pcb with given name
     struct pcb* pcb_to_delete = pcb_find(name);
 
@@ -17,6 +18,14 @@ void delete_pcb(const char* name)
     {
         print("Error deleting pcb... ");
         print("could not be found\n");
+        return;
+    }
+
+    // check if pcb is a system class
+    if(pcb_to_delete->process_ptr->pcb_class == 1)
+    {
+        // can not delete system processes, return
+        sys_req(WRITE, COM1, system_class_msg, sizeof(system_class_msg));
         return;
     }
 
@@ -85,7 +94,7 @@ void show_pcb(const char *name)
 
         // print out data
         sys_req(WRITE, COM1, process_name, strlen(process_name));
-        print("\t\t");
+        print("\t");
         sys_req(WRITE, COM1, class_as_string, strlen(class_as_string));
         print("\t\t");
         sys_req(WRITE, COM1, state_as_string, strlen(state_as_string));
@@ -100,16 +109,16 @@ void show_pcb(const char *name)
     }
 }
 
-void show_ready(void) {
+void show_ready(int status) {
     // readying up the ready queue
     struct node* current_ready = global_ready_queue->front;
     struct node* current_suspended_ready = global_suspended_ready_queue->front;
 
-    //Ready Non-suspended Process Section
-    print("Ready Non-suspended Processes: \n");
-
-    print("Name\t\tClass\t\t\tState\t\tSuspended Status\tPriority\n");
-    print("----------------------------------------------------------------------------------------\n");
+    // print header if just ready is called
+    if (status == 1) {
+        print("Name\t\tClass\t\t\tState\t\tSuspended Status\tPriority\n");
+        print("----------------------------------------------------------------------------------------\n");
+    }
 
     if(current_ready != NULL)
     {
@@ -120,16 +129,7 @@ void show_ready(void) {
 
             current_ready = current_ready->next;
         }
-
-        print("\n");
-    } else {
-        print("NULL\n");
     }
-
-    print("Ready Suspended Processes: \n");
-
-    print("Name\t\tClass\t\t\tState\t\tSuspended Status\tPriority\n");
-    print("----------------------------------------------------------------------------------------\n");
 
     // Ready Suspended Section
     if(current_suspended_ready != NULL)
@@ -141,24 +141,19 @@ void show_ready(void) {
 
             current_suspended_ready = current_suspended_ready->next;
         }
-
-        print("\n");
-    }
-    else {
-        print("NULL\n");
     }
 }
 
-void show_blocked(void) {
+void show_blocked(int status) {
     // readying up the blocked queue
     struct node* current_blocked = global_blocked_queue->front;
     struct node* current_suspended_blocked = global_suspended_blocked_queue->front;
 
-    //Blocked Un-suspended Processes Section
-    print("\nBlocked Non-suspended Processes: \n");
-
-    print("Name\t\tClass\t\t\tState\t\tSuspended Status\tPriority\n");
-    print("----------------------------------------------------------------------------------------\n");
+    // print header if only blocked is called
+    if (status == 1) {
+        print("Name\t\tClass\t\t\tState\t\tSuspended Status\tPriority\n");
+        print("----------------------------------------------------------------------------------------\n");
+    }
 
     if (current_blocked != NULL) 
     {
@@ -169,18 +164,7 @@ void show_blocked(void) {
 
             current_blocked = current_blocked->next;
         }
-
-        print("\n");
     }
-    else {
-        print("NULL\n");
-    }
-
-   //Blocked Suspended Processes Section
-    print("\nBlocked Suspended Processes: \n");
-
-    print("Name\t\tClass\t\t\tState\t\tSuspended Status\tPriority\n");
-    print("----------------------------------------------------------------------------------------\n");
     
     if(current_suspended_blocked != NULL)
     {
@@ -191,38 +175,49 @@ void show_blocked(void) {
 
             current_suspended_blocked = current_suspended_blocked->next;
         }
-
-        print("\n");
-    } else {
-        print("NULL\n");
     }
 
 }
 
 void show_all(void) {
+    // print header
+    print("Name\t\tClass\t\t\tState\t\tSuspended Status\tPriority\n");
+    print("----------------------------------------------------------------------------------------\n");
+
     // show ready and then show blocked
-    show_ready();
-    show_blocked();
+    show_ready(0);
+    show_blocked(0);
 }
 
 void create_pcb(const char *name, int class, int priority) {
     /* Run checks */
+
+    // check if name is valid 
+    if (strlen(name) < 8) {
+        char err_name[] = "ERR: PCB name must be greater than 8 characters\n";
+        sys_req(WRITE, COM1, err_name, strlen(err_name));
+        return;
+    }
+
     // check if class is valid
     if (class != 0 && class != 1) {
         char err_class[] = "ERR: Invalid class\n";
         sys_req(WRITE, COM1, err_class, strlen(err_class));
+        return;
     }
 
     // check priority
     if (priority > 9 || priority < 0) {
         char err_pri[] = "ERR: Invalid priority\n";
         sys_req(WRITE, COM1, err_pri, strlen(err_pri));
+        return;
     }
 
     // check if name is unique
     if (pcb_find(name) != NULL) {
         char err_name[] = "ERR: Name already in use\n";
         sys_req(WRITE, COM1, err_name, strlen(err_name));
+        return;
     } else if (name == NULL) {
         char err_name[] = "ERR: Name cannot be empty\n";
         sys_req(WRITE, COM1, err_name, strlen(err_name));
@@ -235,7 +230,7 @@ void create_pcb(const char *name, int class, int priority) {
     pcb_insert(new_pcb);
 
     // print statement for successful creation
-    print("pcb was successfully created\n");
+    print("INFO: PCB Created\n");
 }
 
 void block_pcb(const char *name) {
@@ -246,13 +241,14 @@ void block_pcb(const char *name) {
     if (cur_pcb == NULL) {
         char err[] = "ERR: PCB does not exist\n";
         sys_req(WRITE, COM1, err, strlen(err));
+        return;
     }
 
     // remove pcb from current queue
     int status = pcb_remove(cur_pcb);
 
     // check if removed
-    if (!status) {
+    if (status) {
         char err[] = "ERR: Cannot remove pcb from queue | try again\n";
         sys_req(WRITE, COM1, err, strlen(err));
         return;
@@ -264,7 +260,6 @@ void block_pcb(const char *name) {
     } else if (cur_pcb->process_ptr->pcb_state == READY_SUSPENDED) {
         cur_pcb->process_ptr->pcb_state = BLOCKED_SUSPENDED;
     }
-
 
     // put back into relevant queue
     pcb_insert(cur_pcb);
@@ -278,13 +273,14 @@ void unblock_pcb(const char *name) {
     if (cur_pcb == NULL) {
         char err[] = "ERR: PCB does not exist\n";
         sys_req(WRITE, COM1, err, strlen(err));
+        return;
     }
 
     // remove pcb from current queue
     int status = pcb_remove(cur_pcb);
 
     // check if removed
-    if (!status) {
+    if (status) {
         char err[] = "ERR: Cannot remove pcb from queue | try again\n";
         sys_req(WRITE, COM1, err, strlen(err));
         return;
@@ -310,6 +306,7 @@ void suspend_pcb(const char *name) {
     if (cur_pcb == NULL) {
         char err[] = "ERR: PCB does not exist\n";
         sys_req(WRITE, COM1, err, strlen(err));
+        return;
     }
 
     // remove pcb from current queue
@@ -323,7 +320,7 @@ void suspend_pcb(const char *name) {
     }
 
     // check if removed
-    if (!status) {
+    if (status) {
         char err[] = "ERR: Cannot remove pcb from queue | try again\n";
         sys_req(WRITE, COM1, err, strlen(err));
         return;
@@ -348,13 +345,14 @@ void resume_pcb(const char *name) {
     if (cur_pcb == NULL) {
         char err[] = "ERR: PCB does not exist\n";
         sys_req(WRITE, COM1, err, strlen(err));
+        return;
     }
 
     // remove pcb from current queue
     int status = pcb_remove(cur_pcb);
 
     // check if removed
-    if (!status) {
+    if (status) {
         char err[] = "ERR: Cannot remove pcb from queue | try again\n";
         sys_req(WRITE, COM1, err, strlen(err));
         return;
