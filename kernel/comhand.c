@@ -391,10 +391,10 @@ void comhand(void)
 							// PCB list 
 							if ( strcmp(name, "ready") == 0 ) {
 								// list all ready 
-								show_ready();
+								show_ready(1);
 							} else if ( strcmp(name, "blocked") == 0 ) {
 								// list all blocked
-								show_blocked();
+								show_blocked(1);
 							} else if ( strcmp(name, "all") == 0 ) {
 								// list all processes
 								show_all();

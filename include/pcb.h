@@ -141,12 +141,12 @@ void show_pcb(const char* name);
 /**
  * @brief show all processes in ready state in terminal
  */
-void show_ready(void);
+void show_ready(int status);
 
 /**
  * @brief show all processes in blocked state in terminal 
  */
-void show_blocked(void);
+void show_blocked(int status);
 
 /**
  * @brief show all processes in terminal 
