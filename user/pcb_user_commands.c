@@ -272,7 +272,7 @@ void block_pcb(const char *name) {
     int status = pcb_remove(cur_pcb);
 
     // check if removed
-    if (!status) {
+    if (status) {
         char err[] = "ERR: Cannot remove pcb from queue | try again\n";
         sys_req(WRITE, COM1, err, strlen(err));
         return;
@@ -304,7 +304,7 @@ void unblock_pcb(const char *name) {
     int status = pcb_remove(cur_pcb);
 
     // check if removed
-    if (!status) {
+    if (status) {
         char err[] = "ERR: Cannot remove pcb from queue | try again\n";
         sys_req(WRITE, COM1, err, strlen(err));
         return;
@@ -343,7 +343,7 @@ void suspend_pcb(const char *name) {
     }
 
     // check if removed
-    if (!status) {
+    if (status) {
         char err[] = "ERR: Cannot remove pcb from queue | try again\n";
         sys_req(WRITE, COM1, err, strlen(err));
         return;
@@ -374,7 +374,7 @@ void resume_pcb(const char *name) {
     int status = pcb_remove(cur_pcb);
 
     // check if removed
-    if (!status) {
+    if (status) {
         char err[] = "ERR: Cannot remove pcb from queue | try again\n";
         sys_req(WRITE, COM1, err, strlen(err));
         return;
