@@ -9,6 +9,7 @@ void delete_pcb(const char* name)
 {
     // error message
     char err_msg[] = "Error deleting pcb..";
+    char system_class_msg[] = "system processes cannot be deleted..\n";
     // find pcb with given name
     struct pcb* pcb_to_delete = pcb_find(name);
 
@@ -17,6 +18,14 @@ void delete_pcb(const char* name)
     {
         print("Error deleting pcb... ");
         print("could not be found\n");
+        return;
+    }
+
+    // check if pcb is a system class
+    if(pcb_to_delete->process_ptr->pcb_class == 1)
+    {
+        // can not delete system processes, return
+        sys_req(WRITE, COM1, system_class_msg, sizeof(system_class_msg));
         return;
     }
 
@@ -211,18 +220,21 @@ void create_pcb(const char *name, int class, int priority) {
     if (class != 0 && class != 1) {
         char err_class[] = "ERR: Invalid class\n";
         sys_req(WRITE, COM1, err_class, strlen(err_class));
+        return;
     }
 
     // check priority
     if (priority > 9 || priority < 0) {
         char err_pri[] = "ERR: Invalid priority\n";
         sys_req(WRITE, COM1, err_pri, strlen(err_pri));
+        return;
     }
 
     // check if name is unique
     if (pcb_find(name) != NULL) {
         char err_name[] = "ERR: Name already in use\n";
         sys_req(WRITE, COM1, err_name, strlen(err_name));
+        return;
     } else if (name == NULL) {
         char err_name[] = "ERR: Name cannot be empty\n";
         sys_req(WRITE, COM1, err_name, strlen(err_name));
