@@ -94,7 +94,7 @@ void show_pcb(const char *name)
 
         // print out data
         sys_req(WRITE, COM1, process_name, strlen(process_name));
-        print("\t\t");
+        print("\t");
         sys_req(WRITE, COM1, class_as_string, strlen(class_as_string));
         print("\t\t");
         sys_req(WRITE, COM1, state_as_string, strlen(state_as_string));
@@ -132,7 +132,7 @@ void show_ready(void) {
 
         print("\n");
     } else {
-        print("NULL\n");
+        print("NULL\n\n");
     }
 
     print("Ready Suspended Processes: \n");
@@ -216,6 +216,14 @@ void show_all(void) {
 
 void create_pcb(const char *name, int class, int priority) {
     /* Run checks */
+
+    // check if name is valid 
+    if (strlen(name) < 8) {
+        char err_name[] = "ERR: PCB name must be greater than 8 characters\n";
+        sys_req(WRITE, COM1, err_name, strlen(err_name));
+        return;
+    }
+
     // check if class is valid
     if (class != 0 && class != 1) {
         char err_class[] = "ERR: Invalid class\n";
@@ -247,7 +255,7 @@ void create_pcb(const char *name, int class, int priority) {
     pcb_insert(new_pcb);
 
     // print statement for successful creation
-    print("pcb was successfully created\n");
+    print("INFO: PCB Created\n");
 }
 
 void block_pcb(const char *name) {
