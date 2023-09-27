@@ -16,8 +16,7 @@ void delete_pcb(const char* name)
     // pcb with given name could not be found
     if(pcb_to_delete == NULL)
     {
-        print("Error deleting pcb... ");
-        print("could not be found\n");
+        print("ERR: PCB does not exist\n");
         return;
     }
 
@@ -312,15 +311,15 @@ void suspend_pcb(const char *name) {
         return;
     }
 
-    // remove pcb from current queue
-    int status = pcb_remove(cur_pcb);
-
     // check if it is a system process
     if (cur_pcb->process_ptr->pcb_class == 1) {
         char err[] = "ERR: System process cannot be suspended\n";
         sys_req(WRITE, COM1, err, strlen(err));
         return;
     }
+
+    // remove pcb from current queue
+    int status = pcb_remove(cur_pcb);
 
     // check if removed
     if (status) {
@@ -384,6 +383,7 @@ void set_pcb_priority(const char *name, int priority)
     {
         char err[] = "ERR: PCB does not exist\n";
         sys_req(WRITE, COM1, err, strlen(err));
+        return;
     }
 
     if (priority < 0 || priority > 9)
