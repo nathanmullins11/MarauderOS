@@ -384,6 +384,7 @@ void set_pcb_priority(const char *name, int priority)
     {
         char err[] = "ERR: PCB does not exist\n";
         sys_req(WRITE, COM1, err, strlen(err));
+        return;
     }
 
     if (priority < 0 || priority > 9)
