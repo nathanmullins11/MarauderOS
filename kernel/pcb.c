@@ -4,7 +4,7 @@
 #include <memory.h>
 #include <comhand.h>
 
-/* initialize queues in this file*/
+/* initialize queues in this file */
 struct queue* global_ready_queue;
 struct queue* global_suspended_ready_queue;
 struct queue* global_blocked_queue;
@@ -22,44 +22,52 @@ struct pcb* pcb_find(const char* process)
     /* search for process in ready queue*/
     while(current_ready != NULL)
     {
+        // if find then return pcb pointer
         if((strcmp(current_ready->pcb->name_arr, process) == 0))
         {
             return current_ready->pcb;
         }
 
+        // iterate
         current_ready = current_ready->next;
     }
 
     /* search for process in suspended ready queue*/
     while(current_suspended_ready != NULL)
     {
+        // if find then return pcb pointer
         if((strcmp(current_suspended_ready->pcb->name_arr, process) == 0))
         {
             return current_suspended_ready->pcb;
         }
 
+        // iterate
         current_suspended_ready = current_suspended_ready->next;
     }
 
     /* search for process in blocked queue*/
     while(current_blocked != NULL)
     {
+        // if find then return pcb pointer
         if((strcmp(current_blocked->pcb->name_arr, process) == 0))
         {
             return current_blocked->pcb;
         }
 
+        // iterate
         current_blocked = current_blocked->next;
     }
 
     /* search for process in suspended blocked queue*/
     while(current_suspended_blocked != NULL)
     {
+        // if found then return pcb pointer
         if((strcmp(current_suspended_blocked->pcb->name_arr, process) == 0))
         {
             return current_suspended_blocked->pcb;
         }
 
+        // iterate
         current_suspended_blocked = current_suspended_blocked->next;
     }
 
@@ -97,23 +105,33 @@ int pcb_free(struct pcb *process) {
 
 struct pcb* pcb_allocate(void)
 {
+    // allocate pcb struct and members using sys_alloc_mem
     struct pcb* new_pcb = (struct pcb*)sys_alloc_mem(sizeof(struct pcb));
     new_pcb->process_ptr = (struct process*)sys_alloc_mem(sizeof(struct process));
     new_pcb->name_arr = (char*)sys_alloc_mem(16);
 
+    // error message
+    char *err = "ERR: Cannot allocate memory for pcb\n";
+
     /* check if memory was dynamically allocated correctly */
+    // check pcb pointer
     if (new_pcb == NULL)
     {
+        sys_req(WRITE, COM1, err, strlen(err));
         return NULL;
     }
 
+    // check process pointer
     if(new_pcb->process_ptr == NULL)
     {
+        sys_req(WRITE, COM1, err, strlen(err));
         return NULL;
     }
 
+    // check name
     if(new_pcb->name_arr == NULL)
     {
+        sys_req(WRITE, COM1, err, strlen(err));
         return NULL;
     }
 
@@ -123,16 +141,19 @@ struct pcb* pcb_allocate(void)
 
 struct pcb* pcb_setup(const char *process_name , int class, int priority)
 {
+    // check parameters for validity
     if (process_name == NULL || (class != 0 && class != 1) || (priority < 0 || priority > 9)) 
     {
-        return NULL; // Invalid parameters
+        return NULL;
     }
 
-    struct pcb* new_pcb = pcb_allocate(); // Allocate new PCB
+    // allocate memory for new PCB
+    struct pcb* new_pcb = pcb_allocate();
     if (new_pcb == NULL) 
     {
+        // error with allocation of memory, free and return
         pcb_free(new_pcb); 
-        return NULL; // Allocation error
+        return NULL;
     }
 
     /* Initialize PCB with provided data */
