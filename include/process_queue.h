@@ -36,12 +36,20 @@ extern struct queue* global_suspended_blocked_queue;
 struct queue* create_queue(void);
 
 /**
- * @brief insert a new node at the end/tail of the linked list
+ * @brief insert a new node based on priority of process
  * 
  * @param rear points to the end of the linked list
  * @param pcb points to the pcb to be placed into the queue
  */
-void enqueue(char* status, struct pcb* pcb);
+void enqueue_pri(char* status, struct pcb* pcb);
+
+/**
+ * @brief insert a new node at tail/end of correct queue
+ * 
+ * @param rear points to the end of the linked list
+ * @param pcb points to the pcb to be placed into the queue
+ */
+void enqueue_reg(char* status, struct pcb* pcb);
 
 /**
  * @brief delete specified node from linked list
