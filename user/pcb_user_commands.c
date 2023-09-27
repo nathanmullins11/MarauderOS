@@ -39,11 +39,10 @@ void delete_pcb(const char* name)
         return;
     }
 
-    // print successful deletion
-    print("pcb was successfully removed\n");
-
     // free mem
     pcb_free(pcb_to_delete);
+    char sucess_msg[] = "INFO: PCB deleted\n";
+    sys_req(WRITE, COM1, sucess_msg, strlen(sucess_msg));
 
 
 }
@@ -263,6 +262,8 @@ void block_pcb(const char *name) {
 
     // put back into relevant queue
     pcb_insert(cur_pcb);
+    char sucess_msg[] = "INFO: PCB blocked\n";
+    sys_req(WRITE, COM1, sucess_msg, strlen(sucess_msg));
 }
 
 void unblock_pcb(const char *name) {
@@ -296,6 +297,8 @@ void unblock_pcb(const char *name) {
 
     // put back into relevant queue
     pcb_insert(cur_pcb);
+    char sucess_msg[] = "INFO: PCB unblocked\n";
+    sys_req(WRITE, COM1, sucess_msg, strlen(sucess_msg));
 }
 
 void suspend_pcb(const char *name) {
@@ -335,6 +338,8 @@ void suspend_pcb(const char *name) {
 
     // put back into relevant queue
     pcb_insert(cur_pcb);
+    char sucess_msg[] = "INFO: PCB suspended\n";
+    sys_req(WRITE, COM1, sucess_msg, strlen(sucess_msg));
 }
 
 void resume_pcb(const char *name) {
@@ -367,6 +372,8 @@ void resume_pcb(const char *name) {
 
     // put back into relevant queue
     pcb_insert(cur_pcb);
+    char sucess_msg[] = "INFO: PCB resumed\n";
+    sys_req(WRITE, COM1, sucess_msg, strlen(sucess_msg));
 }
 
 void set_pcb_priority(const char *name, int priority)
@@ -383,8 +390,11 @@ void set_pcb_priority(const char *name, int priority)
     {
         char err[] = "ERR: Invalid Priority Number, must be 0-9\n";
         sys_req(WRITE, COM1, err, strlen(err));
+        return;
     }
 
     cur_pcb->process_ptr->pcb_priority = priority; // set new priority
+    char sucess_msg[] = "INFO: PCB priority changed\n";
+    sys_req(WRITE, COM1, sucess_msg, strlen(sucess_msg)); 
 
 }
