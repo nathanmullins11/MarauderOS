@@ -5,18 +5,13 @@
 
 #include <process_queue.h>
 
-#define MAX_NAME_LEN 8
+// #define MAX_NAME_LEN 16
 
 struct pcb {
-        char *name_ptr;
-        char name_arr[MAX_NAME_LEN];
+        // const char *name_ptr;
+        const char* name_arr;
         struct process *process_ptr;
 };
-
-// struct state {
-//         const char* execution_state; // ready, running, or blocked
-//         const char* dispatching_state; // suspended or not suspended
-// };
 
 enum state {
         READY_NOT_SUSPENDED, // 0
@@ -27,7 +22,7 @@ enum state {
 };
 
 struct process {
-        const char* process_name;
+        //const char* process_name;
         int pcb_class; // class = 0 -> user app, class = 1 -> system process
         enum state pcb_state;
         int pcb_priority; // an int between 0 (high pri) and 9 (low pri)
@@ -146,12 +141,12 @@ void show_pcb(const char* name);
 /**
  * @brief show all processes in ready state in terminal
  */
-void show_ready(void);
+void show_ready(int status);
 
 /**
  * @brief show all processes in blocked state in terminal 
  */
-void show_blocked(void);
+void show_blocked(int status);
 
 /**
  * @brief show all processes in terminal 

@@ -1,7 +1,8 @@
 #include "memory.h"
+#include "sys_req.h"
 #include <pcb.h>
 #include <string.h>
-
+#include <comhand.h>
 
 char* search(struct pcb* pcb_ptr)
 {
@@ -25,105 +26,101 @@ char* search(struct pcb* pcb_ptr)
     return NULL;
 }
 
-void enqueue(char* status, struct pcb* pcb) {
+void enqueue_pri(char* status, struct pcb* pcb) {
     // Find which queue pcb should be placed in
     char* pcb_status = status;
+
+    // Create a node to insert
+    struct node* new_node = create_node(pcb);
+
+    if (new_node == NULL) {
+        // Handle memory allocation failure
+        print("ERR: Memory error\n");
+        return;
+    }
 
     // if status of pcb is ready
     if (strcmp(pcb_status, "ready") == 0) 
     {
         int pri = pcb->process_ptr->pcb_priority;
-        // create node to insert
-        struct node* new_node = create_node(pcb);
 
-        if (new_node == NULL) {
-            // Handle memory allocation failure
-            return;
-        }
-
-        // if the queue is empty or the new node has the highest priority, insert it at the rear.
-        if (global_ready_queue->rear == NULL || pri >= global_ready_queue->rear->pcb->process_ptr->pcb_priority) {
-            new_node->next = NULL;
-            new_node->prev = global_ready_queue->rear;
-            if (global_ready_queue->rear != NULL) {
-                global_ready_queue->rear->next = new_node;
+        // if the queue is empty or the new node has higher priority, insert it at the front.
+        if (global_ready_queue->rear == NULL || pri < global_ready_queue->front->pcb->process_ptr->pcb_priority) {
+            new_node->prev = NULL;
+            new_node->next = global_ready_queue->front;
+            if (global_ready_queue->front != NULL) {
+                global_ready_queue->front->prev = new_node;
             }
-            global_ready_queue->rear = new_node;
+            global_ready_queue->front = new_node;
 
-            // If the queue was empty, set the front as well.
-            if (global_ready_queue->front == NULL) {
-                global_ready_queue->front = new_node;
+            // If the queue was empty, set the rear as well.
+            if (global_ready_queue->rear == NULL) {
+                global_ready_queue->rear = new_node;
             }
         } else {
             // Find the correct position to insert the new node
-            struct node* compare = global_ready_queue->rear;
-            while (compare->prev != NULL && pri < compare->prev->pcb->process_ptr->pcb_priority) {
-                compare = compare->prev;
+            struct node* compare = global_ready_queue->front;
+            while (compare->next != NULL && pri >= compare->next->pcb->process_ptr->pcb_priority) {
+                compare = compare->next;
             }
 
             // Insert the new node
-            new_node->next = compare->next;
             new_node->prev = compare;
+            new_node->next = compare->next;
             if (compare->next != NULL) {
                 compare->next->prev = new_node;
             }
             compare->next = new_node;
+
+            // Update the rear if the new node is inserted at the end
+            if (new_node->next == NULL) {
+                global_ready_queue->rear = new_node;
+            }
         }
     }
-
     // if status of pcb is suspended ready
-    if (strcmp(pcb_status, "suspended ready") == 0) 
+    else if (strcmp(pcb_status, "suspended ready") == 0) 
     {
         int pri = pcb->process_ptr->pcb_priority;
-        // create node to insert
-        struct node* new_node = create_node(pcb);
 
-        if (new_node == NULL) {
-            // Handle memory allocation failure
-            return;
-        }
-
-        // if the queue is empty or the new node has the highest priority, insert it at the rear.
-        if (global_suspended_ready_queue->rear == NULL || pri >= global_suspended_ready_queue->rear->pcb->process_ptr->pcb_priority) {
-            new_node->next = NULL;
-            new_node->prev = global_suspended_ready_queue->rear;
-            if (global_suspended_ready_queue->rear != NULL) {
-                global_suspended_ready_queue->rear->next = new_node;
+        // if the queue is empty or the new node has higher priority, insert it at the front.
+        if (global_suspended_ready_queue->rear == NULL || pri < global_suspended_ready_queue->front->pcb->process_ptr->pcb_priority) {
+            new_node->prev = NULL;
+            new_node->next = global_suspended_ready_queue->front;
+            if (global_suspended_ready_queue->front != NULL) {
+                global_suspended_ready_queue->front->prev = new_node;
             }
-            global_suspended_ready_queue->rear = new_node;
+            global_suspended_ready_queue->front = new_node;
 
-            // If the queue was empty, set the front as well.
-            if (global_suspended_ready_queue->front == NULL) {
-                global_suspended_ready_queue->front = new_node;
+            // If the queue was empty, set the rear as well.
+            if (global_suspended_ready_queue->rear == NULL) {
+                global_suspended_ready_queue->rear = new_node;
             }
         } else {
             // Find the correct position to insert the new node
-            struct node* compare = global_ready_queue->rear;
-            while (compare->prev != NULL && pri < compare->prev->pcb->process_ptr->pcb_priority) {
-                compare = compare->prev;
+            struct node* compare = global_suspended_ready_queue->front;
+            while (compare->next != NULL && pri >= compare->next->pcb->process_ptr->pcb_priority) {
+                compare = compare->next;
             }
 
             // Insert the new node
-            new_node->next = compare->next;
             new_node->prev = compare;
+            new_node->next = compare->next;
             if (compare->next != NULL) {
                 compare->next->prev = new_node;
             }
             compare->next = new_node;
+
+            // Update the rear if the new node is inserted at the end
+            if (new_node->next == NULL) {
+                global_suspended_ready_queue->rear = new_node;
+            }
         }
     }
-
     // if status of pcb is blocked, not based on priority just FIFO so place at rear
-    if (strcmp(pcb_status, "blocked") == 0)
+    else if (strcmp(pcb_status, "blocked") == 0)
     {
         // create node to insert
-        struct node* new_node = create_node(pcb);
-
-        if (new_node == NULL) {
-            // Handle memory allocation failure
-            return;
-        }
-
         new_node->next = NULL; // the new node will be the last node, so its next pointer should be NULL.
 
         if (global_blocked_queue->rear == NULL) {
@@ -137,19 +134,10 @@ void enqueue(char* status, struct pcb* pcb) {
             global_blocked_queue->rear = new_node;
         }
     }
-
-
     // if status of pcb is suspended blocked, just FIFO
-    if (strcmp(pcb_status, "suspended blocked") == 0)
+    else if (strcmp(pcb_status, "suspended blocked") == 0)
     {
         // create node to insert
-        struct node* new_node = create_node(pcb);
-
-        if (new_node == NULL) {
-            // Handle memory allocation failure
-            return;
-        }
-
         new_node->next = NULL; // the new node will be the last node, so its next pointer should be NULL.
 
         if (global_suspended_blocked_queue->rear == NULL) {
@@ -158,6 +146,88 @@ void enqueue(char* status, struct pcb* pcb) {
             global_suspended_blocked_queue->rear = new_node;
         } else {
             // otherwise, update the rear node's next pointer to the new node.
+            global_suspended_blocked_queue->rear->next = new_node;
+            new_node->prev = global_suspended_blocked_queue->rear;
+            global_suspended_blocked_queue->rear = new_node;
+        }
+    }
+}
+
+void enqueue_reg(char *status, struct pcb *pcb)
+{
+    // Find which queue pcb should be placed in
+    char *pcb_status = status;
+
+    // Create a node to insert
+    struct node *new_node = create_node(pcb);
+
+    if (new_node == NULL)
+    {
+        // Handle memory allocation failure
+        print("ERR: Memory error\n");
+        return;
+    }
+
+    // Determine the queue based on the status
+    if (strcmp(pcb_status, "ready") == 0)
+    {
+        if (global_ready_queue->rear == NULL)
+        {
+            // If the queue is empty, set both front and rear to the new node.
+            global_ready_queue->front = new_node;
+            global_ready_queue->rear = new_node;
+        }
+        else
+        {
+            // Otherwise, update the rear node's next pointer to the new node.
+            global_ready_queue->rear->next = new_node;
+            new_node->prev = global_ready_queue->rear;
+            global_ready_queue->rear = new_node;
+        }
+    }
+    else if (strcmp(pcb_status, "suspended ready") == 0)
+    {
+        if (global_suspended_ready_queue->rear == NULL)
+        {
+            // If the queue is empty, set both front and rear to the new node.
+            global_suspended_ready_queue->front = new_node;
+            global_suspended_ready_queue->rear = new_node;
+        }
+        else
+        {
+            // Otherwise, update the rear node's next pointer to the new node.
+            global_suspended_ready_queue->rear->next = new_node;
+            new_node->prev = global_suspended_ready_queue->rear;
+            global_suspended_ready_queue->rear = new_node;
+        }
+    }
+    else if (strcmp(pcb_status, "blocked") == 0)
+    {
+        if (global_blocked_queue->rear == NULL)
+        {
+            // If the queue is empty, set both front and rear to the new node.
+            global_blocked_queue->front = new_node;
+            global_blocked_queue->rear = new_node;
+        }
+        else
+        {
+            // Otherwise, update the rear node's next pointer to the new node.
+            global_blocked_queue->rear->next = new_node;
+            new_node->prev = global_blocked_queue->rear;
+            global_blocked_queue->rear = new_node;
+        }
+    }
+    else if (strcmp(pcb_status, "suspended blocked") == 0)
+    {
+        if (global_suspended_blocked_queue->rear == NULL)
+        {
+            // If the queue is empty, set both front and rear to the new node.
+            global_suspended_blocked_queue->front = new_node;
+            global_suspended_blocked_queue->rear = new_node;
+        }
+        else
+        {
+            // Otherwise, update the rear node's next pointer to the new node.
             global_suspended_blocked_queue->rear->next = new_node;
             new_node->prev = global_suspended_blocked_queue->rear;
             global_suspended_blocked_queue->rear = new_node;

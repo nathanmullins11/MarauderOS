@@ -370,14 +370,14 @@ void comhand(void)
 							// PCB priority 
 							if (pri != -1) {
 								// run function
-
+								set_pcb_priority(name, pri);
 							}
 						} else if (strcmp(param, "-d") == 0) {
 							// PCB delete
 							delete_pcb(name);
 						} else if (strcmp(param, "-b") == 0) {
 							// PCB block
-
+							block_pcb(name);
 						} else if (strcmp(param, "-u") == 0) {
 							// PCB unblock
 							unblock_pcb(name);
@@ -391,10 +391,10 @@ void comhand(void)
 							// PCB list 
 							if ( strcmp(name, "ready") == 0 ) {
 								// list all ready 
-								show_ready();
+								show_ready(1);
 							} else if ( strcmp(name, "blocked") == 0 ) {
 								// list all blocked
-								show_blocked();
+								show_blocked(1);
 							} else if ( strcmp(name, "all") == 0 ) {
 								// list all processes
 								show_all();
