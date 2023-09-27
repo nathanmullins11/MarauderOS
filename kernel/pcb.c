@@ -76,16 +76,16 @@ void pcb_insert(struct pcb* process) {
     // check state
     if (process->process_ptr->pcb_state == READY_NOT_SUSPENDED) {
         // not suspended & ready -> enqueue in global_ready_queue
-        enqueue("ready", process);
+        enqueue_pri("ready", process);
     } else if (process->process_ptr->pcb_state == BLOCKED_NOT_SUSPENDED) {
         // not suspended & blocked -> enqueue in global_blocked_queue
-        enqueue("blocked", process);
+        enqueue_reg("blocked", process);
     } else if (process->process_ptr->pcb_state == READY_SUSPENDED) {
         // suspended & ready -> enqueue in global_suspended_ready_queue
-        enqueue("suspended ready", process);
+        enqueue_pri("suspended ready", process);
     } else if (process->process_ptr->pcb_state == BLOCKED_SUSPENDED) {
         // suspended & blocked -> enqueue in global_suspended_blocked_queue
-        enqueue("suspended blocked", process);
+        enqueue_reg("suspended blocked", process);
     }
     
 }
