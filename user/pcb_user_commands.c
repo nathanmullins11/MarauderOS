@@ -16,8 +16,7 @@ void delete_pcb(const char* name)
     // pcb with given name could not be found
     if(pcb_to_delete == NULL)
     {
-        print("Error deleting pcb... ");
-        print("could not be found\n");
+        print("ERR: PCB does not exist\n");
         return;
     }
 
