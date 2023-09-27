@@ -10,6 +10,7 @@ void delete_pcb(const char* name)
     // error message
     char err_msg[] = "Error deleting pcb..";
     char system_class_msg[] = "ERR: System processes cannot be deleted\n";
+
     // find pcb with given name
     struct pcb* pcb_to_delete = pcb_find(name);
 
@@ -42,8 +43,6 @@ void delete_pcb(const char* name)
     pcb_free(pcb_to_delete);
     char sucess_msg[] = "INFO: PCB deleted\n";
     sys_req(WRITE, COM1, sucess_msg, strlen(sucess_msg));
-
-
 }
 
 void show_pcb(const char *name)
@@ -386,15 +385,18 @@ void resume_pcb(const char *name) {
 
 void set_pcb_priority(const char *name, int priority)
 {
-    struct pcb* cur_pcb = pcb_find(name); // get pcb from name
+    // get pcb from name
+    struct pcb* cur_pcb = pcb_find(name); 
 
-    if (cur_pcb == NULL) // check if valid name
+    // check if valid name
+    if (cur_pcb == NULL) 
     {
         char err[] = "ERR: PCB does not exist\n";
         sys_req(WRITE, COM1, err, strlen(err));
         return;
     }
 
+    // check if priority valid
     if (priority < 0 || priority > 9)
     {
         char err[] = "ERR: Invalid Priority Number, must be 0-9\n";
@@ -402,8 +404,8 @@ void set_pcb_priority(const char *name, int priority)
         return;
     }
 
-    cur_pcb->process_ptr->pcb_priority = priority; // set new priority
+    // set new priority
+    cur_pcb->process_ptr->pcb_priority = priority;
     char sucess_msg[] = "INFO: PCB priority changed\n";
     sys_req(WRITE, COM1, sucess_msg, strlen(sucess_msg)); 
-
 }

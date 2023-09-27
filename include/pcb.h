@@ -5,14 +5,18 @@
 
 #include <process_queue.h>
 
-// #define MAX_NAME_LEN 16
-
+/**
+ * @brief stuct to describe a process control block
+ */
 struct pcb {
-        // const char *name_ptr;
         const char* name_arr;
         struct process *process_ptr;
 };
 
+/**
+ * @brief enumeration to describe a state that a process can be in
+ * Encompasses the pcb's execution state and dispatching state
+ */
 enum state {
         READY_NOT_SUSPENDED, // 0
         READY_SUSPENDED, // 1
@@ -21,8 +25,10 @@ enum state {
         RUNNING // 4
 };
 
+/**
+ * @brief struct to describe a process
+ */
 struct process {
-        //const char* process_name;
         int pcb_class; // class = 0 -> user app, class = 1 -> system process
         enum state pcb_state;
         int pcb_priority; // an int between 0 (high pri) and 9 (low pri)
@@ -32,26 +38,27 @@ struct process {
 };
 
 /**
- * @brief 
+ * @brief allocates dynamic memory for a process struct
  * 
- * @return struct pcb* 
+ * @return struct pcb* a pointer to the new struct
  */
 struct pcb* pcb_allocate(void);
 
 /**
- * @brief 
+ * @brief frees a specified pcb struct from memory
  * 
- * @param process 
- * @return int 
+ * @param process the pcb to be freed
+ * @return int completion status: 0 on success, otherwise fail
  */
 int pcb_free(struct pcb* process);
 
 /**
- * @brief 
+ * @brief allocates memory for new pcb and inserts data provided about the pcb
  * 
- * @param process_name 
- * @param priority 
- * @return struct pcb* 
+ * @param process_name name of the process, name must be > 8 characters
+ * @param class pcb's class: 0 = user, 1 = system
+ * @param priority pcb's priority, must be 0 <= pri <= 9
+ * @return struct pcb* new pcb setup
  */
 struct pcb* pcb_setup(const char* process_name, int class, int priority);
 
@@ -71,10 +78,10 @@ struct pcb* pcb_find(const char* process);
 void pcb_insert(struct pcb* process);
 
 /**
- * @brief 
+ * @brief remove's a pcb from it's queue
  * 
- * @param process 
- * @return int 
+ * @param process pointer to pcb to be dequeued
+ * @return int completion status: 0 on success, 1 on fail
  */
 int pcb_remove(struct pcb* process);
 
