@@ -9,7 +9,7 @@ void delete_pcb(const char* name)
 {
     // error message
     char err_msg[] = "Error deleting pcb..";
-    char system_class_msg[] = "system processes cannot be deleted..\n";
+    char system_class_msg[] = "ERR: System processes cannot be deleted\n";
     // find pcb with given name
     struct pcb* pcb_to_delete = pcb_find(name);
 
@@ -103,7 +103,7 @@ void show_pcb(const char *name)
         print("\n");
         
     } else {
-        print("ERR: PCB/process you are looking for does not exist... \n");
+        print("ERR: PCB/Process you are looking for does not exist\n");
     }
 }
 
@@ -349,6 +349,15 @@ void resume_pcb(const char *name) {
     if (cur_pcb == NULL) {
         char err[] = "ERR: PCB does not exist\n";
         sys_req(WRITE, COM1, err, strlen(err));
+        return;
+    }
+
+    // check if process class is system
+    if(cur_pcb->process_ptr->pcb_class == 1)
+    {
+        char err_msg[] = "ERR: System processes cannot be suspended/unsuspended\n";
+        // can not delete system processes, return
+        sys_req(WRITE, COM1, err_msg, sizeof(err_msg));
         return;
     }
 
