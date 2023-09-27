@@ -311,15 +311,15 @@ void suspend_pcb(const char *name) {
         return;
     }
 
-    // remove pcb from current queue
-    int status = pcb_remove(cur_pcb);
-
     // check if it is a system process
     if (cur_pcb->process_ptr->pcb_class == 1) {
         char err[] = "ERR: System process cannot be suspended\n";
         sys_req(WRITE, COM1, err, strlen(err));
         return;
     }
+
+    // remove pcb from current queue
+    int status = pcb_remove(cur_pcb);
 
     // check if removed
     if (status) {
