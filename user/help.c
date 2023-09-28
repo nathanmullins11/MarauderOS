@@ -15,7 +15,7 @@ void help(const char *cmd) {
     char msg_pcb2[] = "Options:\n  -c,\tCreate a new PCB, requires --class and --pri suboptions\n  -d,\tDeletes a specified PCB, cannot be a system process\n  -b,\tBlocks a specified PCB\n  -u,\tUnblocks a specified PCB\n  -s,\tSuspends a specified PCB\n  -r,\tResumes a specified PCB\n  -p,\tChanges an existing PCB's priority, requires --pri suboption\n  -l,\tLists PCB information, takes the following as arguments: ready, blocked, [process_name], or no argument\n  \tto show all processes\n\n";
     char msg_pcb3[] = "Suboptions:\n  --class,\tIndicates whether a process is user or system process, suboption arguments are user or system\n  --pri,\tProcess's priority, an integer between 0 and 9, inclusive\n\n";
     char msg_pcb4[] = "Examples:\n  - Create a new PCB:\t\tpcb -c NAME --class user --pri 0\n  - Delete a PCB:\t\tpcb -d NAME\n  - Change priority:\t\tpcb -p NAME --pri 1\n  - List all blocked processes:\tpcb -l blocked\n\nAdditional Notes:\n  Refer to the User Manuel for a more in-depth explanation\n  (https://github.com/WVU-CS450/Morgantown-Marauders-/blob/main/doc/UserManual.pdf)\n";
-    char msg_all[] = "Available Commands | type `help [command] for more detailed help\n - version\n - shutdown\n - getdate\n - setdate\n - gettime\n - settime\n - pcb\n";
+    char msg_all[] = "Available Commands | type `help [command]` for more detailed help\n - version\n - shutdown\n - getdate\n - setdate\n - gettime\n - settime\n - pcb\n";
 
     if ( strcmp(cmd, "version") == 0 ) {
         // print help message for 'version' command
