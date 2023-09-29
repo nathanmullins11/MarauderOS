@@ -97,7 +97,7 @@ void show_pcb(const char *name, int status)
 
         // print out data
         sys_req(WRITE, COM1, process_name, strlen(process_name));
-        print("\t");
+        print("\t\t");
         sys_req(WRITE, COM1, class_as_string, strlen(class_as_string));
         print("\t\t");
         sys_req(WRITE, COM1, state_as_string, strlen(state_as_string));
@@ -123,6 +123,8 @@ void show_ready(int status) {
         print("----------------------------------------------------------------------------------------\n");
     }
 
+    print("Ready Not Suspended\n");
+    print("----------------------------------------------------------------------------------------\n");
     if(current_ready != NULL)
     {
         /* search for process in ready queue*/
@@ -132,9 +134,14 @@ void show_ready(int status) {
 
             current_ready = current_ready->next;
         }
+        print("\n");
+    } else {
+        print("NULL\n\n");
     }
 
     // Ready Suspended Section
+    print("Ready Suspended\n");
+    print("----------------------------------------------------------------------------------------\n");
     if(current_suspended_ready != NULL)
     { 
         /* search for process in suspended ready queue*/
@@ -144,6 +151,9 @@ void show_ready(int status) {
 
             current_suspended_ready = current_suspended_ready->next;
         }
+        print("\n");
+    } else {
+        print("NULL\n\n");
     }
 }
 
@@ -158,6 +168,8 @@ void show_blocked(int status) {
         print("----------------------------------------------------------------------------------------\n");
     }
 
+    print("Blocked Not Suspended\n");
+    print("----------------------------------------------------------------------------------------\n");
     if (current_blocked != NULL) 
     {
         /* search for process in ready queue*/
@@ -167,8 +179,13 @@ void show_blocked(int status) {
 
             current_blocked = current_blocked->next;
         }
+        print("\n");
+    } else {
+        print("NULL\n\n");
     }
     
+    print("Blocked Suspended\n");
+    print("----------------------------------------------------------------------------------------\n");
     if(current_suspended_blocked != NULL)
     {
         /* search for process in ready queue*/
@@ -178,6 +195,9 @@ void show_blocked(int status) {
 
             current_suspended_blocked = current_suspended_blocked->next;
         }
+        print("\n");
+    } else {
+        print("NULL\n\n");
     }
 
 }
@@ -196,8 +216,8 @@ void create_pcb(const char *name, int class, int priority) {
     /* Run checks */
 
     // check if name is valid 
-    if (strlen(name) < 8) {
-        char err_name[] = "ERR: PCB name must be greater than 8 characters\n";
+    if (strlen(name) > 8) {
+        char err_name[] = "ERR: PCB name must be less than or equal to 8 characters\n";
         sys_req(WRITE, COM1, err_name, strlen(err_name));
         return;
     }
@@ -247,19 +267,27 @@ void block_pcb(const char *name) {
         return;
     }
 
+    // if blocked then cannot block
+    if (cur_pcb->process_ptr->pcb_state == BLOCKED_SUSPENDED || cur_pcb->process_ptr->pcb_state == BLOCKED_NOT_SUSPENDED) {
+        char err[] = "ERR: Cannot block a blocked process\n";
+        sys_req(WRITE, COM1, err, strlen(err));
+        return;
+    }
+
+    // if process is of type system, do not block
+    if(cur_pcb->process_ptr->pcb_class == 1)
+    {
+        char sys_err[] = "ERR: Cannot block a system process\n";
+        sys_req(WRITE, COM1, sys_err, strlen(sys_err));
+        return;
+    }
+
     // remove pcb from current queue
     int status = pcb_remove(cur_pcb);
 
     // check if removed
     if (status) {
         char err[] = "ERR: Cannot remove pcb from queue | try again\n";
-        sys_req(WRITE, COM1, err, strlen(err));
-        return;
-    }
-
-    // if blocked then cannot block
-    if (cur_pcb->process_ptr->pcb_state == BLOCKED_SUSPENDED || cur_pcb->process_ptr->pcb_state == BLOCKED_NOT_SUSPENDED) {
-        char err[] = "ERR: Cannot block a blocked process\n";
         sys_req(WRITE, COM1, err, strlen(err));
         return;
     }
@@ -438,8 +466,23 @@ void set_pcb_priority(const char *name, int priority)
         return;
     }
 
-    // set new priority
-    cur_pcb->process_ptr->pcb_priority = priority;
-    char sucess_msg[] = "INFO: PCB priority changed\n";
-    sys_req(WRITE, COM1, sucess_msg, strlen(sucess_msg)); 
+    // check if process is in a blocked queue, if so only change priority because FIFO
+    if(cur_pcb->process_ptr->pcb_state == BLOCKED_NOT_SUSPENDED || cur_pcb->process_ptr->pcb_state == BLOCKED_SUSPENDED)
+    {
+        // set new priority
+        cur_pcb->process_ptr->pcb_priority = priority;
+        char sucess_msg[] = "INFO: PCB priority changed\n";
+        sys_req(WRITE, COM1, sucess_msg, strlen(sucess_msg));
+    } else { // process is in a ready queue so priority matters
+        // remove from appropriate queue
+        pcb_remove(cur_pcb);
+
+        // set new priority
+        cur_pcb->process_ptr->pcb_priority = priority;
+        char sucess_msg[] = "INFO: PCB priority changed\n";
+        sys_req(WRITE, COM1, sucess_msg, strlen(sucess_msg)); 
+
+        // enter back into appropriate queue
+        pcb_insert(cur_pcb);
+    }
 }
