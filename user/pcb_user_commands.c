@@ -257,6 +257,13 @@ void block_pcb(const char *name) {
         return;
     }
 
+    // if blocked then cannot block
+    if (cur_pcb->process_ptr->pcb_state == BLOCKED_SUSPENDED || cur_pcb->process_ptr->pcb_state == BLOCKED_NOT_SUSPENDED) {
+        char err[] = "ERR: Cannot block a blocked process\n";
+        sys_req(WRITE, COM1, err, strlen(err));
+        return;
+    }
+
     // change the pcb to ready based off of its cur state i.e. in a suspended ready queue or a not suspended ready queue
     if (cur_pcb->process_ptr->pcb_state == READY_NOT_SUSPENDED) {
         cur_pcb->process_ptr->pcb_state = BLOCKED_NOT_SUSPENDED;
@@ -287,6 +294,13 @@ void unblock_pcb(const char *name) {
     // check if removed
     if (status) {
         char err[] = "ERR: Cannot remove pcb from queue | try again\n";
+        sys_req(WRITE, COM1, err, strlen(err));
+        return;
+    }
+
+    // if unblocked then cannot unblocked
+    if (cur_pcb->process_ptr->pcb_state == READY_NOT_SUSPENDED || cur_pcb->process_ptr->pcb_state == READY_SUSPENDED) {
+        char err[] = "ERR: Cannot unblock a unblocked process\n";
         sys_req(WRITE, COM1, err, strlen(err));
         return;
     }
@@ -333,6 +347,13 @@ void suspend_pcb(const char *name) {
         return;
     }
 
+    // if suspended then cannot suspend
+    if (cur_pcb->process_ptr->pcb_state == READY_SUSPENDED || cur_pcb->process_ptr->pcb_state == BLOCKED_SUSPENDED) {
+        char err[] = "ERR: Cannot suspend a suspended process\n";
+        sys_req(WRITE, COM1, err, strlen(err));
+        return;
+    }
+
     // change the pcb to suspended based off of its cur state
     if (cur_pcb->process_ptr->pcb_state == READY_NOT_SUSPENDED) {
         cur_pcb->process_ptr->pcb_state = READY_SUSPENDED;
@@ -372,6 +393,13 @@ void resume_pcb(const char *name) {
     // check if removed
     if (status) {
         char err[] = "ERR: Cannot remove pcb from queue | try again\n";
+        sys_req(WRITE, COM1, err, strlen(err));
+        return;
+    }
+
+    // if not suspended then cannot resume
+    if (cur_pcb->process_ptr->pcb_state == BLOCKED_NOT_SUSPENDED || cur_pcb->process_ptr->pcb_state == READY_NOT_SUSPENDED) {
+        char err[] = "ERR: Cannot resume a not suspended process\n";
         sys_req(WRITE, COM1, err, strlen(err));
         return;
     }
