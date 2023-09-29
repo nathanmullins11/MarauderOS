@@ -142,16 +142,19 @@ void set_pcb_priority(const char* name, int priority);
  * @brief display's a process' data to the terminal
  * 
  * @param name process name
+ * @param status indicates whether to show the table header
  */
-void show_pcb(const char* name);
+void show_pcb(const char* name, int status);
 
 /**
  * @brief show all processes in ready state in terminal
+ * @param status indicates whether to show the table header
  */
 void show_ready(int status);
 
 /**
  * @brief show all processes in blocked state in terminal 
+ * @param status indicates whether to show the table header
  */
 void show_blocked(int status);
 

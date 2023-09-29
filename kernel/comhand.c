@@ -400,7 +400,7 @@ void comhand(void)
 								show_all();
 							} else {
 								// list specific process
-								show_pcb(name);
+								show_pcb(name, 1);
 							}
 						} else {
 							// Missing sub-options, print error

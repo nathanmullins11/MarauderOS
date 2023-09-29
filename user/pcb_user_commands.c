@@ -45,7 +45,7 @@ void delete_pcb(const char* name)
     sys_req(WRITE, COM1, sucess_msg, strlen(sucess_msg));
 }
 
-void show_pcb(const char *name)
+void show_pcb(const char *name, int status)
 {
     // get associated pcb from name
     struct pcb* pcb_to_show = pcb_find(name);
@@ -89,6 +89,12 @@ void show_pcb(const char *name)
         char priority_as_string[10] = {0};
         itoa(priority, priority_as_string, 10);
 
+        // print header if just ready is called
+        if (status == 1) {
+            print("Name\t\tClass\t\t\tState\t\tSuspended Status\tPriority\n");
+            print("----------------------------------------------------------------------------------------\n");
+        }
+
         // print out data
         sys_req(WRITE, COM1, process_name, strlen(process_name));
         print("\t");
@@ -122,7 +128,7 @@ void show_ready(int status) {
         /* search for process in ready queue*/
         while(current_ready != NULL)
         {
-            show_pcb(current_ready->pcb->name_arr);
+            show_pcb(current_ready->pcb->name_arr, 0);
 
             current_ready = current_ready->next;
         }
@@ -134,7 +140,7 @@ void show_ready(int status) {
         /* search for process in suspended ready queue*/
         while(current_suspended_ready != NULL)
         {
-            show_pcb(current_suspended_ready->pcb->name_arr);
+            show_pcb(current_suspended_ready->pcb->name_arr, 0);
 
             current_suspended_ready = current_suspended_ready->next;
         }
@@ -157,7 +163,7 @@ void show_blocked(int status) {
         /* search for process in ready queue*/
         while(current_blocked != NULL)
         {
-            show_pcb(current_blocked->pcb->name_arr);
+            show_pcb(current_blocked->pcb->name_arr, 0);
 
             current_blocked = current_blocked->next;
         }
@@ -168,7 +174,7 @@ void show_blocked(int status) {
         /* search for process in ready queue*/
         while(current_suspended_blocked != NULL)
         {
-            show_pcb(current_suspended_blocked->pcb->name_arr);
+            show_pcb(current_suspended_blocked->pcb->name_arr, 0);
 
             current_suspended_blocked = current_suspended_blocked->next;
         }
