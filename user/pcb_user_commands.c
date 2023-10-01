@@ -1,9 +1,15 @@
+#include "memory.h"
 #include "mpx/device.h"
+#include "processes.h"
 #include "sys_req.h"
 #include <pcb.h>
+#include <stdint.h>
 #include <string.h>
 #include <comhand.h>
 #include <itoa.h>
+#include <context_switch.h>
+
+#define PCB_STACK_SIZE 1024
 
 void delete_pcb(const char* name)
 {
@@ -485,4 +491,44 @@ void set_pcb_priority(const char *name, int priority)
         // enter back into appropriate queue
         pcb_insert(cur_pcb);
     }
+}
+
+void yield(void)
+{
+    sys_req(IDLE);
+}
+
+void Load_R3(void)
+{
+    /* load a process from processes.h */
+
+    /* allocate mem for pcb and context */
+    struct pcb* pcb_test1 = pcb_allocate();
+    struct context* context_test1 = (struct context*)(pcb_test1->process_ptr->pcb_stack + sizeof(pcb_test1->process_ptr->pcb_stack) - sizeof(struct context));
+
+    /* set context for segment process */
+    context_test1->CS = 0x08;
+    context_test1->DS = 0x10;
+    context_test1->ES = 0x10;
+    context_test1->FS = 0x10;
+    context_test1->GS = 0x10;
+    context_test1->SS = 0x10;
+
+    // EPB set to bottom of stack
+    context_test1->EBP = (uint32_t)&pcb_test1->process_ptr->pcb_stack[PCB_STACK_SIZE];
+    // ESP set to top of stack
+    context_test1->EBP = (uint32_t)&pcb_test1->process_ptr->pcb_stack[0];
+    // EIP point to function proc1
+    context_test1->EIP = (uint32_t)proc1;
+    /* all other registers */
+    context_test1->EAX = 0;
+    context_test1->EBX = 0;
+    context_test1->ECX = 0;
+    context_test1->EDX = 0;
+    context_test1->ESI = 0;
+    context_test1->EDI = 0;
+
+
+    // set EFLAGS
+    context_test1->EFLAGS = 0x0202;
 }
