@@ -15,7 +15,7 @@ sys_call_isr:
 
 	push ESP ;; push ESP-pointer to a manually created context struct
 
-	;;; sys_call() ;; call C function here
+	call sys_call ;; call C function here
 
 	;;; set ESP based on return value of your function (EAX)
 

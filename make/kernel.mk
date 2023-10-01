@@ -10,8 +10,9 @@ kernel/kmain.o: kernel/kmain.c include/mpx/gdt.h include/mpx/interrupts.h \
 kernel/core-c.o: kernel/core-c.c include/mpx/gdt.h include/mpx/panic.h \
   include/mpx/interrupts.h include/mpx/io.h include/mpx/serial.h \
   include/mpx/device.h include/sys_req.h include/string.h \
-  include/mpx/vm.h
+  include/mpx/vm.h 
 
+  
 KERNEL_OBJECTS=\
 	kernel/core-asm.o\
 	kernel/sys_call_isr.o\
@@ -19,4 +20,5 @@ KERNEL_OBJECTS=\
 	kernel/kmain.o\
 	kernel/core-c.o\
   kernel/comhand.o \
-  kernel/pcb.o
+  kernel/pcb.o \
+  kernel/context_switch.o
