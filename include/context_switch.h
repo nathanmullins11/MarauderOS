@@ -2,6 +2,7 @@
 
 
 struct context { // STRUCT ORDER = POP ORDER
+    int ESP;
     int GS;
     int FS;
     int ES;

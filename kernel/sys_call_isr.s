@@ -11,6 +11,7 @@ sys_call_isr:
 
 
 	equal_to_one: 
+	cli ; disablew interrupts
 	; push reverse order of struct
 	push EAX
 	push ECX
