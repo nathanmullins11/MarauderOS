@@ -518,7 +518,7 @@ void Load_R3(void)
         // ESP set to top of stack
         // context_test1->ESP = (uint32_t)&pcb_test1->process_ptr->pcb_stack[0];
         // EIP point to function proc1
-        context_test1->EIP = (uint32_t)proc1;
+        context_test1->EIP = (int)proc1;
         /* all other registers */
         context_test1->EAX = 0;
         context_test1->EBX = 0;
