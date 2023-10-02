@@ -118,19 +118,18 @@ void show_pcb(const char *name, int status)
     }
 }
 
-void show_ready(int status) {
+void show_ready(void) {
     // readying up the ready queue
     struct node* current_ready = global_ready_queue->front;
     struct node* current_suspended_ready = global_suspended_ready_queue->front;
+    
 
     // print header if just ready is called
-    if (status == 1) {
-        print("Name\t\tClass\t\t\tState\t\tSuspended Status\tPriority\n");
-        print("----------------------------------------------------------------------------------------\n");
-    }
-
-    print("Ready Not Suspended\n");
+    print("\t\t\t   === Ready Not Suspended ===\n");
+    print("Name\t\tClass\t\t\tState\t\tSuspended Status\tPriority\n");
     print("----------------------------------------------------------------------------------------\n");
+    
+
     if(current_ready != NULL)
     {
         /* search for process in ready queue*/
@@ -146,8 +145,10 @@ void show_ready(int status) {
     }
 
     // Ready Suspended Section
-    print("Ready Suspended\n");
+    print("\t\t\t     === Ready Suspended ===\n");
+    print("Name\t\tClass\t\t\tState\t\tSuspended Status\tPriority\n");
     print("----------------------------------------------------------------------------------------\n");
+    
     if(current_suspended_ready != NULL)
     { 
         /* search for process in suspended ready queue*/
@@ -163,19 +164,16 @@ void show_ready(int status) {
     }
 }
 
-void show_blocked(int status) {
+void show_blocked(void) {
     // readying up the blocked queue
     struct node* current_blocked = global_blocked_queue->front;
     struct node* current_suspended_blocked = global_suspended_blocked_queue->front;
 
     // print header if only blocked is called
-    if (status == 1) {
-        print("Name\t\tClass\t\t\tState\t\tSuspended Status\tPriority\n");
-        print("----------------------------------------------------------------------------------------\n");
-    }
-
-    print("Blocked Not Suspended\n");
+    print("\t\t\t   === Blocked Not Suspended ===\n");
+    print("Name\t\tClass\t\t\tState\t\tSuspended Status\tPriority\n");
     print("----------------------------------------------------------------------------------------\n");
+
     if (current_blocked != NULL) 
     {
         /* search for process in ready queue*/
@@ -190,8 +188,10 @@ void show_blocked(int status) {
         print("NULL\n\n");
     }
     
-    print("Blocked Suspended\n");
+    print("\t\t\t     === Blocked Suspended ===\n");
+    print("Name\t\tClass\t\t\tState\t\tSuspended Status\tPriority\n");
     print("----------------------------------------------------------------------------------------\n");
+
     if(current_suspended_blocked != NULL)
     {
         /* search for process in ready queue*/
@@ -209,13 +209,9 @@ void show_blocked(int status) {
 }
 
 void show_all(void) {
-    // print header
-    print("Name\t\tClass\t\t\tState\t\tSuspended Status\tPriority\n");
-    print("----------------------------------------------------------------------------------------\n");
-
     // show ready and then show blocked
-    show_ready(0);
-    show_blocked(0);
+    show_ready();
+    show_blocked();
 }
 
 void create_pcb(const char *name, int class, int priority) {
