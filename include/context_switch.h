@@ -3,6 +3,7 @@
 
 struct context {
     /* general-purpose registers */
+    uint32_t ESP;  // Stack Pointer (in the SS segment)
     uint32_t EAX;  // Accumulator
     uint32_t EBX;  // Pointer to data in DS
     uint32_t ECX;  // Counter for string/loop operations
@@ -10,10 +11,8 @@ struct context {
     uint32_t ESI;  // Pointer to data in segment pointed to by DS, source pointer
     uint32_t EDI;  // Pointer to data/destination in segment pointed to by ES
     uint32_t EBP;  // Pointer to data on the stack (in the SS)
-    uint32_t ESP;  // Stack Pointer (in the SS segment)
 
-    /* segment registers */
-    uint16_t CS; // code segment 
+    /* segment registers */ 
     uint16_t DS; // data segment
     uint16_t ES; // data segment
     uint16_t FS; // F segment (data register)
@@ -23,6 +22,7 @@ struct context {
 
     /* status and control registers */
     uint32_t EIP; // instruction pointer
+    uint16_t CS; // code segment 
     uint32_t EFLAGS; // flags register
 };
 

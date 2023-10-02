@@ -27,12 +27,18 @@ struct context* sys_call(struct context* context_ptr)
         {
             // remove first from queue and store in temp variable
             temp_pcb = global_ready_queue->front->pcb;
-            pcb_remove(temp_pcb);
+            if(temp_pcb != NULL)
+            {
+                pcb_remove(temp_pcb);
+            }
 
             // save context of current PCB by updating stack pointer
 
             // add the current PCB back to the ready queue
-            pcb_insert(global_current_process);
+            if(global_current_process != NULL)
+            {
+                pcb_insert(global_current_process);
+            }
 
             // return pointer to stack, which contains context of process to be run next)
             return temp_pcb->process_ptr->stack_ptr;
@@ -44,7 +50,10 @@ struct context* sys_call(struct context* context_ptr)
     else if (gloabal_context_ptr->EAX == EXIT) 
     {
         // delete currently running pcb
-        delete_pcb(global_current_process->name_arr);
+        if(global_current_process != NULL)
+        {
+            delete_pcb(global_current_process->name_arr);
+        }
 
          // check for PCBs in ready not suspended queue
         if(global_ready_queue->front != NULL)
@@ -65,6 +74,7 @@ struct context* sys_call(struct context* context_ptr)
         return context_ptr;
     }
     
+    context_ptr->EAX = -1;
     return NULL;
 
 }

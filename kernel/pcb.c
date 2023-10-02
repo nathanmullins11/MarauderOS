@@ -110,6 +110,7 @@ struct pcb* pcb_allocate(void)
     new_pcb->process_ptr = (struct process*)sys_alloc_mem(sizeof(struct process));
     new_pcb->name_arr = (char*)sys_alloc_mem(16);
     new_pcb->process_ptr->pcb_stack[0] = 0;
+    new_pcb->process_ptr->stack_ptr = &(new_pcb->process_ptr->pcb_stack[1022]);
 
     // error message
     char *err = "ERR: Cannot allocate memory for pcb\n";

@@ -96,7 +96,7 @@ void kmain(void)
 	// the system.
 	klogv(COM1, "Transferring control to commhand...");
 
- 
+
 	comhand();
 	
 	// R4: __asm__ volatile ("int $0x60" :: "a"(IDLE));

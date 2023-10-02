@@ -491,7 +491,7 @@ void set_pcb_priority(const char *name, int priority)
 
 void yield(void)
 {
-    sys_req(EXIT);
+    sys_req(IDLE);
 }
 
 void Load_R3(void)
@@ -503,7 +503,7 @@ void Load_R3(void)
     if(global_ready_queue->front != NULL)
     {
         struct pcb* pcb_test1 = global_ready_queue->front->pcb;
-        struct context* context_test1 = (struct context*)(pcb_test1->process_ptr->pcb_stack + sizeof(pcb_test1->process_ptr->pcb_stack) - sizeof(struct context));
+        struct context* context_test1 = (struct context*)(((int)pcb_test1->process_ptr->stack_ptr)-sizeof(struct context));
 
         /* set context for segment process */
         context_test1->CS = 0x08;
