@@ -54,11 +54,10 @@ struct context* sys_call(struct context* context_ptr)
             pcb_remove(temp_pcb);
 
             // save context of current PCB by updating stack pointer
+            context_ptr->EAX = IDLE;
+            global_current_process = temp_pcb;
 
-            // add the current PCB back to the ready queue
-            pcb_insert(global_current_process);
-
-            // return pointer to stack, which contains context of process to be run next)
+            // return pointer to stack, which contains context of process to be run next
             return temp_pcb->process_ptr->stack_ptr;
         }
 
