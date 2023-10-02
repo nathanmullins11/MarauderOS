@@ -12,7 +12,10 @@ sys_call_isr:
 
 	equal_to_one: 
 	; push reverse order of struct
-	push ESP
+	push EAX
+	push ECX
+	push EDX
+	push EBX
 	push EBP
 	push ESI
 	push EDI
@@ -46,10 +49,10 @@ sys_call_isr:
 	pop ECX
 	pop EAX
 
-	pop DS
-	pop ES
-	pop FS
-	pop GS
-	pop SS
+	; mov EAX, 0
+	iret
+	jmp end_if
 
+	end_if:
+	mov EAX, -1
 	iret
