@@ -356,7 +356,7 @@ void comhand(void)
 				}
 
 				/* YIELD */
-				else if (strcmp(command, "pcb") == 0) {
+				else if ( strcmp(command, "yield") == 0 ) {
 					// check if there are any invalid params
 					char *param = strtok(NULL, " ");
 					if (param) {
@@ -365,6 +365,19 @@ void comhand(void)
 					} else {
 						// run yield command
 						yield();
+					}
+				}
+				
+				/* LOAD R3 */
+				else if( strcmp(command, "load_r3") == 0 ) {
+					// check if there are any invalid params
+					char *param = strtok(NULL, " ");
+					if (param) {
+						// invalid parameter
+						sys_req(WRITE, COM1, error_msg_inc_param, strlen(error_msg_inc_param));
+					} else {
+						// run yield command
+						Load_R3();
 					}
 				}
 
