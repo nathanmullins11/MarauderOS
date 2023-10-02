@@ -12,19 +12,19 @@ sys_call_isr:
 
 	equal_to_one: 
 	; push reverse order of struct
-	push ESP
-	push EBP
-	push EDI
-	push ESI
-	push EDX
-	push ECX
-	push EBX
 	push EAX
+	push ECX
+	push EDX
+	push EBX
+	push EBP
+	push ESI
+	push EDI
 	push SS
-	push GS
-	push FS
-	push ES
 	push DS
+	push ES
+	push FS
+	push GS
+	push ESP
 	
 	; push stack pointer
 	;; push ESP
@@ -35,24 +35,19 @@ sys_call_isr:
 	; set stack pointer based on return value 
 	mov ESP, EAX
 
-	; pop same order as struct
-
-	;; pop CS
-	pop DS
-	pop ES
-	pop FS
 	pop GS
+	pop FS
+	pop ES
+	pop DS
 	pop SS
 
-
-	pop EAX
-	pop EBX
-	pop ECX
-	pop EDX
-	pop ESI
 	pop EDI
+	pop ESI
 	pop EBP
-	pop ESP
+	pop EBX
+	pop EDX
+	pop ECX
+	pop EAX
 
 	; mov EAX, 0
 	iret
