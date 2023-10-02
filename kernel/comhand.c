@@ -42,10 +42,8 @@ void comhand(void)
 	char error_msg_inc_flag[] = "ERR: incorrect flag | run `help` command\n";
 	char error_msg_no_flag[] = "ERR: no flag provided | run `help` command\n";
 	char error_msg_missing_name[] = "ERR: missing PCB name | run `help` command\n";
-	char error_msg_missing_class[] = "ERR: missing PCB class | run `help` command\n";
 	char error_msg_missing_priority[] = "ERR: missing PCB priority | run `help` command\n";
 	char error_msg_unknown_suboption[] = "ERR: missing required flag for option | run `help` command\n";
-	char error_msg_inc_class[] = "ERR: not an option for PCB class | run `help` command\n";
 			
 	// pointer to store command from user input
 	char *command;
@@ -247,61 +245,16 @@ void comhand(void)
 
 					// store parameters
 					char *name = NULL;
-					char *class_str = NULL;
 					int pri = -1;
-					int class = -1;
 					int isList = -1;
 
 					if(param) {
 						if (param[0] == '-') {
 							// Check if the parameter is a flag
 							if (strcmp(param, "-c") == 0) {
-								name = strtok(NULL, " ");
-								if (!name) {
-									// Missing name, print error
-									sys_req(WRITE, COM1, error_msg_missing_name, strlen(error_msg_missing_name));
-								} else {
-									char *param2 = strtok(NULL, " ");
-
-									// get all suboptions
-									do {
-										if(param2) {
-											if (strcmp(param2, "--class") == 0) {
-												// get class
-												class_str = strtok(NULL, " ");
-												if (!class_str) {
-													// Missing class, print error
-													sys_req(WRITE, COM1, error_msg_missing_class, strlen(error_msg_missing_class));
-												} else {
-													if ( strcmp(class_str, "user") == 0 ) {
-														class = 0;
-													} else if ( strcmp(class_str, "system") == 0 ) {
-														class = 1;
-													} else {
-														sys_req(WRITE, COM1, error_msg_inc_class, strlen(error_msg_inc_class));
-													}
-												}
-											} else if (strcmp(param2, "--pri") == 0) {
-												// get priority
-												char *pri_str = strtok(NULL, " ");
-												if (!pri_str) {
-													// Missing priority, print error
-													sys_req(WRITE, COM1, error_msg_missing_priority, strlen(error_msg_missing_priority));
-												} else {
-													pri = atoi(pri_str);
-												}
-											} else {
-												// Unknown sub-option, print error
-												sys_req(WRITE, COM1, error_msg_unknown_suboption, strlen(error_msg_unknown_suboption));
-											}
-
-											param2 = strtok(NULL, " ");
-										} else {
-											sys_req(WRITE, COM1, error_msg_unknown_suboption, strlen(error_msg_unknown_suboption));
-										}
-									} while (param2);
-								}
-								
+								/* DEPRECATED IN R3 */
+								char *error_msg_dep = "ERR: Feature no longer supported\n";
+								sys_req(WRITE, COM1, error_msg_dep, strlen(error_msg_dep));
 							} else if (strcmp(param, "-p") == 0) {
 								name = strtok(NULL, " ");
 								if (!name) {
@@ -358,14 +311,7 @@ void comhand(void)
 					if (name || isList == 0) {
 						// Call the appropriate function based on the option
 						if (strcmp(param, "-c") == 0) {
-							// PCB create function
-							if (pri != -1 && class != -1) {
-								// run function
-								create_pcb(name, class, pri);
-							} else {
-								sys_req(WRITE, COM1, error_msg_unknown_suboption, strlen(error_msg_unknown_suboption));
-							}
-							(void)pri;
+							/* DEPRECATED IN R3 */
 						} else if (strcmp(param, "-p") == 0) {
 							// PCB priority 
 							if (pri != -1) {
@@ -406,6 +352,19 @@ void comhand(void)
 							// Missing sub-options, print error
 							sys_req(WRITE, COM1, error_msg_no_flag, strlen(error_msg_no_flag));
 						}
+					}
+				}
+
+				/* YIELD */
+				else if (strcmp(command, "pcb") == 0) {
+					// check if there are any invalid params
+					char *param = strtok(NULL, " ");
+					if (param) {
+						// invalid parameter
+						sys_req(WRITE, COM1, error_msg_inc_param, strlen(error_msg_inc_param));
+					} else {
+						// run yield command
+						yield();
 					}
 				}
 
