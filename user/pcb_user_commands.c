@@ -491,7 +491,7 @@ void set_pcb_priority(const char *name, int priority)
 
 void yield(void)
 {
-    sys_req(IDLE);
+    sys_req(EXIT);
 }
 
 void Load_R3(void)
