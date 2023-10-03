@@ -2,33 +2,25 @@ bits 32
 global sys_call_isr
 
 ;;; System call interrupt handler. To be implemented in Module R3.
-extern sys_call            ; The C function that sys_call_isr will call
+extern sys_call
 sys_call_isr:
-	cmp EAX, 1
-	je equal_to_one
-
-	jmp end_if
-
-
-	equal_to_one: 
-	cli ; disablew interrupts
-	; push reverse order of struct
-	push EAX
-	push ECX
-	push EDX
-	push EBX
-	push EBP
-	push ESI
-	push EDI
+	;;; push reverse order of struct
+	; push segment registers
 	push SS
-	push DS
-	push ES
-	push FS
 	push GS
-	push ESP
+	push FS
+	push ES
+	push DS
 	
-	; push stack pointer
-	;; push ESP
+	; push gen purpose registers
+	push EBP
+	push EDI
+	push ESI
+	push EDX
+	push ECX
+	push EBX
+	push EAX
+	push ESP
 
 	; call function
 	call sys_call
@@ -36,26 +28,21 @@ sys_call_isr:
 	; set stack pointer based on return value 
 	mov ESP, EAX
 
+	; pop gen purpose registers
 	pop ESP
-	pop GS
-	pop FS
-	pop ES
+	pop EAX
+	pop EBX
+	pop ECX
+	pop EDX
+	pop ESI
+	pop EDI
+	pop EBP
+
+	; pop segment registers
 	pop DS
+	pop ES
+	pop FS
+	pop GS
 	pop SS
 
-	pop EDI
-	pop ESI
-	pop EBP
-	pop EBX
-	pop EDX
-	pop ECX
-	pop EAX
-
-	; mov EAX, 0
-	sti ; reenable interrupts
-	iret
-	jmp end_if
-
-	end_if:
-	mov EAX, -1
 	iret
