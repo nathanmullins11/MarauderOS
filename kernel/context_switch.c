@@ -27,7 +27,7 @@ struct context* sys_call(struct context* context_ptr) // context passed in is co
         global_context_ptr = context_ptr;
     }
 
-    global_context_ptr->EAX = 1;
+   // global_context_ptr->EAX = 1;
 
     // if operation code is IDLE
     if(global_context_ptr->EAX == IDLE)
@@ -84,9 +84,8 @@ struct context* sys_call(struct context* context_ptr) // context passed in is co
         return context_ptr;
     }
     
-    struct context* test = global_ready_queue->front->pcb->process_ptr->stack_ptr;
     context_ptr->EAX = -1;
-    return test;
+    return NULL;
 
 }
 
