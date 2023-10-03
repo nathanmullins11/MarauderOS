@@ -36,6 +36,7 @@ sys_call_isr:
 	; set stack pointer based on return value 
 	mov ESP, EAX
 
+	pop ESP
 	pop GS
 	pop FS
 	pop ES
@@ -51,6 +52,7 @@ sys_call_isr:
 	pop EAX
 
 	; mov EAX, 0
+	sti ; reenable interrupts
 	iret
 	jmp end_if
 
