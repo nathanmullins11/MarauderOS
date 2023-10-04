@@ -20,7 +20,16 @@ sys_call_isr:
 	push ES
 	push DS
 
-	pusha
+	push EAX
+	push ECX
+	push EDX
+	push EBX
+	push ESP
+	push EBP
+	push ESI
+	push EDI
+
+	push ESP
 
 	; call function
 	call sys_call
@@ -28,13 +37,20 @@ sys_call_isr:
 	; set stack pointer based on return value 
 	mov ESP, EAX
 
+	pop ESP
+	pop EDI
+	pop ESI
+	pop EBP
+	pop EBX
+	pop EDX
+	pop ECX
+	pop EAX
+
 	pop DS
 	pop ES
 	pop FS
 	pop GS
 	pop SS
-
-	popa
 
 	iret
 
