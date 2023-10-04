@@ -62,7 +62,8 @@ struct context* sys_call(struct context* context_ptr) // context passed in is co
         // delete currently running pcb
         if(global_current_process != NULL)
         {
-            delete_pcb(global_current_process->name_arr);
+            pcb_free(global_current_process);
+            //delete_pcb(global_current_process->name_arr);
         }
 
          // check for PCBs in ready not suspended queue
@@ -81,7 +82,7 @@ struct context* sys_call(struct context* context_ptr) // context passed in is co
         }
 
         // if ready not suspended queue is empty
-        return context_ptr;
+        return first_context_ptr;
     }
     
     context_ptr->EAX = -1;

@@ -503,7 +503,7 @@ void Load_R3(void)
     if(global_ready_queue->front != NULL)
     {
         struct pcb* pcb_test1 = global_ready_queue->front->pcb;
-        struct context* context_test1 = (struct context*)(((int)pcb_test1->process_ptr->stack_ptr)-sizeof(struct context));
+        struct context* context_test1 = (struct context*)(((int)pcb_test1->process_ptr->stack_ptr)-sizeof(struct context) - sizeof(int));
         pcb_test1->process_ptr->stack_ptr = context_test1;
 
         /* set context for segment process */
@@ -515,9 +515,9 @@ void Load_R3(void)
         context_test1->SS = 0x10;
 
         // EPB set to bottom of stack
-        context_test1->EBP = (int)&pcb_test1->process_ptr->pcb_stack[PCB_STACK_SIZE];
+        context_test1->EBP = (int)(pcb_test1->process_ptr->pcb_stack + PCB_STACK_SIZE - sizeof(struct context)) - 4;
         // ESP set to top of stack
-        context_test1->ESP = (int)&pcb_test1->process_ptr->pcb_stack[0];
+        context_test1->ESP = (int)(pcb_test1->process_ptr->pcb_stack + PCB_STACK_SIZE - sizeof(struct context)) - 4;
         // EIP point to function proc1
         context_test1->EIP = (int)proc1;
         /* all other registers */
