@@ -27,7 +27,7 @@ struct context* sys_call(struct context* context_ptr) // context passed in is co
         global_context_ptr = context_ptr;
     }
 
-   global_context_ptr->EAX = 1;
+  // global_context_ptr->EAX = 1;
 
     // if operation code is IDLE
     if(global_context_ptr->EAX == IDLE)
@@ -51,30 +51,7 @@ struct context* sys_call(struct context* context_ptr) // context passed in is co
             }
 
             // return pointer to stack, which contains context of process to be run next
-            struct context* re = next_process->process_ptr->stack_ptr;
-            re->CS = 0x08;
-            re->DS = 0x10;
-            re->ES = 0x10;
-            re->FS = 0x10;
-            re->GS = 0x10;
-            re->SS = 0x10;
-
-            // EPB set to bottom of stack
-           re->EBP = (int)&next_process->process_ptr->pcb_stack[PCB_STACK_SIZE];
-            // ESP set to top of stack
-           re->ESP = (int)&next_process->process_ptr->pcb_stack[0];
-            // EIP point to function proc1
-            re->EIP = (int)proc1;
-            /* all other registers */
-            re->EAX = 0;
-            re->EBX = 0;
-            re->ECX = 0;
-            re->EDX = 0;
-            re->ESI = 0;
-            re->EDI = 0;
-            re->EAX = 0;
-           // return (struct context*)next_process->process_ptr->stack_ptr;
-           return re;
+            return (struct context*)next_process->process_ptr->stack_ptr;
         }
 
         // if ready not suspended queue is empty, continue with current process
@@ -100,7 +77,7 @@ struct context* sys_call(struct context* context_ptr) // context passed in is co
             global_current_process = temp_pcb;
 
             // return pointer to stack, which contains context of process to be run next
-            return temp_pcb->process_ptr->stack_ptr;
+            return (struct context*)temp_pcb->process_ptr->stack_ptr;
         }
 
         // if ready not suspended queue is empty
@@ -108,7 +85,7 @@ struct context* sys_call(struct context* context_ptr) // context passed in is co
     }
     
     context_ptr->EAX = -1;
-    return NULL;
+    return context_ptr;
 
 }
 

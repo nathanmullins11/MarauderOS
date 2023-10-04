@@ -504,6 +504,7 @@ void Load_R3(void)
     {
         struct pcb* pcb_test1 = global_ready_queue->front->pcb;
         struct context* context_test1 = (struct context*)(((int)pcb_test1->process_ptr->stack_ptr)-sizeof(struct context));
+        pcb_test1->process_ptr->stack_ptr = context_test1;
 
         /* set context for segment process */
         context_test1->CS = 0x08;
