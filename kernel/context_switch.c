@@ -15,19 +15,17 @@ struct context* first_context_ptr =  NULL;
 // global/static context pointer representing context from first time sys_call() is entered
 struct context* global_context_ptr = NULL;
 
+struct context* global_prev_context = NULL;
+
+struct pcb* global_prev_process = NULL;
+
 struct context* sys_call(struct context* context_ptr) // context passed in is comhand context
 {
-    // if(first_context_ptr == NULL)
-    // {
-    //     first_context_ptr = context_ptr;
-    // }
-    
+
     if(global_context_ptr != context_ptr)
     {
         global_context_ptr = context_ptr;
     }
-
-  // global_context_ptr->EAX = 1;
 
     // if operation code is IDLE
     if(global_context_ptr->EAX == IDLE)
@@ -37,8 +35,16 @@ struct context* sys_call(struct context* context_ptr) // context passed in is co
             first_context_ptr = context_ptr;
         }
         // check for PCBs in ready not suspended queue
-        if(global_ready_queue->front != NULL)
+        if(global_ready_queue->front != NULL && (global_prev_context->EIP != global_context_ptr->EIP))
         {
+            if(global_prev_process != NULL && global_current_process != NULL)
+            {
+                if(strcmp(global_current_process->name_arr, global_prev_process->name_arr) == 0)
+                {
+                    global_prev_context = context_ptr;
+                    return context_ptr;
+                }
+            }
             struct pcb* current_process = global_current_process;
             // remove first from queue and store in temp variable
             struct pcb* next_process = global_ready_queue->front->pcb;
@@ -55,10 +61,13 @@ struct context* sys_call(struct context* context_ptr) // context passed in is co
             }
 
             // return pointer to stack, which contains context of process to be run next
+            global_prev_context = (struct context*)next_process->process_ptr->stack_ptr;
+            global_prev_process = next_process;
             return (struct context*)next_process->process_ptr->stack_ptr;
         }
 
         // if ready not suspended queue is empty, continue with current process
+        global_prev_context = context_ptr;
         return context_ptr;
     } 
     else if (global_context_ptr->EAX == EXIT) 
@@ -67,7 +76,6 @@ struct context* sys_call(struct context* context_ptr) // context passed in is co
         if(global_current_process != NULL)
         {
             pcb_free(global_current_process);
-            //delete_pcb(global_current_process->name_arr);
         }
 
          // check for PCBs in ready not suspended queue
@@ -82,16 +90,17 @@ struct context* sys_call(struct context* context_ptr) // context passed in is co
             global_current_process = temp_pcb;
 
             // return pointer to stack, which contains context of process to be run next
-            global_current_process = NULL;
+             global_prev_context = (struct context*)temp_pcb->process_ptr->stack_ptr;
             return (struct context*)temp_pcb->process_ptr->stack_ptr;
         }
 
         // if ready not suspended queue is empty
-        global_current_process = NULL;
+        global_prev_context = first_context_ptr;
         return first_context_ptr;
     }
     
     context_ptr->EAX = -1;
+    global_prev_context = context_ptr;
     return context_ptr;
 
 }
