@@ -10,12 +10,16 @@
     it will grab the next process to run. However, proc1 has not finished, which for some reason causes a page fault. Somehow we need to it to
     check if proc1 is still running, and if so, not try to grab the next process. I think this can be done by keeping a global variable to store the previous
     running processes context, then comparing it with the context next to run.
+
+    ## UPDATE ##
+    RUN debugger and print out the stack ptr using this: p *(struct context*)global_ready_queue->front->next->pcb->process_ptr->stack_ptr
+    FOR some reason the values are not passing correctly to the context switch which makes no sense..
 */
 
 // global PCB pointer for currently running process
 struct pcb* global_current_process = NULL;
 // gloabal temp pointer to hold front pcb in queue to run next
-struct pcb* temp_pcb = NULL;
+// struct pcb* temp_pcb = NULL;
 
 struct context* first_context_ptr =  NULL;
 
@@ -89,16 +93,15 @@ struct context* sys_call(struct context* context_ptr) // context passed in is co
         if(global_ready_queue->front != NULL)
         {
             // remove first from queue and store in temp variable
-            temp_pcb = global_ready_queue->front->pcb;
+            struct pcb* temp_pcb = global_ready_queue->front->pcb;
             pcb_remove(temp_pcb);
 
             // save context of current PCB by updating stack pointer
-            context_ptr->EAX = IDLE;
             global_current_process = temp_pcb;
 
             // return pointer to stack, which contains context of process to be run next
              global_prev_context = (struct context*)temp_pcb->process_ptr->stack_ptr;
-            return (struct context*)temp_pcb->process_ptr->stack_ptr;
+            return global_prev_context;
         }
 
         // if ready not suspended queue is empty
