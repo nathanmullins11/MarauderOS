@@ -167,12 +167,10 @@ void show_all(void);
 
 /**
  * @brief causes command handler to yield the cpu, if any processes are in queue, they will execute
- * 
  */
 void yield(void);
 
 /**
  * @brief load R3 test processes
- * 
  */
 void load_r3(void);

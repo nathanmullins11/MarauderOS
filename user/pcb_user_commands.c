@@ -504,6 +504,7 @@ void load_r3(void)
     create_pcb("test3", 0, 4);
     create_pcb("test4", 0, 5);
     create_pcb("test5", 0, 6);
+    
     if(global_ready_queue->front != NULL)
     {
         struct pcb* pcb_test1 = global_ready_queue->front->pcb;
@@ -520,10 +521,13 @@ void load_r3(void)
 
         // EPB set to bottom of stack
         context_test1->EBP = (int)(pcb_test1->process_ptr->pcb_stack + PCB_STACK_SIZE - sizeof(struct context)) - sizeof(int);
+        
         // ESP set to top of stack
         context_test1->ESP = (int)(pcb_test1->process_ptr->pcb_stack + PCB_STACK_SIZE - sizeof(struct context)) - sizeof(int);
+        
         // EIP point to function proc1
         context_test1->EIP = (int)proc1;
+        
         /* all other registers */
         context_test1->EAX = 0;
         context_test1->EBX = 0;
@@ -531,7 +535,6 @@ void load_r3(void)
         context_test1->EDX = 0;
         context_test1->ESI = 0;
         context_test1->EDI = 0;
-
 
         // set EFLAGS
         context_test1->EFLAGS = 0x0202;
@@ -553,10 +556,13 @@ void load_r3(void)
 
         // EPB set to bottom of stack
         context_test2->EBP = (int)(pcb_test2->process_ptr->pcb_stack + PCB_STACK_SIZE - sizeof(struct context)) - sizeof(int);
+        
         // ESP set to top of stack
         context_test2->ESP = (int)(pcb_test2->process_ptr->pcb_stack + PCB_STACK_SIZE - sizeof(struct context)) - sizeof(int);
+        
         // EIP point to function proc1
         context_test2->EIP = (int)proc2;
+        
         /* all other registers */
         context_test2->EAX = 0;
         context_test2->EBX = 0;
@@ -564,7 +570,6 @@ void load_r3(void)
         context_test2->EDX = 0;
         context_test2->ESI = 0;
         context_test2->EDI = 0;
-
 
         // set EFLAGS
         context_test2->EFLAGS = 0x0202;
@@ -586,10 +591,13 @@ void load_r3(void)
 
         // EPB set to bottom of stack
         context_test1->EBP = (int)(pcb_test1->process_ptr->pcb_stack + PCB_STACK_SIZE - sizeof(struct context)) - sizeof(int);
+        
         // ESP set to top of stack
         context_test1->ESP = (int)(pcb_test1->process_ptr->pcb_stack + PCB_STACK_SIZE - sizeof(struct context)) - sizeof(int);
+        
         // EIP point to function proc1
         context_test1->EIP = (int)proc3;
+        
         /* all other registers */
         context_test1->EAX = 0;
         context_test1->EBX = 0;
@@ -597,7 +605,6 @@ void load_r3(void)
         context_test1->EDX = 0;
         context_test1->ESI = 0;
         context_test1->EDI = 0;
-
 
         // set EFLAGS
         context_test1->EFLAGS = 0x0202;
@@ -619,10 +626,13 @@ void load_r3(void)
 
         // EPB set to bottom of stack
         context_test1->EBP = (int)(pcb_test1->process_ptr->pcb_stack + PCB_STACK_SIZE - sizeof(struct context)) - sizeof(int);
+        
         // ESP set to top of stack
         context_test1->ESP = (int)(pcb_test1->process_ptr->pcb_stack + PCB_STACK_SIZE - sizeof(struct context)) - sizeof(int);
+        
         // EIP point to function proc1
         context_test1->EIP = (int)proc4;
+        
         /* all other registers */
         context_test1->EAX = 0;
         context_test1->EBX = 0;
@@ -630,7 +640,6 @@ void load_r3(void)
         context_test1->EDX = 0;
         context_test1->ESI = 0;
         context_test1->EDI = 0;
-
 
         // set EFLAGS
         context_test1->EFLAGS = 0x0202;
@@ -652,10 +661,13 @@ void load_r3(void)
 
         // EPB set to bottom of stack
         context_test1->EBP = (int)(pcb_test1->process_ptr->pcb_stack + PCB_STACK_SIZE - sizeof(struct context)) - sizeof(int);
+        
         // ESP set to top of stack
         context_test1->ESP = (int)(pcb_test1->process_ptr->pcb_stack + PCB_STACK_SIZE - sizeof(struct context)) - sizeof(int);
+        
         // EIP point to function proc1
         context_test1->EIP = (int)proc5;
+
         /* all other registers */
         context_test1->EAX = 0;
         context_test1->EBX = 0;
@@ -663,7 +675,6 @@ void load_r3(void)
         context_test1->EDX = 0;
         context_test1->ESI = 0;
         context_test1->EDI = 0;
-
 
         // set EFLAGS
         context_test1->EFLAGS = 0x0202;
