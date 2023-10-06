@@ -5,19 +5,19 @@
 #include <string.h>
 #include <pcb.h>
 
-// global PCB pointer for currently running process
+/* global PCB pointer for currently running process */
 struct pcb* global_current_process = NULL;
 
 struct context* first_context_ptr =  NULL;
 
-// global/static context pointer representing context from first time sys_call() is entered
+/* global/static context pointer representing context from first time sys_call() is entered */
 struct context* global_context_ptr = NULL;
 
 struct context* global_prev_context = NULL;
 
 struct pcb* global_prev_process = NULL;
 
-struct context* sys_call(struct context* context_ptr) // context passed in is comhand context
+struct context* sys_call(struct context* context_ptr)
 {
 
     if(global_context_ptr != context_ptr)
@@ -32,6 +32,7 @@ struct context* sys_call(struct context* context_ptr) // context passed in is co
         {
             first_context_ptr = context_ptr;
         }
+
         // check for PCBs in ready not suspended queue
         if(global_ready_queue->front != NULL && (global_prev_context->EIP != global_context_ptr->EIP))
         {
@@ -44,11 +45,12 @@ struct context* sys_call(struct context* context_ptr) // context passed in is co
                 }
             }
             struct pcb* current_process = global_current_process;
+
             // remove first from queue and store in temp variable
             struct pcb* next_process = global_ready_queue->front->pcb;
             pcb_remove(next_process);
             
-            // increment globabl current process
+            // increment global current process
             global_current_process = next_process;
 
            // add the current PCB back to the ready queue
