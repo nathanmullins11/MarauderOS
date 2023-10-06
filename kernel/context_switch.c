@@ -5,17 +5,6 @@
 #include <string.h>
 #include <pcb.h>
 
-/* PROBLEM - I THINK:
-    When proc1 is run it stays in the idle state until after exiting. right now we have it set up so that if the context ptr EAX is idle,
-    it will grab the next process to run. However, proc1 has not finished, which for some reason causes a page fault. Somehow we need to it to
-    check if proc1 is still running, and if so, not try to grab the next process. I think this can be done by keeping a global variable to store the previous
-    running processes context, then comparing it with the context next to run.
-
-    ## UPDATE ##
-    RUN debugger and print out the stack ptr using this: p *(struct context*)global_ready_queue->front->next->pcb->process_ptr->stack_ptr
-    FOR some reason the values are not passing correctly to the context switch which makes no sense..
-*/
-
 // global PCB pointer for currently running process
 struct pcb* global_current_process = NULL;
 // gloabal temp pointer to hold front pcb in queue to run next
