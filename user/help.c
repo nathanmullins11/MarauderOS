@@ -12,10 +12,12 @@ void help(const char *cmd) {
     char msg_gettime[] = "Command: gettime\n\nDescription:\n  Prints the current time of MarauderOS to the terminal, format in 24-hour GMT.\n\nUsage:\n  gettime\n";
     char msg_settime[] = "Command: settime\n\nDescription:\n  Sets the time of the MarauderOS, in 24-hour GMT format.\n\nUsage:\n  settime [options] [argument]\n\nOptions\n  -t,\tThe new time in hh:mm:ss format\n\nExample:\n  settime -t 09:41:00\n";
     char msg_pcb[] = "Command: pcb\n\nDescription:\n  Handles all Process Control Block (PCB) related commands and actions.\n\nUsage:\n  pcb [options] [process name] [suboptions] [suboption arguments]\n\n";
-    char msg_pcb2[] = "Options:\n  -c,\tCreate a new PCB, requires --class and --pri suboptions\n  -d,\tDeletes a specified PCB, cannot be a system process\n  -b,\tBlocks a specified PCB\n  -u,\tUnblocks a specified PCB\n  -s,\tSuspends a specified PCB\n  -r,\tResumes a specified PCB\n  -p,\tChanges an existing PCB's priority, requires --pri suboption\n  -l,\tLists PCB information, takes the following as arguments: ready, blocked, [process_name], or no argument\n  \tto show all processes\n\n";
-    char msg_pcb3[] = "Suboptions:\n  --class,\tIndicates whether a process is user or system process, suboption arguments are user or system\n  --pri,\tProcess's priority, an integer between 0 and 9, inclusive\n\n";
-    char msg_pcb4[] = "Examples:\n  - Create a new PCB:\t\tpcb -c NAME --class user --pri 0\n  - Delete a PCB:\t\tpcb -d NAME\n  - Change priority:\t\tpcb -p NAME --pri 1\n  - List all blocked processes:\tpcb -l blocked\n\nAdditional Notes:\n  Refer to the User Manuel for a more in-depth explanation\n  (https://github.com/WVU-CS450/Morgantown-Marauders-/blob/main/doc/UserManual.pdf)\n";
-    char msg_all[] = "Available Commands | type `help [command]` for more detailed help\n - version\n - shutdown\n - getdate\n - setdate\n - gettime\n - settime\n - pcb\n";
+    char msg_pcb2[] = "Options:\n  -d,\tDeletes a specified PCB, cannot be a system process\n  -b,\tBlocks a specified PCB\n  -u,\tUnblocks a specified PCB\n  -s,\tSuspends a specified PCB\n  -r,\tResumes a specified PCB\n  -p,\tChanges an existing PCB's priority, requires --pri suboption\n  -l,\tLists PCB information, takes the following as arguments: ready, blocked, [process_name], or no argument\n  \tto show all processes\n\n";
+    char msg_pcb3[] = "Suboptions:\n  --pri,\tProcess's priority, an integer between 0 and 9, inclusive\n\n";
+    char msg_pcb4[] = "Examples:\n  - Delete a PCB:\t\tpcb -d NAME\n  - Change priority:\t\tpcb -p NAME --pri 1\n  - List all blocked processes:\tpcb -l blocked\n\nAdditional Notes:\n  Refer to the User Manuel for a more in-depth explanation\n  (https://github.com/WVU-CS450/Morgantown-Marauders-/blob/main/doc/UserManual.pdf)\n  INFO: Create PCB no longer supported as of v3.0\n";
+    char msg_loadr3[] = "Command: load_r3\n\nDescription:\n  Loads five faux processes into the ready queue. These processes print to the terminal.\n\nUsage:\n  load_r3\n";
+    char msg_yield[] = "Command: yield\n\nDescription:\n  Command handler yields to the CPU, runs any processes in the ready queue.\n\nUsage:\n  yield\n";
+    char msg_all[] = "Available Commands | type `help [command]` for more detailed help\n - version\n - shutdown\n - getdate\n - setdate\n - gettime\n - settime\n - pcb\n - load_r3\n - yield\n";
 
     if ( strcmp(cmd, "version") == 0 ) {
         // print help message for 'version' command
@@ -41,6 +43,12 @@ void help(const char *cmd) {
         sys_req(WRITE, COM1, msg_pcb2, sizeof(msg_pcb2));
         sys_req(WRITE, COM1, msg_pcb3, sizeof(msg_pcb3));
         sys_req(WRITE, COM1, msg_pcb4, sizeof(msg_pcb4));
+    } else if ( strcmp(cmd, "load_r3") == 0 ) {
+        // print help message for load_r3 command
+        sys_req(WRITE, COM1, msg_loadr3, strlen(msg_loadr3));
+    } else if ( strcmp(cmd, "yield") == 0 ) {
+        // print help message for yield command
+        sys_req(WRITE, COM1, msg_yield, strlen(msg_yield));
     } else {
         // if not parameters -> print all help messages
         sys_req(WRITE, COM1, msg_all, sizeof(msg_all));
