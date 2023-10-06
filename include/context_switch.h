@@ -26,9 +26,9 @@ struct context { // STRUCT ORDER = POP ORDER
 };
 
 /**
- * @brief 
+ * @brief handles system calls and context switching between processes
  * @param struct context* pointer to a struct representing the context of a proccess
- * @return struct context* pointer to the context of the process to be loaded
+ * @return pointer to the context of the next process to be loaded
  */
 struct context* sys_call(struct context* context_ptr);
 

@@ -175,4 +175,4 @@ void yield(void);
  * @brief load R3 test processes
  * 
  */
-void Load_R3(void);
+void load_r3(void);

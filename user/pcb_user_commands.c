@@ -494,16 +494,16 @@ void yield(void)
     sys_req(IDLE);
 }
 
-void Load_R3(void)
+void load_r3(void)
 {
     /* load a process from processes.h */
 
     /* allocate mem for pcb and context */
-    create_pcb("test1", 0, 1);
+    create_pcb("test1", 0, 2);
     create_pcb("test2", 0, 2);
-    create_pcb("test3", 0, 3);
-    create_pcb("test4", 0, 4);
-    create_pcb("test5", 0, 5);
+    create_pcb("test3", 0, 4);
+    create_pcb("test4", 0, 5);
+    create_pcb("test5", 0, 6);
     if(global_ready_queue->front != NULL)
     {
         struct pcb* pcb_test1 = global_ready_queue->front->pcb;

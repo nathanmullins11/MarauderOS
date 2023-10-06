@@ -377,7 +377,7 @@ void comhand(void)
 						sys_req(WRITE, COM1, error_msg_inc_param, strlen(error_msg_inc_param));
 					} else {
 						// run yield command
-						Load_R3();
+						load_r3();
 					}
 				}
 
