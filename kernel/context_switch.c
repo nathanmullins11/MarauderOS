@@ -8,18 +8,14 @@
 /* global PCB pointer for currently running process */
 struct pcb* global_current_process = NULL;
 
+/* global PCB pointer for first context loaded with first system call */
 struct context* first_context_ptr =  NULL;
 
 /* global/static context pointer representing context from first time sys_call() is entered */
 struct context* global_context_ptr = NULL;
 
-struct context* global_prev_context = NULL;
-
-struct pcb* global_prev_process = NULL;
-
 struct context* sys_call(struct context* context_ptr)
 {
-
     if(global_context_ptr != context_ptr)
     {
         global_context_ptr = context_ptr;
@@ -34,16 +30,8 @@ struct context* sys_call(struct context* context_ptr)
         }
 
         // check for PCBs in ready not suspended queue
-        if(global_ready_queue->front != NULL && (global_prev_context->EIP != global_context_ptr->EIP))
+        if(global_ready_queue->front != NULL)
         {
-            if(global_prev_process != NULL && global_current_process != NULL)
-            {
-                if(strcmp(global_current_process->name_arr, global_prev_process->name_arr) == 0)
-                {
-                    global_prev_context = context_ptr;
-                    return context_ptr;
-                }
-            }
             struct pcb* current_process = global_current_process;
 
             // remove first from queue and store in temp variable
@@ -56,7 +44,9 @@ struct context* sys_call(struct context* context_ptr)
            // add the current PCB back to the ready queue
             if(current_process != NULL)
             {
+                // update stack pointer
                 current_process->process_ptr->stack_ptr = context_ptr;
+                // insert the currently running process back into appropriate queue so next process can run
                 pcb_insert(current_process);
             }
 
@@ -69,7 +59,7 @@ struct context* sys_call(struct context* context_ptr)
     } 
     else if (global_context_ptr->EAX == EXIT) 
     {
-        // delete currently running pcb
+        // delete currently running pcb by freeing memory
         if(global_current_process != NULL)
         {
             pcb_free(global_current_process);
@@ -89,12 +79,11 @@ struct context* sys_call(struct context* context_ptr)
             return (struct context*)temp_pcb->process_ptr->stack_ptr;
         }
 
-        // if ready not suspended queue is empty
+        // if ready not suspended queue is empty i.e last process running issues an exit requests and no processes are left in ready queue
         return first_context_ptr;
     }
     
     context_ptr->EAX = -1;
-    global_prev_context = context_ptr;
     return context_ptr;
 
 }
