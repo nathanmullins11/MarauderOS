@@ -501,9 +501,9 @@ void load_r3(void)
     /* allocate mem for pcb and context */
     create_pcb("test1", 0, 2);
     create_pcb("test2", 0, 2);
-    create_pcb("test3", 0, 4);
-    create_pcb("test4", 0, 5);
-    create_pcb("test5", 0, 6);
+    create_pcb("test3", 0, 2);
+    create_pcb("test4", 0, 2);
+    create_pcb("test5", 0, 2);
     
     if(global_ready_queue->front != NULL)
     {
