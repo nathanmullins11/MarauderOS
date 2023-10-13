@@ -11,6 +11,7 @@
 #include <help.h>
 #include <mpx/io.h>
 #include <pcb.h>
+#include <shutdown.h>
 
 void print(char *out) {
 	sys_req(WRITE, COM1, out, strlen(out));
@@ -100,8 +101,8 @@ void comhand(void)
 						if (choice[size_choice] == '\0') {
 							// check if yes
 							if ( strcmp(choice, "y") == 0 ) {
-								// return to kmain()
-								return;
+								// call shutdown method
+								shutdown();
 							} else if ( strcmp(choice, "n") == 0 ) {
 								// do nothing, return to normal operation
 							} else {
@@ -122,7 +123,7 @@ void comhand(void)
 						sys_req(WRITE, COM1, error_msg_inc_param, strlen(error_msg_inc_param));
 					} else {
 						// run the version command
-                		return;
+                		shutdown();
 					}
 				}
 
@@ -352,19 +353,6 @@ void comhand(void)
 							// Missing sub-options, print error
 							sys_req(WRITE, COM1, error_msg_no_flag, strlen(error_msg_no_flag));
 						}
-					}
-				}
-
-				/* YIELD */
-				else if ( strcmp(command, "yield") == 0 ) {
-					// check if there are any invalid params
-					char *param = strtok(NULL, " ");
-					if (param) {
-						// invalid parameter
-						sys_req(WRITE, COM1, error_msg_inc_param, strlen(error_msg_inc_param));
-					} else {
-						// run yield command
-						yield();
 					}
 				}
 				
