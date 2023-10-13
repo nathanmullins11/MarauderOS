@@ -681,3 +681,11 @@ void load_r3(void)
     }
     
 }
+
+void load_comhand(void) {
+    create_pcb("comhand", 1, 1);
+
+    if ( global_ready_queue->front != NULL ) {
+        
+    }
+}

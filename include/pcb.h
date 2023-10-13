@@ -7,6 +7,7 @@
 #include <processes.h>
 
 #define PCB_STACK_SIZE 1024
+#define PCB_COMHAND_STACK_SIZE 2048
 
 /**
  * @brief stuct to describe a process control block
@@ -38,6 +39,15 @@ struct process {
         char pcb_stack[PCB_STACK_SIZE]; // process stack of at least 1024
         void* stack_ptr; // pointer to current location in stack
         struct process* next_process; // related pcbs
+};
+
+struct comhand_process {
+        int pcb_class;
+        enum state pcb_state;
+        int pcb_priority;
+        char pcb_stack[PCB_COMHAND_STACK_SIZE];
+        void* stack_ptr;
+        struct process* next_process;
 };
 
 /**
@@ -174,3 +184,8 @@ void yield(void);
  * @brief load R3 test processes
  */
 void load_r3(void);
+
+/**
+ * @brief load the contest of the comhand context
+ */
+void load_comhand(void);
