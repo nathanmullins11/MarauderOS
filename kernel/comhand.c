@@ -49,11 +49,11 @@ void comhand(void)
 	// pointer to store command from user input
 	char *command;
 
-	/* create ready, suspended ready, blocked, suspended blocked queues */
-	global_ready_queue = create_queue();
-	global_suspended_ready_queue = create_queue();
-	global_blocked_queue = create_queue();
-	global_suspended_blocked_queue = create_queue();
+	// /* create ready, suspended ready, blocked, suspended blocked queues */
+	// global_ready_queue = create_queue();
+	// global_suspended_ready_queue = create_queue();
+	// global_blocked_queue = create_queue();
+	// global_suspended_blocked_queue = create_queue();
 
 	// loop forever until shutdown
     for ( ;; ) 

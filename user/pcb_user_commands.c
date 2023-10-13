@@ -9,7 +9,7 @@
 #include <itoa.h>
 #include <context_switch.h>
 
-#define PCB_STACK_SIZE 1024
+#define PCB_STACK_SIZE 2048
 
 void delete_pcb(const char* name)
 {
@@ -686,6 +686,74 @@ void load_comhand(void) {
     create_pcb("comhand", 1, 1);
 
     if ( global_ready_queue->front != NULL ) {
+        struct pcb* pcb_test1 = global_ready_queue->front->pcb;
+        struct context* context_test1 = (struct context*)(((int)pcb_test1->process_ptr->stack_ptr)-sizeof(struct context) - sizeof(int));
+        pcb_test1->process_ptr->stack_ptr = context_test1;
+
+        /* set context for segment process */
+        context_test1->CS = 0x08;
+        context_test1->DS = 0x10;
+        context_test1->ES = 0x10;
+        context_test1->FS = 0x10;
+        context_test1->GS = 0x10;
+        context_test1->SS = 0x10;
+
+        // EPB set to bottom of stack
+        context_test1->EBP = (int)(pcb_test1->process_ptr->pcb_stack + PCB_STACK_SIZE - sizeof(struct context)) - sizeof(int);
         
+        // ESP set to top of stack
+        context_test1->ESP = (int)(pcb_test1->process_ptr->pcb_stack + PCB_STACK_SIZE - sizeof(struct context)) - sizeof(int);
+        
+        // EIP point to function proc1
+        context_test1->EIP = (int)comhand;
+        
+        /* all other registers */
+        context_test1->EAX = 0;
+        context_test1->EBX = 0;
+        context_test1->ECX = 0;
+        context_test1->EDX = 0;
+        context_test1->ESI = 0;
+        context_test1->EDI = 0;
+
+        // set EFLAGS
+        context_test1->EFLAGS = 0x0202;
+    }
+}
+
+void load_sys_idle(void) {
+    create_pcb("sys_idle", 1, 9);
+
+    if ( global_ready_queue->front != NULL ) {
+        struct pcb* pcb_test1 = global_ready_queue->front->pcb;
+        struct context* context_test1 = (struct context*)(((int)pcb_test1->process_ptr->stack_ptr)-sizeof(struct context) - sizeof(int));
+        pcb_test1->process_ptr->stack_ptr = context_test1;
+
+        /* set context for segment process */
+        context_test1->CS = 0x08;
+        context_test1->DS = 0x10;
+        context_test1->ES = 0x10;
+        context_test1->FS = 0x10;
+        context_test1->GS = 0x10;
+        context_test1->SS = 0x10;
+
+        // EPB set to bottom of stack
+        context_test1->EBP = (int)(pcb_test1->process_ptr->pcb_stack + PCB_STACK_SIZE - sizeof(struct context)) - sizeof(int);
+        
+        // ESP set to top of stack
+        context_test1->ESP = (int)(pcb_test1->process_ptr->pcb_stack + PCB_STACK_SIZE - sizeof(struct context)) - sizeof(int);
+        
+        // EIP point to function proc1
+        context_test1->EIP = (int)load_sys_idle;
+        
+        /* all other registers */
+        context_test1->EAX = 0;
+        context_test1->EBX = 0;
+        context_test1->ECX = 0;
+        context_test1->EDX = 0;
+        context_test1->ESI = 0;
+        context_test1->EDI = 0;
+
+        // set EFLAGS
+        context_test1->EFLAGS = 0x0202;
     }
 }

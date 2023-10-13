@@ -9,6 +9,7 @@
 #include <mpx/io.h>
 #include <version.h>
 #include <time.h>
+#include <pcb.h>
 
 static void klogv(device dev, const char *msg)
 {
@@ -96,10 +97,19 @@ void kmain(void)
 	// the system.
 	klogv(COM1, "Transferring control to commhand...");
 
+	/* create ready, suspended ready, blocked, suspended blocked queues */
+	global_ready_queue = create_queue();
+	global_suspended_ready_queue = create_queue();
+	global_blocked_queue = create_queue();
+	global_suspended_blocked_queue = create_queue();
 
-	comhand();
+	load_comhand();
+	print("after comhand\n");
+	load_sys_idle();
+
+	print("before interrupt\n");
 	
-	// R4: __asm__ volatile ("int $0x60" :: "a"(IDLE));
+	__asm__ volatile ("int $0x60" :: "a"(IDLE));
 	// 10) System Shutdown -- *headers to be determined by your design*
 	// After your command handler returns, take care of any clean up that
 	// is necessary.
