@@ -4,6 +4,7 @@
 #include <context_switch.h>
 #include <string.h>
 #include <pcb.h>
+#include <comhand.h>
 
 /* global PCB pointer for currently running process */
 struct pcb* global_current_process = NULL;
