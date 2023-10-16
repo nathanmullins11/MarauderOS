@@ -507,7 +507,7 @@ void load_r3(void)
     
     if(global_ready_queue->front != NULL)
     {
-        struct pcb* pcb_test1 = global_ready_queue->front->pcb;
+        struct pcb* pcb_test1 = pcb_find("test1");
         struct context* context_test1 = (struct context*)(((int)pcb_test1->process_ptr->stack_ptr)-sizeof(struct context) - sizeof(int));
         pcb_test1->process_ptr->stack_ptr = context_test1;
 
@@ -542,7 +542,7 @@ void load_r3(void)
 
     if(global_ready_queue->front != NULL)
     {
-        struct pcb* pcb_test2 = global_ready_queue->front->next->pcb;
+        struct pcb* pcb_test2 = pcb_find("test2");
         struct context* context_test2 = (struct context*)(((int)pcb_test2->process_ptr->stack_ptr)-sizeof(struct context) - sizeof(int));
         pcb_test2->process_ptr->stack_ptr = context_test2;
 
@@ -577,7 +577,7 @@ void load_r3(void)
 
     if(global_ready_queue->front != NULL)
     {
-        struct pcb* pcb_test1 = global_ready_queue->front->next->next->pcb;
+        struct pcb* pcb_test1 = pcb_find("test3");
         struct context* context_test1 = (struct context*)(((int)pcb_test1->process_ptr->stack_ptr)-sizeof(struct context) - sizeof(int));
         pcb_test1->process_ptr->stack_ptr = context_test1;
 
@@ -612,7 +612,7 @@ void load_r3(void)
 
     if(global_ready_queue->front != NULL)
     {
-        struct pcb* pcb_test1 = global_ready_queue->front->next->next->next->pcb;
+        struct pcb* pcb_test1 = pcb_find("test4");
         struct context* context_test1 = (struct context*)(((int)pcb_test1->process_ptr->stack_ptr)-sizeof(struct context) - sizeof(int));
         pcb_test1->process_ptr->stack_ptr = context_test1;
 
@@ -647,7 +647,7 @@ void load_r3(void)
 
     if(global_ready_queue->front != NULL)
     {
-        struct pcb* pcb_test1 = global_ready_queue->front->next->next->next->next->pcb;
+        struct pcb* pcb_test1 = pcb_find("test5");
         struct context* context_test1 = (struct context*)(((int)pcb_test1->process_ptr->stack_ptr)-sizeof(struct context) - sizeof(int));
         pcb_test1->process_ptr->stack_ptr = context_test1;
 
