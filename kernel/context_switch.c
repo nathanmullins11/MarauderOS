@@ -9,25 +9,23 @@
 /* global PCB pointer for currently running process */
 struct pcb* global_current_process = NULL;
 
-/* global PCB pointer for first context loaded with first system call */
-struct context* first_context_ptr =  NULL;
-
 /* global/static context pointer representing context from first time sys_call() is entered */
 struct context* global_context_ptr = NULL;
 
 struct context* sys_call(struct context* context_ptr)
 {
-    if(global_context_ptr != context_ptr)
+    // reset global current process to NULL when queue is empty
+    if(global_ready_queue->front == NULL)
     {
-        global_context_ptr = context_ptr;
+        global_current_process = NULL;
     }
 
     // if operation code is IDLE
-    if(global_context_ptr->EAX == IDLE)
+    if(context_ptr->EAX == IDLE)
     {
-        if(first_context_ptr == NULL)
+        if(global_context_ptr == NULL)
         {
-            first_context_ptr = context_ptr;
+            global_context_ptr = context_ptr;
         }
 
         // check for PCBs in ready not suspended queue
@@ -58,7 +56,7 @@ struct context* sys_call(struct context* context_ptr)
         // if ready not suspended queue is empty, continue with current process
         return context_ptr;
     } 
-    else if (global_context_ptr->EAX == EXIT) 
+    else if (context_ptr->EAX == EXIT) 
     {
         // delete currently running pcb by freeing memory
         if(global_current_process != NULL)
@@ -81,7 +79,7 @@ struct context* sys_call(struct context* context_ptr)
         }
 
         // if ready not suspended queue is empty i.e last process running issues an exit requests and no processes are left in ready queue
-        return first_context_ptr;
+        return global_context_ptr;
     }
     
     context_ptr->EAX = -1;

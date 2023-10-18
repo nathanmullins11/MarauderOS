@@ -9,7 +9,7 @@
 #include <itoa.h>
 #include <context_switch.h>
 
-#define PCB_STACK_SIZE 2048
+#define PCB_STACK_SIZE 4096
 
 void delete_pcb(const char* name)
 {
