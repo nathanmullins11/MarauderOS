@@ -11,4 +11,5 @@ USER_OBJECTS=\
 	user/help.o \
 	user/doubly_linked_list.o \
 	user/pcb_user_commands.o \
-	user/process_queue.o
+	user/process_queue.o \
+	user/shutdown.o
