@@ -685,7 +685,7 @@ void load_r3(void)
 void load_comhand(void) {
     create_pcb("comhand", 1, 1);
 
-        struct pcb* pcb_test1 = global_ready_queue->front->pcb;
+        struct pcb* pcb_test1 = pcb_find("comhand");
         struct context* context_test1 = (struct context*)(((int)pcb_test1->process_ptr->stack_ptr)-sizeof(struct context) - sizeof(int));
         pcb_test1->process_ptr->stack_ptr = context_test1;
 
@@ -706,7 +706,7 @@ void load_comhand(void) {
         // EIP point to function proc1
         context_test1->EIP = (int)comhand;     
         /* all other registers */
-        context_test1->EAX = 0;
+        context_test1->EAX = 1;
         context_test1->EBX = 0;
         context_test1->ECX = 0;
         context_test1->EDX = 0;
@@ -721,7 +721,7 @@ void load_sys_idle(void) {
     create_pcb("sys_idle", 1, 9);
 
     if ( global_ready_queue->front != NULL ) {
-        struct pcb* pcb_test1 = global_ready_queue->front->pcb;
+        struct pcb* pcb_test1 = pcb_find("sys_idle");
         struct context* context_test1 = (struct context*)(((int)pcb_test1->process_ptr->stack_ptr)-sizeof(struct context) - sizeof(int));
         pcb_test1->process_ptr->stack_ptr = context_test1;
 
@@ -740,7 +740,7 @@ void load_sys_idle(void) {
         context_test1->ESP = (int)(pcb_test1->process_ptr->pcb_stack + PCB_STACK_SIZE - sizeof(struct context)) - sizeof(int);
         
         // EIP point to function proc1
-        context_test1->EIP = (int)load_sys_idle;
+        context_test1->EIP = (int)sys_idle_process;
         
         /* all other registers */
         context_test1->EAX = 0;
