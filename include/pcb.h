@@ -6,7 +6,7 @@
 #include <process_queue.h>
 #include <processes.h>
 
-#define PCB_STACK_SIZE 2048
+#define PCB_STACK_SIZE 4096
 
 /**
  * @brief stuct to describe a process control block
@@ -35,7 +35,7 @@ struct process {
         int pcb_class; // class = 0 -> user app, class = 1 -> system process
         enum state pcb_state;
         int pcb_priority; // an int between 0 (high pri) and 9 (low pri)
-        char pcb_stack[PCB_STACK_SIZE]; // process stack of at least 1024
+        char* pcb_stack; // process stack of at least 1024
         void* stack_ptr; // pointer to current location in stack
         struct process* next_process; // related pcbs
 };
