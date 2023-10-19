@@ -17,7 +17,7 @@ void alarm(char *formatted_time)
 
     /* create a ready, non-suspended process that is idle */
     create_pcb("alarm", 0, 2);
-        struct pcb* alarm_pcb = global_ready_queue->front->pcb;
+        struct pcb* alarm_pcb = pcb_find("alarm");
         struct context* context_alarm1 = (struct context*)(((int)alarm_pcb->process_ptr->stack_ptr)-sizeof(struct context) - sizeof(int));
         alarm_pcb->process_ptr->stack_ptr = context_alarm1;
 
@@ -73,29 +73,21 @@ void alarm(char *formatted_time)
     unsigned char sec = inb(0x71);
 
     /* compare time on computer with formatted time given by user */
-    if(hexHH == hour) // same hour, check for minutes
+    if((hexHH == hour) && (hexMM == min) && (hexSS == sec)) // checks if time is the same as system
     {
-        if(hexMM == min) // same minute, check seconds
-        {
-            if(hexSS == sec) // same sec, set EAX to exit to dispatch
-            {
                 sys_req(EXIT);
-            } else if (hexSS < sec) { // past run time, set EAX to exit
-                sys_req(EXIT);
-            } else { // hexSS > sec - in this case we do not want to make alarm run
-                // DO NOTHING
-            }
-        } else if (hexMM < min) { // past run time, so set EAX to exit to dispatch
-            sys_req(EXIT);
-        } else { // hexMM > min - in this case we do not want to make alarm run
-            // DO NOTHING
-        }
-    } else if (hexHH < hour) { // past run time, set EAX to exit
+    } 
+
+    if (hexHH > hour) { // hour is greater than system
+        sys_req(EXIT);
+    } else if((hexHH == hour) && (hexMM > min)) { // same hour but minutes is greater than system
+        sys_req(EXIT);
+    } else if ((hexHH == hour) && (hexMM == min) && (hexSS > sec)) {  // same hour and minute but seconds is greater than system
         sys_req(EXIT);
     } else {
-        // DO NOTHING
+    
     }
-
+        sys_req(IDLE);
 }
 
 void message_(char* message_from_user)
