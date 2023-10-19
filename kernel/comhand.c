@@ -372,5 +372,6 @@ void comhand(void)
 			}
 
 		}
+		sys_req(IDLE);
     }
 }

@@ -10,6 +10,7 @@
 #include <version.h>
 #include <time.h>
 #include <pcb.h>
+#include <alarms.h>
 
 static void klogv(device dev, const char *msg)
 {
@@ -106,7 +107,8 @@ void kmain(void)
 	/* load comhand and sys_idle_process */
 	load_comhand();
 	load_sys_idle();
-
+	alarm("12:12:42");
+	
 	__asm__ volatile ("int $0x60" :: "a"(IDLE));
 	// 10) System Shutdown -- *headers to be determined by your design*
 	// After your command handler returns, take care of any clean up that
