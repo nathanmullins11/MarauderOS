@@ -107,7 +107,7 @@ void kmain(void)
 	/* load comhand and sys_idle_process */
 	load_comhand();
 	load_sys_idle();
-	alarm("12:12:42");
+	alarm("16:12:42");
 	
 	__asm__ volatile ("int $0x60" :: "a"(IDLE));
 	// 10) System Shutdown -- *headers to be determined by your design*
