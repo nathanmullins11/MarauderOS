@@ -12,6 +12,7 @@
 #include <mpx/io.h>
 #include <pcb.h>
 #include <shutdown.h>
+#include <alarms.h>
 
 void print(char *out) {
 	sys_req(WRITE, COM1, out, strlen(out));
@@ -361,6 +362,44 @@ void comhand(void)
 						// run yield command
 						load_r3();
 					}
+				}
+
+				/* ALARM */
+				else if ( strcmp(command, "alarm") == 0 ) {
+					// get first flag
+					char *param = strtok(NULL, " ");
+
+					// store parameters
+					char *time = NULL;
+
+					// check the flag
+					if (param) {
+						if ( strcmp(param, "-t") == 0 ) {
+							time = strtok(NULL, " ");
+							if (time) {
+								// everything valid thus far, get command message
+								char msg[] = "Enter alarm message:\n";
+								sys_req(WRITE, COM1, msg, strlen(msg));
+
+								// get user input
+								char message[100] = {0};
+								int size_choice = sys_req(READ, COM1, message, sizeof(message));
+								if (message[size_choice] == '\0') {
+									// message valid, pass into function
+									alarm(time);
+								}
+							} else {
+								print(error_msg_no_param);
+							}
+						} else {
+							// incorrect flag
+							print(error_msg_inc_flag);
+						}
+					} else {
+						// no flag
+						print(error_msg_no_flag);
+					}
+					
 				}
 
 				/* Error */
