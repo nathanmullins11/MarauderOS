@@ -12,6 +12,7 @@
 #include <mpx/io.h>
 #include <pcb.h>
 #include <shutdown.h>
+#include <alarms.h>
 
 void print(char *out) {
 	sys_req(WRITE, COM1, out, strlen(out));
@@ -363,6 +364,7 @@ void comhand(void)
 					}
 				}
 
+				/* ALARM */
 				else if ( strcmp(command, "alarm") == 0 ) {
 					// get first flag
 					char *param = strtok(NULL, " ");
@@ -384,7 +386,7 @@ void comhand(void)
 								int size_choice = sys_req(READ, COM1, message, sizeof(message));
 								if (message[size_choice] == '\0') {
 									// message valid, pass into function
-
+									alarm(time);
 								}
 							} else {
 								print(error_msg_no_param);
