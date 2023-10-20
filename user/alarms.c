@@ -227,49 +227,67 @@ void print_message(void)
 {
     for(;;)
     {
-        // if(check_time() == 1)
-        // {
-        //     // set message to print to global message
-        //     char* message_from_user = global_message;
+        if(check_time() == 1)
+        {
+            // set message to print to global message
+            char* message_from_user = global_message;
 
-        //     // print message
-        //     print(message_from_user);
-        //     print("\n");
+            // print message
+            print(message_from_user);
+            print("\n");
 
-        //     // exit/remove alarm
-        //     sys_req(EXIT);
-        // } else {
-        //     sys_req(IDLE);
-        // }
-        sys_req(IDLE);
+            // exit/remove alarm
+            sys_req(EXIT);
+        } else {
+            sys_req(IDLE);
+        }
+        // sys_req(IDLE);
     }
 
 }
 
 int check_time(void)
 {
-    // Read hours
-    outb(0x70, 0x04);
-    unsigned char computer_hour = inb(0x71);
-    int decimalHour = hexToDec(computer_hour);
-    
-    char* user_time = global_time;
-    // Convert user time to integer
-    int hh = atoi(user_time);
-    //int mm = atoi(command + 3);
-    //int ss = atoi(command + 6);
+
+ // Convert to integer
+    int hh = atoi(global_time);
+    int mm = atoi(global_time + 3);
+    int ss = atoi(global_time + 6);
 
     // Convert to hexadecimal
-    //uint8_t hexHH = decToHex(hh);
-    //uint8_t hexMM = decToHex(mm);
-    //uint8_t hexSS = decToHex(ss);
+    uint8_t hexHH = decToHex(hh);
+    uint8_t hexMM = decToHex(mm);
+    uint8_t hexSS = decToHex(ss);
 
-    if(hh == decimalHour)
+    // once time is in hex, need to check for that time on computer
+    // Read hours
+    outb(0x70, 0x04);
+    unsigned char hour = inb(0x71);
+
+    // Read minutes
+    outb(0x70, 0x02);
+    unsigned char min = inb(0x71);
+
+    // Read seconds
+    outb(0x70, 0x00);
+    unsigned char sec = inb(0x71);
+
+    /* compare time on computer with formatted time given by user */
+    if((hexHH == hour) && (hexMM == min) && (hexSS == sec)) // checks if time is the same as system
     {
+                return 1;
+    } 
+
+    if (hexHH > hour) { // hour is greater than system
+        return 1;
+    } else if((hexHH == hour) && (hexMM > min)) { // same hour but minutes is greater than system
+       return 1;
+    } else if ((hexHH == hour) && (hexMM == min) && (hexSS > sec)) {  // same hour and minute but seconds is greater than system
+        return 1;
+    } else {
         return 0;
     }
 
-    return 1;
 
 }
 
