@@ -50,6 +50,9 @@ void comhand(void)
 	// pointer to store command from user input
 	char *command;
 
+	char* time = (char*)sys_alloc_mem(100 * sizeof(char));
+	char* message = (char*)sys_alloc_mem(100 * sizeof(char));
+
 	// loop forever until shutdown
     for ( ;; ) 
     {
@@ -370,7 +373,7 @@ void comhand(void)
 					char *param = strtok(NULL, " ");
 
 					// store parameters
-					char *time = NULL;
+					//  *time = NULL;
 
 					// check the flag
 					if (param) {
@@ -391,7 +394,7 @@ void comhand(void)
 								sys_req(WRITE, COM1, msg, strlen(msg));
 
 								// get user input
-								char message[100] = {0};
+								// char message[100] = {0};
 								int size_choice = sys_req(READ, COM1, message, sizeof(message));
 								if (message[size_choice] == '\0') {
 									// message valid, pass into function
