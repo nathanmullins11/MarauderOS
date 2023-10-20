@@ -8,10 +8,17 @@
  * if user input is not recognized, then prints error message
  * 
  */
-void alarm(char* formatted_time);
+void alarm(char* formatted_time, char* message);
 
 /**
  * @brief message alarm will print when time is reached
  * 
  */
-void message_(char* message_from_user);
+void print_message(void);
+
+/**
+ * @brief check for valid time to print message
+ * 
+ */
+int check_time(void);
+
