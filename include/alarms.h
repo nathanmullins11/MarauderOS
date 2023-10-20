@@ -22,3 +22,7 @@ void print_message(void);
  */
 int check_time(void);
 
+// extern char* global_message;
+
+// extern char* global_time;
+
