@@ -22,7 +22,10 @@ void print_message(void);
  */
 int check_time(void);
 
-// extern char* global_message;
-
-// extern char* global_time;
+/**
+ * @brief check if/which alarm process and running to know which message to grab
+ * 
+ * @return int 0 for alarm0, 1 for alarm 1, 2 for alarm2, 3 for alarm3, 4 for alarm4
+ */
+int check_running_process(void);
 
