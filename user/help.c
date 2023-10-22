@@ -5,6 +5,7 @@
 
 void help(const char *cmd) {
     // build help strings for each command
+    
     char msg_version[] = "Command: version\n\nDescription:\n  Prints the current version of MarauderOS and last build date to the terminal.\n\nUsage:\n  version\n";
     char msg_shutdown[] = "Command: shutdown\n\nDescription:\n  Exits MarauderOS, ask for confirmation before initiating shutdown.\n\nUsage:\n  shutdown\n\nAdditional Notes:\n  Running `shutdown!` will immediately exit the OS without confirmation\n";
     char msg_getdate[] = "Command: getdate\n\nDescription:\n  Prints the current date of MarauderOS to the terminal.\n\nUsage:\n  getdate\n";
