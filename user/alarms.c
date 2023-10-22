@@ -9,18 +9,6 @@
 #include <time.h>
 
 /* global variables for message and time */
-// char* alarm_messages[0] = NULL;
-// char* alarm_times[0] = NULL;
-// char* alarm_messages[1] = NULL;
-// char* alarm_times[1] = NULL;
-// char* alarm_messages[2] = NULL;
-// char* alarm_times[2] = NULL;
-// char* alarm_messages[3] = NULL;
-// char* alarm_times[3] = NULL;
-// char* alarm_messages[4] = NULL;
-// char* alarm_times[4] = NULL;
-
-/* global variables for message and time */
 char* alarm_messages[5] = {NULL, NULL, NULL, NULL, NULL};
 char* alarm_times[5] = {NULL, NULL, NULL, NULL, NULL};
 
