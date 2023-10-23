@@ -18,6 +18,7 @@ void help(const char *cmd) {
     const char *msg_pcb4 = "Examples:\n  - Create a PCB:\t\tpcb -c NAME --class user --pri 4\n  - Delete a PCB:\t\tpcb -d NAME\n  - Change priority:\t\tpcb -p NAME --pri 1\n  - List all blocked processes:\tpcb -l blocked\n\nAdditional Notes:\n  Refer to the User Manuel for a more in-depth explanation\n  (https://github.com/WVU-CS450/Morgantown-Marauders-/blob/main/doc/UserManual.pdf)\n  INFO: Create PCB no longer supported as of v3.0\n";
     const char *msg_loadr3 = "Command: load_r3\n\nDescription:\n  Loads five faux processes into the ready queue. These processes print to the terminal.\n\nUsage:\n  load_r3\n";
     const char *msg_yield = "Command: yield\n\nDescription:\n  Command handler yields to the CPU, runs any processes in the ready queue.\n\nUsage:\n  yield\n";
+    const char *msg_alarm = "Command: alarm \n\nDescription:\n Creates a PCB with a user defined time and message to display.\n\nUsage:\n alarm -t [hh:mm:ss]\n\nExample:\n  - Create an alarm:\t\t alarm -t 12:24:34\n";
     const char *msg_all = "Available Commands | type `help [command]` for more detailed help\n - version\n - shutdown\n - getdate\n - setdate\n - gettime\n - settime\n - pcb\n - load_r3\n - yield\n";
 
     if (strcmp(cmd, "version") == 0) {
@@ -50,6 +51,9 @@ void help(const char *cmd) {
     } else if (strcmp(cmd, "yield") == 0) {
         // print help message for yield command
         sys_req(WRITE, COM1, msg_yield, strlen(msg_yield));
+    } else if (strcmp(cmd, "alarm") == 0) {
+        // print help message for yield command
+        sys_req(WRITE, COM1, msg_alarm, strlen(msg_alarm));
     } else {
         // if not parameters -> print all help messages
         sys_req(WRITE, COM1, msg_all, strlen(msg_all));
