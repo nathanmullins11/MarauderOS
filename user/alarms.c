@@ -302,11 +302,6 @@ int check_time(void)
         }
     }
 
-    // Convert to hexadecimal
-    // uint8_t hh = decToHex(hh);
-    // uint8_t hexMM = decToHex(mm);
-    // uint8_t hexSS = decToHex(ss);
-
     // once time is in hex, need to check for that time on computer
     // Read hours
     outb(0x70, 0x04);
