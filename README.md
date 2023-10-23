@@ -16,7 +16,6 @@ For a quick reference on commands, run the `help` command with a specified comma
 
 ## Known Bugs
 1. Hitting the esc key will send serial poll in an infinite loop searching for an escape sequence output. To break out of this, tap one of the arrows.
-2. When creating a PCB, if you enter `--class system user` or `--class user system` it will create a PCB under the first class listed.
 
 ## Members 
 Ian Jackson | Nathan Mullins | Grant Stumpf | Riley Stauffer
