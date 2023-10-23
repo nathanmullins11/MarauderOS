@@ -391,12 +391,27 @@ void comhand(void)
 								sys_req(WRITE, COM1, msg, strlen(msg));
 
 								// get user input
-								char temp_buf[100];
-								int size_choice = sys_req(READ, COM1, temp_buf, sizeof(temp_buf));
+								char temp_buf[100] = {0};
+								int size_message = sys_req(READ, COM1, temp_buf, sizeof(temp_buf));
 								temp_buf[strlen(temp_buf)] = '\0';
 								//message = temp_buf;
-								memcpy(message, temp_buf, strlen(temp_buf));
-								if (message[size_choice] == '\0') {
+								memcpy(message, temp_buf, size_message);
+
+								// clear temp buffer
+								if (temp_buf[0] != '0')
+								{
+									// remove all chars in temp buffer except first '0'
+									size_t temp_len = strlen(temp_buf);
+									while (temp_len > 1) {
+										for (size_t i = 0; i < temp_len - 1; i++) {
+											temp_buf[i] = temp_buf[i + 1];
+										}
+										temp_len--;
+									}
+									temp_buf[0] = '\0'; // Null-terminate after '0'
+								}
+
+								if (message[strlen(message)] == '\0') {
 									// message valid, pass into function
 									alarm(time, message);
 								}
