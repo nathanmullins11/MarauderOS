@@ -391,12 +391,12 @@ void comhand(void)
 								sys_req(WRITE, COM1, msg, strlen(msg));
 
 								// get user input
-								char temp_buf[100];
-								int size_choice = sys_req(READ, COM1, temp_buf, sizeof(temp_buf));
+								char temp_buf[100] = {0};
+								sys_req(READ, COM1, temp_buf, sizeof(temp_buf));
 								temp_buf[strlen(temp_buf)] = '\0';
 								//message = temp_buf;
 								memcpy(message, temp_buf, strlen(temp_buf));
-								if (message[size_choice] == '\0') {
+								if (message[strlen(message)] == '\0') {
 									// message valid, pass into function
 									alarm(time, message);
 								}
