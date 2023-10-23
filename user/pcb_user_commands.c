@@ -98,12 +98,17 @@ void show_pcb(const char *name, int status)
         // print header if just ready is called
         if (status == 1) {
             print("Name\t\tClass\t\t\tState\t\tSuspended Status\tPriority\n");
-            print("----------------------------------------------------------------------------------------\n");
+            print("------------------------------------------------------------------------------------------------\n");
         }
 
         // print out data
         sys_req(WRITE, COM1, process_name, strlen(process_name));
-        print("\t\t");
+        if ( strcmp(process_name, "sys_idle") == 0) {
+            print("\t");
+        } else {
+            print("\t\t");
+        }
+        
         sys_req(WRITE, COM1, class_as_string, strlen(class_as_string));
         print("\t\t");
         sys_req(WRITE, COM1, state_as_string, strlen(state_as_string));
@@ -127,7 +132,7 @@ void show_ready(void) {
     // print header if just ready is called
     print("\t\t\t   === Ready Not Suspended ===\n");
     print("Name\t\tClass\t\t\tState\t\tSuspended Status\tPriority\n");
-    print("----------------------------------------------------------------------------------------\n");
+    print("------------------------------------------------------------------------------------------------\n");
     
 
     if(current_ready != NULL)
@@ -147,7 +152,7 @@ void show_ready(void) {
     // Ready Suspended Section
     print("\t\t\t     === Ready Suspended ===\n");
     print("Name\t\tClass\t\t\tState\t\tSuspended Status\tPriority\n");
-    print("----------------------------------------------------------------------------------------\n");
+    print("------------------------------------------------------------------------------------------------\n");
     
     if(current_suspended_ready != NULL)
     { 
@@ -172,7 +177,7 @@ void show_blocked(void) {
     // print header if only blocked is called
     print("\t\t\t   === Blocked Not Suspended ===\n");
     print("Name\t\tClass\t\t\tState\t\tSuspended Status\tPriority\n");
-    print("----------------------------------------------------------------------------------------\n");
+    print("------------------------------------------------------------------------------------------------\n");
 
     if (current_blocked != NULL) 
     {
@@ -190,7 +195,7 @@ void show_blocked(void) {
     
     print("\t\t\t     === Blocked Suspended ===\n");
     print("Name\t\tClass\t\t\tState\t\tSuspended Status\tPriority\n");
-    print("----------------------------------------------------------------------------------------\n");
+    print("------------------------------------------------------------------------------------------------\n");
 
     if(current_suspended_blocked != NULL)
     {
