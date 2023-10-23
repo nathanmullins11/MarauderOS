@@ -373,8 +373,6 @@ void comhand(void)
 					char *param = strtok(NULL, " ");
 
 					// store parameters
-					//  *time = NULL;
-
 					// check the flag
 					if (param) {
 						if ( strcmp(param, "-t") == 0 ) {
@@ -383,19 +381,21 @@ void comhand(void)
 							int time_format_checker = 1;
 							if(isValidTimeFormat(time) != 1)
 							{
-								//sys_req(WRITE, COM1, command, 9);
 								sys_req(WRITE, COM1, "ERR: Invalid time format | use 'help' command\n", 46);
 								time_format_checker = 0;
 							}
 
 							if (time && time_format_checker) {
 								// everything valid thus far, get command message
-								char msg[] = "Enter alarm message:\n";
+								char msg[] = "Enter an alarm message of 100 characters or less:\n";
 								sys_req(WRITE, COM1, msg, strlen(msg));
 
 								// get user input
-								// char message[100] = {0};
-								int size_choice = sys_req(READ, COM1, message, sizeof(message));
+								char temp_buf[100];
+								int size_choice = sys_req(READ, COM1, temp_buf, sizeof(temp_buf));
+								temp_buf[strlen(temp_buf)] = '\0';
+								//message = temp_buf;
+								memcpy(message, temp_buf, strlen(temp_buf));
 								if (message[size_choice] == '\0') {
 									// message valid, pass into function
 									alarm(time, message);
