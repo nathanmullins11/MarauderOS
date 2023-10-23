@@ -390,12 +390,13 @@ void comhand(void)
 
 							if (time && time_format_checker) {
 								// everything valid thus far, get command message
-								char msg[] = "Enter alarm message:\n";
+								char msg[] = "Enter an alarm message of 100 characters or less:\n";
 								sys_req(WRITE, COM1, msg, strlen(msg));
 
 								// get user input
-								// char message[100] = {0};
-								int size_choice = sys_req(READ, COM1, message, sizeof(message));
+								char temp_buf[100];
+								int size_choice = sys_req(READ, COM1, temp_buf, sizeof(temp_buf));
+								message = temp_buf;
 								if (message[size_choice] == '\0') {
 									// message valid, pass into function
 									alarm(time, message);
