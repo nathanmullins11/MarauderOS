@@ -12,7 +12,7 @@
 char* alarm_messages[5] = {NULL, NULL, NULL, NULL, NULL};
 char* alarm_times[5] = {NULL, NULL, NULL, NULL, NULL};
 
-/* Define a global array of pointers to the pcb structure */
+/* define global array of pointers to pcbs of alarms */
 struct pcb* alarm_processes[5] = {NULL, NULL, NULL, NULL, NULL};
 
 void alarm(char *formatted_time, char* message)
@@ -20,13 +20,13 @@ void alarm(char *formatted_time, char* message)
 
     if(isValidTimeFormat(formatted_time) != 1)
     {
-        //sys_req(WRITE, COM1, command, 9);
         sys_req(WRITE, COM1, "ERR: Invalid time format | use 'help' command\n", 46);
         return;
     }
 
     if(!pcb_find("alarm0"))
     {
+        // allocate mem for first positions (index 0) in time and message arrays
         alarm_times[0] = (char*)sys_alloc_mem(100 * sizeof(char));
         alarm_messages[0] = (char*)sys_alloc_mem(100 * sizeof(char));
 
@@ -54,7 +54,7 @@ void alarm(char *formatted_time, char* message)
             // ESP set to top of stack
             context_alarm0->ESP = (int)(alarm0_pcb->process_ptr->pcb_stack + PCB_STACK_SIZE - sizeof(struct context)) - sizeof(int);
             
-            // EIP point to function proc1
+            // EIP point to function to print message
             context_alarm0->EIP = (int)print_message;
             
             /* all other registers */
@@ -71,6 +71,7 @@ void alarm(char *formatted_time, char* message)
             alarm_processes[0] = alarm0_pcb; // add process to array
     } else if(!pcb_find("alarm1"))
     {
+        // allocate mem for second positions (index 1) in time and message arrays
         alarm_times[1] = (char*)sys_alloc_mem(100 * sizeof(char));
         alarm_messages[1] = (char*)sys_alloc_mem(100 * sizeof(char));
 
@@ -98,7 +99,7 @@ void alarm(char *formatted_time, char* message)
             // ESP set to top of stack
             context_alarm1->ESP = (int)(alarm1_pcb->process_ptr->pcb_stack + PCB_STACK_SIZE - sizeof(struct context)) - sizeof(int);
             
-            // EIP point to function proc1
+            // EIP point to function print message
             context_alarm1->EIP = (int)print_message;
             
             /* all other registers */
@@ -115,6 +116,7 @@ void alarm(char *formatted_time, char* message)
              alarm_processes[1] = alarm1_pcb; // add process to array
     } else if(!pcb_find("alarm2"))
     {
+        // allocate mem for third positions (index 2) in time and message arrays
         alarm_times[2] = (char*)sys_alloc_mem(100 * sizeof(char));
         alarm_messages[2] = (char*)sys_alloc_mem(100 * sizeof(char));
 
@@ -142,7 +144,7 @@ void alarm(char *formatted_time, char* message)
             // ESP set to top of stack
             context_alarm2->ESP = (int)(alarm2_pcb->process_ptr->pcb_stack + PCB_STACK_SIZE - sizeof(struct context)) - sizeof(int);
             
-            // EIP point to function proc1
+            // EIP point to function to print message
             context_alarm2->EIP = (int)print_message;
             
             /* all other registers */
@@ -159,6 +161,7 @@ void alarm(char *formatted_time, char* message)
             alarm_processes[2] = alarm2_pcb; // add process to array
     } else if(!pcb_find("alarm3"))
     {
+        // allocate mem for foruth positions (index 3) in time and message arrays
         alarm_times[3] = (char*)sys_alloc_mem(100 * sizeof(char));
         alarm_messages[3] = (char*)sys_alloc_mem(100 * sizeof(char));
 
@@ -186,7 +189,7 @@ void alarm(char *formatted_time, char* message)
             // ESP set to top of stack
             context_alarm3->ESP = (int)(alarm3_pcb->process_ptr->pcb_stack + PCB_STACK_SIZE - sizeof(struct context)) - sizeof(int);
             
-            // EIP point to function proc1
+            // EIP point to function to print message
             context_alarm3->EIP = (int)print_message;
             
             /* all other registers */
@@ -203,6 +206,7 @@ void alarm(char *formatted_time, char* message)
             alarm_processes[3] = alarm3_pcb; // add process to array
     } else if(!pcb_find("alarm4"))
     {
+        // allocate mem for fifth positions (index 4) in time and message arrays
         alarm_times[4] = (char*)sys_alloc_mem(100 * sizeof(char));
         alarm_messages[4] = (char*)sys_alloc_mem(100 * sizeof(char));
 
@@ -230,7 +234,7 @@ void alarm(char *formatted_time, char* message)
             // ESP set to top of stack
             context_alarm4->ESP = (int)(alarm4_pcb->process_ptr->pcb_stack + PCB_STACK_SIZE - sizeof(struct context)) - sizeof(int);
             
-            // EIP point to function proc1
+            // EIP point to function to print message
             context_alarm4->EIP = (int)print_message;
             
             /* all other registers */
@@ -261,6 +265,11 @@ void print_message(void)
         {
             // get currently running alarm 
             int cur_alarm = check_running_process();
+            if(cur_alarm == 6)
+            {
+                print("ERR: Alarm could not be found\n");
+                return;
+            }
             // set message to print to global message
             char* message_from_user = alarm_messages[cur_alarm];
 
@@ -278,15 +287,18 @@ void print_message(void)
         } else {
             sys_req(IDLE);
         }
-        // sys_req(IDLE);
     }
-
 }
 
 int check_time(void)
 {
     // get running process
     int alarm_num = check_running_process();
+    if(alarm_num == 6)
+    {
+        print("ERR: Alarm could not be found\n");
+        return 0;
+    }
 
     // initialize variables for time of alarm
     int hh, mm, ss;
@@ -302,18 +314,17 @@ int check_time(void)
         }
     }
 
-    // once time is in hex, need to check for that time on computer
-    // Read hours
+    // Read hours from computer time
     outb(0x70, 0x04);
     unsigned char hour = inb(0x71);
     int system_hour = hexToDec(hour);
 
-    // Read minutes
+    // Read minutes from computer time
     outb(0x70, 0x02);
     unsigned char min = inb(0x71);
     int system_min = hexToDec(min);
 
-    // Read seconds
+    // Read seconds from computer time
     outb(0x70, 0x00);
     unsigned char sec = inb(0x71);
     int system_sec = hexToDec(sec);
