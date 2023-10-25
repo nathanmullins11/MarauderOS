@@ -25,12 +25,6 @@ void alarm(char *formatted_time, char* message)
         return;
     }
 
-    if(strcmp(message, "") == 0)
-    {
-        sys_req(WRITE, COM1, "ERR: Invalid alarm message\n", 28);
-        return;
-    }
-
     if(!pcb_find("alarm0"))
     {
         // allocate mem for first positions (index 0) in time and message arrays
