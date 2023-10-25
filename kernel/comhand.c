@@ -1,6 +1,7 @@
 #include "mpx/device.h"
 #include "mpx/serial.h"
 #include <comhand.h>
+#include <ctype.h>
 #include <stdint.h>
 #include <stdlib.h>
 #include <sys_req.h>
@@ -397,23 +398,30 @@ void comhand(void)
 								//message = temp_buf;
 								memcpy(message, temp_buf, size_message);
 
-								// clear temp buffer
-								if (temp_buf[0] != '0')
-								{
-									// remove all chars in temp buffer except first '0'
-									size_t temp_len = strlen(temp_buf);
-									while (temp_len > 1) {
-										for (size_t i = 0; i < temp_len - 1; i++) {
-											temp_buf[i] = temp_buf[i + 1];
+								// check if the first character is a space or empty
+								// if not then parse message and pass into function
+								if (isspace((int)message[0]) == 1 || message[0] == '\0') {
+									char err_spaces[] = "ERR: Alarm name cannot be empty\n";
+									print(err_spaces);
+								} else {
+									// clear temp buffer
+									if (temp_buf[0] != '0')
+									{
+										// remove all chars in temp buffer except first '0'
+										size_t temp_len = strlen(temp_buf);
+										while (temp_len > 1) {
+											for (size_t i = 0; i < temp_len - 1; i++) {
+												temp_buf[i] = temp_buf[i + 1];
+											}
+											temp_len--;
 										}
-										temp_len--;
+										temp_buf[0] = '\0'; // Null-terminate after '0'
 									}
-									temp_buf[0] = '\0'; // Null-terminate after '0'
-								}
 
-								if (message[strlen(message)] == '\0') {
-									// message valid, pass into function
-									alarm(time, message);
+									if (message[strlen(message)] == '\0') {
+										// message valid, pass into function
+										alarm(time, message);
+									}
 								}
 							} else {
 								if(time_format_checker)
