@@ -175,6 +175,8 @@ void yield(void);
  */
 void load_r3(void);
 
+/* R4 BELOW */
+
 /**
  * @brief load the context of the comhand context
  */
