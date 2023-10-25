@@ -1,6 +1,7 @@
 #include "mpx/device.h"
 #include "mpx/serial.h"
 #include <comhand.h>
+#include <ctype.h>
 #include <stdint.h>
 #include <stdlib.h>
 #include <sys_req.h>
@@ -11,6 +12,8 @@
 #include <help.h>
 #include <mpx/io.h>
 #include <pcb.h>
+#include <shutdown.h>
+#include <alarms.h>
 
 void print(char *out) {
 	sys_req(WRITE, COM1, out, strlen(out));
@@ -47,6 +50,9 @@ void comhand(void)
 			
 	// pointer to store command from user input
 	char *command;
+
+	char* time = (char*)sys_alloc_mem(100 * sizeof(char));
+	char* message = (char*)sys_alloc_mem(100 * sizeof(char));
 
 	// loop forever until shutdown
     for ( ;; ) 
@@ -94,8 +100,8 @@ void comhand(void)
 						if (choice[size_choice] == '\0') {
 							// check if yes
 							if ( strcmp(choice, "y") == 0 ) {
-								// return to kmain()
-								return;
+								// call shutdown method
+								shutdown();
 							} else if ( strcmp(choice, "n") == 0 ) {
 								// do nothing, return to normal operation
 							} else {
@@ -116,7 +122,7 @@ void comhand(void)
 						sys_req(WRITE, COM1, error_msg_inc_param, strlen(error_msg_inc_param));
 					} else {
 						// run the version command
-                		return;
+                		shutdown();
 					}
 				}
 
@@ -348,19 +354,6 @@ void comhand(void)
 						}
 					}
 				}
-
-				/* YIELD */
-				else if ( strcmp(command, "yield") == 0 ) {
-					// check if there are any invalid params
-					char *param = strtok(NULL, " ");
-					if (param) {
-						// invalid parameter
-						sys_req(WRITE, COM1, error_msg_inc_param, strlen(error_msg_inc_param));
-					} else {
-						// run yield command
-						yield();
-					}
-				}
 				
 				/* LOAD R3 */
 				else if( strcmp(command, "load_r3") == 0 ) {
@@ -375,6 +368,78 @@ void comhand(void)
 					}
 				}
 
+				/* ALARM */
+				else if ( strcmp(command, "alarm") == 0 ) {
+					// get first flag
+					char *param = strtok(NULL, " ");
+
+					// store parameters
+					// check the flag
+					if (param) {
+						if ( strcmp(param, "-t") == 0 ) {
+							time = strtok(NULL, " ");
+
+							int time_format_checker = 1;
+							if(isValidTimeFormat(time) != 1)
+							{
+								sys_req(WRITE, COM1, "ERR: Invalid time format | use 'help' command\n", 46);
+								time_format_checker = 0;
+							}
+
+							if (time && time_format_checker) {
+								// everything valid thus far, get command message
+								char msg[] = "Enter an alarm message of 100 characters or less:\n";
+								sys_req(WRITE, COM1, msg, strlen(msg));
+
+								// get user input
+								char temp_buf[100] = {0};
+								int size_message = sys_req(READ, COM1, temp_buf, sizeof(temp_buf));
+								temp_buf[strlen(temp_buf)] = '\0';
+								//message = temp_buf;
+								memcpy(message, temp_buf, size_message);
+
+								// check if the first character is a space or empty
+								// if not then parse message and pass into function
+								if (isspace((int)message[0]) == 1 || message[0] == '\0') {
+									char err_spaces[] = "ERR: Alarm name cannot be empty\n";
+									print(err_spaces);
+								} else {
+									// clear temp buffer
+									if (temp_buf[0] != '0')
+									{
+										// remove all chars in temp buffer except first '0'
+										size_t temp_len = strlen(temp_buf);
+										while (temp_len > 1) {
+											for (size_t i = 0; i < temp_len - 1; i++) {
+												temp_buf[i] = temp_buf[i + 1];
+											}
+											temp_len--;
+										}
+										temp_buf[0] = '\0'; // Null-terminate after '0'
+									}
+
+									if (message[strlen(message)] == '\0') {
+										// message valid, pass into function
+										alarm(time, message);
+									}
+								}
+							} else {
+								if(time_format_checker)
+								{
+									print(error_msg_no_param);
+								}
+							}
+						} else {
+							// incorrect flag
+							print(error_msg_inc_flag);
+						}
+					} else {
+						// no flag
+						print(error_msg_no_flag);
+					}
+					
+				}
+
 				/* Error */
 				else {
 					// command not recognized
@@ -384,5 +449,6 @@ void comhand(void)
 			}
 
 		}
+		sys_req(IDLE);
     }
 }

@@ -9,7 +9,7 @@
 #include <itoa.h>
 #include <context_switch.h>
 
-#define PCB_STACK_SIZE 1024
+#define PCB_STACK_SIZE 4096
 
 void delete_pcb(const char* name)
 {
@@ -98,12 +98,17 @@ void show_pcb(const char *name, int status)
         // print header if just ready is called
         if (status == 1) {
             print("Name\t\tClass\t\t\tState\t\tSuspended Status\tPriority\n");
-            print("----------------------------------------------------------------------------------------\n");
+            print("------------------------------------------------------------------------------------------------\n");
         }
 
         // print out data
         sys_req(WRITE, COM1, process_name, strlen(process_name));
-        print("\t\t");
+        if ( strcmp(process_name, "sys_idle") == 0) {
+            print("\t");
+        } else {
+            print("\t\t");
+        }
+        
         sys_req(WRITE, COM1, class_as_string, strlen(class_as_string));
         print("\t\t");
         sys_req(WRITE, COM1, state_as_string, strlen(state_as_string));
@@ -127,7 +132,7 @@ void show_ready(void) {
     // print header if just ready is called
     print("\t\t\t   === Ready Not Suspended ===\n");
     print("Name\t\tClass\t\t\tState\t\tSuspended Status\tPriority\n");
-    print("----------------------------------------------------------------------------------------\n");
+    print("------------------------------------------------------------------------------------------------\n");
     
 
     if(current_ready != NULL)
@@ -147,7 +152,7 @@ void show_ready(void) {
     // Ready Suspended Section
     print("\t\t\t     === Ready Suspended ===\n");
     print("Name\t\tClass\t\t\tState\t\tSuspended Status\tPriority\n");
-    print("----------------------------------------------------------------------------------------\n");
+    print("------------------------------------------------------------------------------------------------\n");
     
     if(current_suspended_ready != NULL)
     { 
@@ -172,7 +177,7 @@ void show_blocked(void) {
     // print header if only blocked is called
     print("\t\t\t   === Blocked Not Suspended ===\n");
     print("Name\t\tClass\t\t\tState\t\tSuspended Status\tPriority\n");
-    print("----------------------------------------------------------------------------------------\n");
+    print("------------------------------------------------------------------------------------------------\n");
 
     if (current_blocked != NULL) 
     {
@@ -190,7 +195,7 @@ void show_blocked(void) {
     
     print("\t\t\t     === Blocked Suspended ===\n");
     print("Name\t\tClass\t\t\tState\t\tSuspended Status\tPriority\n");
-    print("----------------------------------------------------------------------------------------\n");
+    print("------------------------------------------------------------------------------------------------\n");
 
     if(current_suspended_blocked != NULL)
     {
@@ -680,4 +685,77 @@ void load_r3(void)
         context_test1->EFLAGS = 0x0202;
     }
     
+}
+
+void load_comhand(void) {
+    create_pcb("comhand", 1, 1);
+
+        struct pcb* pcb_test1 = pcb_find("comhand");
+        struct context* context_test1 = (struct context*)(((int)pcb_test1->process_ptr->stack_ptr)-sizeof(struct context) - sizeof(int));
+        pcb_test1->process_ptr->stack_ptr = context_test1;
+
+        /* set context for segment process */
+        context_test1->CS = 0x08;
+        context_test1->DS = 0x10;
+        context_test1->ES = 0x10;
+        context_test1->FS = 0x10;
+        context_test1->GS = 0x10;
+        context_test1->SS = 0x10;
+
+        // EPB set to bottom of stack
+        context_test1->EBP = (int)(pcb_test1->process_ptr->pcb_stack + PCB_STACK_SIZE - sizeof(struct context)) - sizeof(int);
+        
+        // ESP set to top of stack
+        context_test1->ESP = (int)(pcb_test1->process_ptr->pcb_stack + PCB_STACK_SIZE - sizeof(struct context)) - sizeof(int);
+        
+        // EIP point to function proc1
+        context_test1->EIP = (int)comhand;     
+        /* all other registers */
+        context_test1->EAX = 1;
+        context_test1->EBX = 0;
+        context_test1->ECX = 0;
+        context_test1->EDX = 0;
+        context_test1->ESI = 0;
+        context_test1->EDI = 0;
+
+        // set EFLAGS
+        context_test1->EFLAGS = 0x0202;
+}
+
+void load_sys_idle(void) {
+    create_pcb("sys_idle", 1, 9);
+
+    if ( global_ready_queue->front != NULL ) {
+        struct pcb* pcb_test1 = pcb_find("sys_idle");
+        struct context* context_test1 = (struct context*)(((int)pcb_test1->process_ptr->stack_ptr)-sizeof(struct context) - sizeof(int));
+        pcb_test1->process_ptr->stack_ptr = context_test1;
+
+        /* set context for segment process */
+        context_test1->CS = 0x08;
+        context_test1->DS = 0x10;
+        context_test1->ES = 0x10;
+        context_test1->FS = 0x10;
+        context_test1->GS = 0x10;
+        context_test1->SS = 0x10;
+
+        // EPB set to bottom of stack
+        context_test1->EBP = (int)(pcb_test1->process_ptr->pcb_stack + PCB_STACK_SIZE - sizeof(struct context)) - sizeof(int);
+        
+        // ESP set to top of stack
+        context_test1->ESP = (int)(pcb_test1->process_ptr->pcb_stack + PCB_STACK_SIZE - sizeof(struct context)) - sizeof(int);
+        
+        // EIP point to function proc1
+        context_test1->EIP = (int)sys_idle_process;
+        
+        /* all other registers */
+        context_test1->EAX = 0;
+        context_test1->EBX = 0;
+        context_test1->ECX = 0;
+        context_test1->EDX = 0;
+        context_test1->ESI = 0;
+        context_test1->EDI = 0;
+
+        // set EFLAGS
+        context_test1->EFLAGS = 0x0202;
+    }
 }

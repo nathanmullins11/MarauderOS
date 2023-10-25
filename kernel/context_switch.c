@@ -49,6 +49,9 @@ struct context* sys_call(struct context* context_ptr)
                 pcb_insert(current_process);
             }
 
+            // set next_process to running state
+            //next_process->process_ptr->pcb_state = RUNNING;
+            
             // return pointer to stack, which contains context of process to be run next
             return (struct context*)next_process->process_ptr->stack_ptr;
         }

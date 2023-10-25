@@ -109,7 +109,8 @@ struct pcb* pcb_allocate(void)
     struct pcb* new_pcb = (struct pcb*)sys_alloc_mem(sizeof(struct pcb));
     new_pcb->process_ptr = (struct process*)sys_alloc_mem(sizeof(struct process));
     new_pcb->name_arr = (char*)sys_alloc_mem(16);
-    new_pcb->process_ptr->pcb_stack[0] = 0;
+    new_pcb->process_ptr->pcb_stack = (char*)sys_alloc_mem(PCB_STACK_SIZE);
+    //new_pcb->process_ptr->pcb_stack[0] = 0;
     new_pcb->process_ptr->stack_ptr = new_pcb->process_ptr->pcb_stack + PCB_STACK_SIZE - sizeof(struct context*);
 
     // error message
@@ -132,6 +133,12 @@ struct pcb* pcb_allocate(void)
 
     // check name
     if(new_pcb->name_arr == NULL)
+    {
+        sys_req(WRITE, COM1, err, strlen(err));
+        return NULL;
+    }
+
+    if(new_pcb->process_ptr->pcb_stack == NULL)
     {
         sys_req(WRITE, COM1, err, strlen(err));
         return NULL;
