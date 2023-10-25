@@ -2,6 +2,7 @@
 #include "mpx/io.h"
 #include "sys_req.h"
 #include <alarms.h>
+#include <ctype.h>
 #include <pcb.h>
 #include <context_switch.h>
 #include <comhand.h>
@@ -21,6 +22,12 @@ void alarm(char *formatted_time, char* message)
     if(isValidTimeFormat(formatted_time) != 1)
     {
         sys_req(WRITE, COM1, "ERR: Invalid time format | use 'help' command\n", 46);
+        return;
+    }
+
+    if(strcmp(message, "") == 0)
+    {
+        sys_req(WRITE, COM1, "ERR: Invalid alarm message\n", 28);
         return;
     }
 
