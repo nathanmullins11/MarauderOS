@@ -253,8 +253,6 @@ void alarm(char *formatted_time, char* message)
         print("ERR: Alarm process maximum of 5 reached. An alarm must dispatch before a new alarm can be created.\n");
         return;
     }
-
-    sys_req(IDLE);
 }
 
 void print_message(void)
