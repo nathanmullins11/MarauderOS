@@ -1,3 +1,4 @@
+#include "memory.h"
 #include "mpx/device.h"
 #include "sys_req.h"
 #include <shutdown.h>
@@ -10,7 +11,7 @@ void shutdown(void) {
     struct node* next_node = NULL;
 
     // goodbye message
-    char msg_bye[] = 
+    char *msg_bye = 
     "\t\x1b[34m   _____                 _ _                \n"
     "\t  / ____|               | | |               \n"
     "\t | |  __  ___   ___   __| | |__  _   _  ___ \n"
@@ -31,6 +32,7 @@ void shutdown(void) {
     }
 
     sys_req(WRITE, COM1, msg_bye, strlen(msg_bye));
+    sys_free_mem(msg_bye);
 
     /* Call sys_req(exit) */
     sys_req(EXIT);
