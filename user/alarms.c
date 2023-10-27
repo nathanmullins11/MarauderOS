@@ -21,7 +21,7 @@ void alarm(char *formatted_time, char* message)
 
     if(isValidTimeFormat(formatted_time) != 1)
     {
-        sys_req(WRITE, COM1, "ERR: Invalid time format | use 'help' command\n", 46);
+        sys_req(WRITE, COM1, "\x1b[31mERR: Invalid time format | use 'help' command\x1b[0m\n", 46);
         return;
     }
 
@@ -251,7 +251,7 @@ void alarm(char *formatted_time, char* message)
 
             alarm_processes[4] = alarm4_pcb; // add process to array
     } else {
-        print("ERR: Alarm process maximum of 5 reached. An alarm must dispatch before a new alarm can be created.\n");
+        print("\x1b[31mERR: Alarm process maximum of 5 reached. An alarm must dispatch before a new alarm can be created.\x1b[0m\n");
         return;
     }
 }
@@ -266,7 +266,7 @@ void print_message(void)
             int cur_alarm = check_running_process();
             if(cur_alarm == 6)
             {
-                print("ERR: Alarm could not be found\n");
+                print("\x1b[33mERR: Alarm could not be found\x1b[0m\n");
                 return;
             }
             // set message to print to global message
@@ -295,7 +295,7 @@ int check_time(void)
     int alarm_num = check_running_process();
     if(alarm_num == 6)
     {
-        print("ERR: Alarm could not be found\n");
+        print("\x1b[31mERR: Alarm could not be found\x1b[0m\n");
         return 0;
     }
 
