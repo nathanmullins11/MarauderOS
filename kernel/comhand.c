@@ -26,27 +26,27 @@ void comhand(void)
 
 	// secondary welcome message
 	char picture_msg[] =
-	"         __  __                                 _                ____    _____\n"
+	"\x1b[34m         __  __                                 _                ____    _____\n"
 	"	|  |/  |                               | |              / __ |  / ____|\n"
 	"	| |  / |  __ _  _ __   __ _  _   _   __| |  ___  _ __  | |  | || (___  \n"
 	"	| |||| | / _` || '__| / _` || | | | / _` | / _ ||  __| | |  | | |___ | \n"
 	"	| |  | || (_| || |   | (_| || |_| || (_| ||  __/| |    | |__| | ____) |\n"
 	"	|_|  |_| |__,_||_|    |__,_| |__,_| |_,_| |___| |_|     |____/ |_____/ \n"
     "                                                                   \n"
-    "                                                                   \n";
+    "                                                                   \x1b[0m\n";
 
 	sys_req(WRITE, COM1, picture_msg, sizeof(picture_msg));
 	sys_req(WRITE, COM1, msg, sizeof(msg));
 
 	// error messages
-	char error_msg_inc_param[] = "ERR: Invalid parameter | use `help` command\n";
-	char error_msg_no_param[] = "ERR: command needs parameter | run `help` command\n";
-	char error_msg_empty_param[] = "ERR: empty parameter | run `help` command\n";
-	char error_msg_inc_flag[] = "ERR: incorrect flag | run `help` command\n";
-	char error_msg_no_flag[] = "ERR: no flag provided | run `help` command\n";
-	char error_msg_missing_name[] = "ERR: missing PCB name | run `help` command\n";
-	char error_msg_missing_priority[] = "ERR: missing PCB priority | run `help` command\n";
-	char error_msg_unknown_suboption[] = "ERR: missing required flag for option | run `help` command\n";
+	char error_msg_inc_param[] = "\x1b[31mERR: Invalid parameter | use `help` command\x1b[0m\n";
+	char error_msg_no_param[] = "\x1b[31mERR: command needs parameter | run `help` command\x1b[0m\n";
+	char error_msg_empty_param[] = "\x1b[31mERR: empty parameter | run `help` command\x1b[0m\n";
+	char error_msg_inc_flag[] = "\x1b[31mERR: incorrect flag | run `help` command\x1b[0m\n";
+	char error_msg_no_flag[] = "\x1b[31mERR: no flag provided | run `help` command\x1b[0m\n";
+	char error_msg_missing_name[] = "\x1b[31mERR: missing PCB name | run `help` command\x1b[0m\n";
+	char error_msg_missing_priority[] = "\x1b[31mERR: missing PCB priority | run `help` command\x1b[0m\n";
+	char error_msg_unknown_suboption[] = "\x1b[31mERR: missing required flag for option | run `help` command\x1b[0m\n";
 			
 	// pointer to store command from user input
 	char *command;
@@ -106,7 +106,7 @@ void comhand(void)
 								// do nothing, return to normal operation
 							} else {
 								// invalid input
-								char error_msg[] = "ERR: Invalid input\n";
+								char error_msg[] = "\x1b[31mERR: Invalid input\x1b[0m\n";
 								sys_req(WRITE, COM1, error_msg, strlen(error_msg));
 							}
 						}
@@ -253,7 +253,7 @@ void comhand(void)
 							// Check if the parameter is a flag
 							if (strcmp(param, "-c") == 0) {
 								/* DEPRECATED IN R3 */
-								char *error_msg_dep = "ERR: Feature no longer supported\n";
+								char *error_msg_dep = "\x1b[31mERR: Feature no longer supported\x1b[0m\n";
 								sys_req(WRITE, COM1, error_msg_dep, strlen(error_msg_dep));
 							} else if (strcmp(param, "-p") == 0) {
 								name = strtok(NULL, " ");
@@ -382,7 +382,7 @@ void comhand(void)
 							int time_format_checker = 1;
 							if(isValidTimeFormat(time) != 1)
 							{
-								sys_req(WRITE, COM1, "ERR: Invalid time format | use 'help' command\n", 46);
+								sys_req(WRITE, COM1, "\x1b[31mERR: Invalid time format | use 'help' command\x1b[0m\n", 46);
 								time_format_checker = 0;
 							}
 
@@ -401,7 +401,7 @@ void comhand(void)
 								// check if the first character is a space or empty
 								// if not then parse message and pass into function
 								if (isspace((int)message[0]) == 1 || message[0] == '\0') {
-									char err_spaces[] = "ERR: Alarm name cannot be empty\n";
+									char err_spaces[] = "\x1b[31mERR: Alarm name cannot be empty\x1b[0m\n";
 									print(err_spaces);
 								} else {
 									// clear temp buffer
@@ -443,7 +443,7 @@ void comhand(void)
 				/* Error */
 				else {
 					// command not recognized
-					char error_msg_invalid_cmd[] = "ERR: Invalid Command\n";
+					char error_msg_invalid_cmd[] = "\x1b[31mERR: Invalid Command\x1b[0m\n";
 					sys_req(WRITE, COM1, error_msg_invalid_cmd, strlen(error_msg_invalid_cmd));
 				}
 			}
