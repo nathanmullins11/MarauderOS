@@ -1,3 +1,4 @@
+#include "memory.h"
 #include "mpx/device.h"
 #include "mpx/serial.h"
 #include <comhand.h>
@@ -25,7 +26,7 @@ void comhand(void)
 	char msg[] = "Welcome to MarauderOS | Use 'help' command to see list of commands\n";
 
 	// secondary welcome message
-	char picture_msg[] =
+	char* picture_msg =
 	"         __  __                                 _                ____    _____\n"
 	"	|  |/  |                               | |              / __ |  / ____|\n"
 	"	| |  / |  __ _  _ __   __ _  _   _   __| |  ___  _ __  | |  | || (___  \n"
@@ -35,8 +36,10 @@ void comhand(void)
     "                                                                   \n"
     "                                                                   \n";
 
-	sys_req(WRITE, COM1, picture_msg, sizeof(picture_msg));
+	sys_req(WRITE, COM1, picture_msg, strlen(picture_msg));
 	sys_req(WRITE, COM1, msg, sizeof(msg));
+
+	sys_free_mem(picture_msg);
 
 	// error messages
 	char error_msg_inc_param[] = "ERR: Invalid parameter | use `help` command\n";
@@ -438,6 +441,10 @@ void comhand(void)
 						print(error_msg_no_flag);
 					}
 					
+				}
+
+				else if (strcmp(command, "clear") == 0) {
+					print("\033[2J\033[1;1H");
 				}
 
 				/* Error */
