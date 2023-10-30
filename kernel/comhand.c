@@ -326,10 +326,16 @@ void comhand(void)
 							delete_pcb(name);
 						} else if (strcmp(param, "-b") == 0) {
 							// PCB block
-							block_pcb(name);
+							//block_pcb(name);
+							/* Deprecated in R6 */
+							char *error_msg_dep = "\x1b[31mERR: Feature no longer supported\x1b[0m\n";
+							sys_req(WRITE, COM1, error_msg_dep, strlen(error_msg_dep));
 						} else if (strcmp(param, "-u") == 0) {
 							// PCB unblock
-							unblock_pcb(name);
+							//unblock_pcb(name);
+							/* Deprecated in R6 */
+							char *error_msg_dep = "\x1b[31mERR: Feature no longer supported\x1b[0m\n";
+							sys_req(WRITE, COM1, error_msg_dep, strlen(error_msg_dep));
 						} else if (strcmp(param, "-s") == 0) {
 							// PCB suspend
 							suspend_pcb(name);
