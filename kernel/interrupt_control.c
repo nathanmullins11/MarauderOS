@@ -43,7 +43,7 @@ int serial_open(device dev, int speed) // return 1 for success, anything else fo
     // check if dev is valid, i.e. COM1, COM2, COM3, or COM4
     int dno = serial_devno(dev);
 	if (dno == -1) {
-		return -1;
+		return -101; // invalid event flag pointer ??
 	}
 
     int COM_state;
@@ -53,28 +53,28 @@ int serial_open(device dev, int speed) // return 1 for success, anything else fo
         COM_state = 0x24; // COM1 interrupt vector
         if(dcb_array[0] != NULL) // if dev is open
         {
-            return -1;
+            return -103;
         }
         COM_num = 0;
     } else if (dno == 1) {
         COM_state = 0x23; // COM2 interrupt vector
         if(dcb_array[1] != NULL) // if dev is open
         {
-            return -1;
+            return -103;
         }
         COM_num = 1;
     } else if (dno == 2) {
         COM_state = 0x24; // COM3 interrupt vector
         if(dcb_array[2] != NULL) // if dev is open
         {
-            return -1;
+            return -103;
         }
         COM_num = 2;
     } else {
         COM_state = 0x23; // COM4 interrupt vector
         if(dcb_array[3] != NULL) // if dev is open
         {
-            return -1;
+            return -103;
         }
         COM_num = 3;
     }
@@ -82,7 +82,7 @@ int serial_open(device dev, int speed) // return 1 for success, anything else fo
     // speed=baud_rate, check if valid: accepted rates are 110, 150, 300, 600, 1200, 2400, 4800, 9600, 19200
     if(speed != 110 && speed != 150 && speed != 300 && speed != 600 && speed != 1200 && speed != 2400 && speed != 4800 && speed != 9600 && speed != 19200)
     {
-        return -1;
+        return -102; // code for invalid baud rate divisor
         // else speed is valid
     }
 
