@@ -21,4 +21,5 @@ KERNEL_OBJECTS=\
 	kernel/core-c.o\
   kernel/comhand.o \
   kernel/pcb.o \
-  kernel/context_switch.o
+  kernel/context_switch.o \
+  kernel/serial_isr.o
