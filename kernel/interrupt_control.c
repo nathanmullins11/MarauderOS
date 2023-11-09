@@ -4,6 +4,7 @@
 #include <interrupt_control.h>
 #include <mpx/interrupts.h>
 #include <mpx/serial.h>
+#include <comhand.h>
 
 
 // global variables for DCB of dev
@@ -133,3 +134,35 @@ int serial_open(device dev, int speed) // return 1 for success, anything else fo
     return 1;
 }
 
+int serial_close(device dev) {
+
+    //Returns 1 for error, 0 for no error
+
+     // check if dev is valid, i.e. COM1, COM2, COM3, or COM4
+    int dno = serial_devno(dev);
+	if (dno == -1) {
+		return -1;
+    }
+
+    if (dcb_array[dno] == NULL) {
+        print("-201   serial port not open");
+        return 1;  
+    }else {
+        dcb_array[dno] = NULL;
+
+
+        // Disable appropriate PIC mask register???   Bit Value ????????
+    cli(); // Disable interrupts to prevent any issues during modification
+    int mask = inb(0x21); // Read current mask value
+    mask |= (1 << 7); // Enable hardware IRQ 8 (assuming it's represented by bit 7)
+    outb(0x21, mask); // Write modified mask value back to the PIC
+    sti(); // Enable interrupts again
+
+    // Disable all Interrupts in ACC
+    outb(dev + IER, 0x00);   // Clear Interrupt Enable Register
+    outb(dev + MSR, 0x00);   // Clear Modem Status Register
+
+        return 0;
+    }
+	
+}
