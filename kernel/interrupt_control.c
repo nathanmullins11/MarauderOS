@@ -5,6 +5,7 @@
 #include <mpx/interrupts.h>
 #include <mpx/serial.h>
 #include <comhand.h>
+#include <string.h>
 
 
 // global variables for DCB of dev
@@ -166,3 +167,122 @@ int serial_close(device dev) {
     }
 	
 }
+
+int serial_read(device dev, char *buf, size_t len)
+{
+    /* validate parameters */
+    int dno = serial_devno(dev); // check if dev is valid, i.e. COM1, COM2, COM3, or COM4
+	if (dno == -1) {
+		return -101; // invalid event flag pointer ??
+	}
+
+    // need to check buf and len too
+
+    /* #2 ensure port open and status=IDLE */
+    if(dcb_array[dno] == NULL) // check index of array associated with dev
+    {
+        // if NULL, then port is closed
+        return -301; // code for port not open
+    }
+
+    // set temp var for dcb
+    struct dcb* temp_dcb = dcb_array[dno];
+    if (temp_dcb->cur_op != IDLE) 
+    {
+        // if status of dcb is not idle
+        return -304; // device busy, i.e. not idle
+    }
+
+    /* #3 initialize input buf variables and set status to reading*/
+    temp_dcb->rw_buf_length = 0; // # of chars to be read
+    temp_dcb->rw_index = buf[0]; // set index to first # in buf array
+    temp_dcb->cur_op = READ; // set status to reading
+
+    /* #4 clear the callers flag event*/
+    temp_dcb->event_flag = 0; // clear event flag
+
+    /* #5 copy chars from ring bug to rw buf*/
+    cli(); // disable interrupts
+    for(size_t i = 0; i < sizeof(temp_dcb->ring_buf); i++)
+    {
+        // has requested count of chars been reached
+        if(i == len)
+        {
+            break;
+        }
+        // has an enter key been found
+        if(temp_dcb->ring_buf[i] == 13)
+        {
+            break;
+        }
+        // transfer char
+        buf[i] = temp_dcb->ring_buf[i];
+        // empty associated index
+        temp_dcb->ring_buf[i] = '\0';
+        // update variables associated with ring buf & buf
+        temp_dcb->ring_chars_transferred++;
+        temp_dcb->rw_buf_length++;
+        temp_dcb->rw_index++;
+    }
+    sti(); // re-enable interrupts
+
+    /* #6 If more characters are needed, return. If the block is complete, continue with step 7 */
+    if((size_t) temp_dcb->rw_buf_length < len)
+    {
+        return 0; // rw_buf_length = # of chars transfered, so if it less than len more chars are needed
+    }
+
+    /* #7 set dcb status to idle, set event flag, return actual count */
+    temp_dcb->cur_op = IDLE; // set status IDLE
+    temp_dcb->event_flag = 1; // set event flag
+    return temp_dcb->rw_buf_length;
+}
+
+int serial_write(device dev, char *buf, size_t len)
+{
+    /* validate parameters */
+    int dno = serial_devno(dev); // check if dev is valid, i.e. COM1, COM2, COM3, or COM4
+	if (dno == -1) {
+		return -101; // invalid event flag pointer ??
+	}
+
+    // need to check buf and len too
+
+    /* #2 ensure port open and status=IDLE */
+    if(dcb_array[dno] == NULL) // check index of array associated with dev
+    {
+        // if NULL, then port is closed
+        return -301; // code for port not open
+    }
+
+    // set temp var for dcb
+    struct dcb* temp_dcb = dcb_array[dno];
+    if (temp_dcb->cur_op != IDLE) 
+    {
+        // if status of dcb is not idle
+        return -304; // device busy, i.e. not idle
+    }
+
+    /* #3  Install the buffer pointer and counters in the DCB, and set the current status to writing.*/
+    temp_dcb->rw_index = 0; // Set index to 0 to start from the beginning of the buffer
+    temp_dcb->rw_buf_length = len; // Store the length of the buffer
+    memcpy(temp_dcb->rw_buf, buf, len); // Install the buffer pointer
+    temp_dcb->cur_op = WRITE; // Set the current operation to WRITE
+
+    /* #4 cleat the caller's event flag */
+    temp_dcb->event_flag = 0; // clear event flag
+
+    /* #5  Get the first character from the requestor’s buffer and store it in the output register */
+    outb(dev, temp_dcb->rw_buf[temp_dcb->rw_index]);
+    temp_dcb->rw_index++;
+
+    /* #6  Enable write interrupts by setting bit 1 of the Interrupt Enable register. This must be done by setting
+    // Retrieve the current value of the Interrupt Enable register */
+    int current_ier = inb(dev + IER);
+    // Set the bit 1 by logical OR with 0x02 and write back to the register
+    outb(dev + IER, current_ier | 0x02);
+
+    return 0;
+}
+
+
