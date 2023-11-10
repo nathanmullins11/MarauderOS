@@ -39,9 +39,40 @@ struct iocb {
     int buf_size;
 };
 
-
-// how to tell if device is open: - statically define DCB and put a port status enum in there or
-// - do not create a DCB until you open a device, so when checking, if there is a DCB already for the device (COM1) then it is open
-
+/**
+ * @brief 
+ * 
+ * @param dev 
+ * @param speed 
+ * @return int 
+ */
 int serial_open(device dev, int speed);
+
+/**
+ * @brief 
+ * 
+ * @param dev 
+ * @return int 
+ */
+int serial_close(device dev);
+
+/**
+ * @brief 
+ * 
+ * @param dev 
+ * @param buf 
+ * @param len 
+ * @return int 
+ */
+int serial_read(device dev, char *buf, size_t len);
+
+/**
+ * @brief 
+ * 
+ * @param dev 
+ * @param buf 
+ * @param len 
+ * @return int 
+ */
+int serial_write(device dev, char *buf, size_t len);
 

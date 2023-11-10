@@ -83,6 +83,12 @@ struct context* sys_call(struct context* context_ptr)
 
         // if ready not suspended queue is empty i.e last process running issues an exit requests and no processes are left in ready queue
         return global_context_ptr;
+    } else if (context_ptr->EAX == WRITE)
+    {
+
+    } else if (context_ptr->EAX == READ)
+    {
+
     }
     
     context_ptr->EAX = -1;
