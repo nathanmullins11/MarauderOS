@@ -103,7 +103,7 @@ int serial_open(device dev, int speed) // return 1 for success, anything else fo
     dev_dcb->rw_buf_length = 0;
     dev_dcb->rw_index = 0;
 
-    // place created dcb in appropriate
+    // place created dcb in appropriate index
     dcb_array[COM_num] = dev_dcb;
 
    // idt_install(COM_state, *serial_isr()(void*));
@@ -150,7 +150,7 @@ int serial_close(device dev) {
         return 1;  
     }else {
         dcb_array[dno] = NULL;
-
+    }
 
         // Disable appropriate PIC mask register???   Bit Value ????????
     cli(); // Disable interrupts to prevent any issues during modification
@@ -164,7 +164,6 @@ int serial_close(device dev) {
     outb(dev + MSR, 0x00);   // Clear Modem Status Register
 
         return 0;
-    }
 	
 }
 
