@@ -76,3 +76,16 @@ int serial_read(device dev, char *buf, size_t len);
  */
 int serial_write(device dev, char *buf, size_t len);
 
+/**
+ * @brief second level handler for the input interrupt 
+ * 
+ * @param dcb 
+ */
+void serial_input_interrupt(struct dcb *dcb);
+
+/**
+ * @brief second level handler for the output interrupt
+ * 
+ * @param dcb 
+ */
+void serial_output_interrupt(struct dcb *dcb);

@@ -6,6 +6,7 @@
 #include <mpx/serial.h>
 #include <comhand.h>
 #include <string.h>
+#include <mpx/device.h>
 
 // declare assembly function
 extern void serial_isr(void*);
@@ -144,7 +145,7 @@ int serial_close(device dev) {
      // check if dev is valid, i.e. COM1, COM2, COM3, or COM4
     int dno = serial_devno(dev);
 	if (dno == -1) {
-		return -1;
+		return 1;
     }
 
     if (dcb_array[dno] == NULL) {
@@ -307,3 +308,47 @@ int serial_write(device dev, char *buf, size_t len)
 }
 
 
+void serial_interrupt(void) {
+
+	cli();	//disable interrupts
+	if (dcb_array[0]->event_flag == 1) {
+        
+        // Read Interrupt ID
+       int interrupt_ID = inb(COM1 + IIR);
+
+        // Check bit 1 and 2 for correct interrupt transfer
+        if (interrupt_ID >> 1 == 0 && interrupt_ID >> 2 == 0) { // Modem Status Interrupt
+
+        } else if (interrupt_ID >> 1 == 0 && interrupt_ID >> 2 == 0) { // Output Interrupt
+
+         //   serial_output_interrupt(struct dcb *dcb);
+
+        } else if (interrupt_ID >> 1 == 0 && interrupt_ID >> 2 == 0) { // Input Interrupt
+
+          //  serial_input_interrupt(struct dcb *dcb);
+
+        } else if (interrupt_ID >> 1 == 0 && interrupt_ID >> 2 == 0) { // Line Status Interrupt
+
+        } 
+
+
+    } else if (dcb_array[1]->event_flag == 1) {
+        
+    } else if (dcb_array[2]->event_flag == 1) {
+        
+    } else if (dcb_array[3]->event_flag == 1) {
+        
+    } else {
+        return;
+    }
+
+}
+
+void serial_input_interrupt(struct dcb *dcb) {
+
+
+}
+
+void serial_output_interrupt(struct dcb *dcb) {
+    
+}
