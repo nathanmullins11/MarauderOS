@@ -344,11 +344,12 @@ void serial_interrupt(void) {
 
 }
 
-void serial_input_interrupt(struct dcb *dcb) {
-
-
+void serial_input_interrupt(struct dcb *dcb) 
+{
+    (void)dcb;
 }
 
-void serial_output_interrupt(struct dcb *dcb) {
-    
+void serial_output_interrupt(struct dcb *dcb) 
+{
+    (void)dcb;
 }
