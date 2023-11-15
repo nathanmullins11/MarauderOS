@@ -7,6 +7,8 @@
 #include <comhand.h>
 #include <string.h>
 
+// declare assembly function
+extern void serial_isr(void*);
 
 // global variables for DCB of dev
 struct dcb* dcb_array[4] = {NULL,NULL,NULL, NULL}; // COM1, COM2, COM3, COM4
@@ -106,7 +108,7 @@ int serial_open(device dev, int speed) // return 1 for success, anything else fo
     // place created dcb in appropriate index
     dcb_array[COM_num] = dev_dcb;
 
-   // idt_install(COM_state, *serial_isr()(void*));
+    idt_install(COM_state, serial_isr);
 
     // Compute the required baud rate - formula given
     int baud_rate_div = 115200 / (long) speed;
@@ -175,9 +177,19 @@ int serial_read(device dev, char *buf, size_t len)
 		return -101; // invalid event flag pointer ??
 	}
 
-    // need to check buf and len too
+    // check if buf address is NULL
+    if(buf == NULL)
+    {
+        return -302; // invalid buffer address
+    }
 
-    /* #2 ensure port open and status=IDLE */
+    // len must be > 0 
+    if(len < 0)
+    {
+        return -304; // invalid count address/ count value
+    }
+
+    /* #2 ensure port open and status = IDLE */
     if(dcb_array[dno] == NULL) // check index of array associated with dev
     {
         // if NULL, then port is closed
@@ -245,7 +257,17 @@ int serial_write(device dev, char *buf, size_t len)
 		return -101; // invalid event flag pointer ??
 	}
 
-    // need to check buf and len too
+    // check if buf address is NULL
+    if(buf == NULL)
+    {
+        return -302; // invalid buffer address
+    }
+
+    // len must be > 0 
+    if(len < 0)
+    {
+        return -304; // invalid count address/ count value
+    }
 
     /* #2 ensure port open and status=IDLE */
     if(dcb_array[dno] == NULL) // check index of array associated with dev
