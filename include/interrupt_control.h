@@ -23,7 +23,7 @@ struct dcb {
     int ring_chars_transferred; // # of chars already transferred
 
     struct queue* IOCBs; // pointer to head of queue storing IOCB
-    char rw_buf[20]; // buffer to hold chars being read or written
+    char *rw_buf; // buffer to hold chars being read or written
     int rw_buf_length; // length of rw buffer
     int rw_index; // current index in rw buffer
 
