@@ -6,6 +6,7 @@
 #include <time.h>
 #include <itoa.h>
 #include <doubly_linked_list.h>
+#include <mpx/interrupts.h>
 
 // initialize pointer to keep track of the current command in terminal
 struct Node* currentCommand = NULL;
@@ -459,3 +460,4 @@ int serial_poll(device dev, char *buffer, size_t len)
 	return index;
 
 }
+

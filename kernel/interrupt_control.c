@@ -6,7 +6,10 @@
 #include <mpx/serial.h>
 #include <comhand.h>
 #include <string.h>
+#include <mpx/device.h>
 
+// declare assembly function
+extern void serial_isr(void*);
 
 // global variables for DCB of dev
 struct dcb* dcb_array[4] = {NULL,NULL,NULL, NULL}; // COM1, COM2, COM3, COM4
@@ -103,10 +106,10 @@ int serial_open(device dev, int speed) // return 1 for success, anything else fo
     dev_dcb->rw_buf_length = 0;
     dev_dcb->rw_index = 0;
 
-    // place created dcb in appropriate
+    // place created dcb in appropriate index
     dcb_array[COM_num] = dev_dcb;
 
-   // idt_install(COM_state, *serial_isr()(void*));
+    idt_install(COM_state, serial_isr);
 
     // Compute the required baud rate - formula given
     int baud_rate_div = 115200 / (long) speed;
@@ -142,7 +145,7 @@ int serial_close(device dev) {
      // check if dev is valid, i.e. COM1, COM2, COM3, or COM4
     int dno = serial_devno(dev);
 	if (dno == -1) {
-		return -1;
+		return 1;
     }
 
     if (dcb_array[dno] == NULL) {
@@ -150,7 +153,7 @@ int serial_close(device dev) {
         return 1;  
     }else {
         dcb_array[dno] = NULL;
-
+    }
 
         // Disable appropriate PIC mask register???   Bit Value ????????
     cli(); // Disable interrupts to prevent any issues during modification
@@ -164,7 +167,6 @@ int serial_close(device dev) {
     outb(dev + MSR, 0x00);   // Clear Modem Status Register
 
         return 0;
-    }
 	
 }
 
@@ -176,9 +178,19 @@ int serial_read(device dev, char *buf, size_t len)
 		return -101; // invalid event flag pointer ??
 	}
 
-    // need to check buf and len too
+    // check if buf address is NULL
+    if(buf == NULL)
+    {
+        return -302; // invalid buffer address
+    }
 
-    /* #2 ensure port open and status=IDLE */
+    // len must be > 0 
+    if(len < 0)
+    {
+        return -304; // invalid count address/ count value
+    }
+
+    /* #2 ensure port open and status = IDLE */
     if(dcb_array[dno] == NULL) // check index of array associated with dev
     {
         // if NULL, then port is closed
@@ -246,7 +258,17 @@ int serial_write(device dev, char *buf, size_t len)
 		return -101; // invalid event flag pointer ??
 	}
 
-    // need to check buf and len too
+    // check if buf address is NULL
+    if(buf == NULL)
+    {
+        return -302; // invalid buffer address
+    }
+
+    // len must be > 0 
+    if(len < 0)
+    {
+        return -304; // invalid count address/ count value
+    }
 
     /* #2 ensure port open and status=IDLE */
     if(dcb_array[dno] == NULL) // check index of array associated with dev
@@ -285,6 +307,47 @@ int serial_write(device dev, char *buf, size_t len)
     return 0;
 }
 
+
+void serial_interrupt(void) {
+
+	cli();	//disable interrupts
+	if (dcb_array[0]->event_flag == 1) {
+        
+        // Read Interrupt ID
+       int interrupt_ID = inb(COM1 + IIR);
+
+        // Check bit 1 and 2 for correct interrupt transfer
+        if (interrupt_ID >> 1 == 0 && interrupt_ID >> 2 == 0) { // Modem Status Interrupt
+
+        } else if (interrupt_ID >> 1 == 0 && interrupt_ID >> 2 == 0) { // Output Interrupt
+
+         //   serial_output_interrupt(struct dcb *dcb);
+
+        } else if (interrupt_ID >> 1 == 0 && interrupt_ID >> 2 == 0) { // Input Interrupt
+
+          //  serial_input_interrupt(struct dcb *dcb);
+
+        } else if (interrupt_ID >> 1 == 0 && interrupt_ID >> 2 == 0) { // Line Status Interrupt
+
+        } 
+
+
+    } else if (dcb_array[1]->event_flag == 1) {
+        
+    } else if (dcb_array[2]->event_flag == 1) {
+        
+    } else if (dcb_array[3]->event_flag == 1) {
+        
+    } else {
+        return;
+    }
+
+}
+
+void serial_input_interrupt(struct dcb *dcb) 
+{
+    (void)dcb;
+}
 void serial_input_interrupt(struct dcb *dcb) {
     // read a character from the input register 
     char *in_char = dcb->rw_buf;
@@ -310,6 +373,7 @@ void serial_input_interrupt(struct dcb *dcb) {
     }
 }
 
-void serial_output_interrupt(struct dcb *dcb) {
-    (void)dcb;
+void serial_output_interrupt(struct dcb *dcb) 
+{
+    (void)dcb;(void)dcb;
 }
