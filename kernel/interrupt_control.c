@@ -344,10 +344,6 @@ void serial_interrupt(void) {
 
 }
 
-void serial_input_interrupt(struct dcb *dcb) 
-{
-    (void)dcb;
-}
 void serial_input_interrupt(struct dcb *dcb) {
     // read a character from the input register 
     char *in_char = dcb->rw_buf;
