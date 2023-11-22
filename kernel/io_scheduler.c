@@ -1,10 +1,9 @@
 #include <interrupt_control.h>
 #include "memory.h"
 #include "processes.h"
-#include <sys_req.h>
+// #include <sys_req.h>
 #include <context_switch.h>
 #include <string.h>
-#include <pcb.h>
 #include <comhand.h>
 
 int validate_io_request(struct context* context_ptr)
@@ -42,7 +41,8 @@ void io_scheduler(struct context* context_ptr)
     }
 
     int device_id = context_ptr->EBX;
-    struct dcb* device_dcb = &global_device_array[device_id];
+    (void)device_id;
+    struct dcb* device_dcb = NULL; //dcb_array[device_id];
     // must define global device array somewhere!?! 
     // 
 
@@ -53,10 +53,11 @@ void io_scheduler(struct context* context_ptr)
         device_dcb->allocation_status = 1; // set device to busy
 
         struct iocb* iocb = NULL;
-        iocb->IO_pcb = *global_current_process;
+       // iocb->IO_pcb = *global_current_process;
         iocb->IO_dcb = *device_dcb;
         iocb->IO_op = (context_ptr->EAX == READ) ? READ : WRITE;
 
     }
 
 }
+

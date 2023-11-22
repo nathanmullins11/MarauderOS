@@ -9,6 +9,15 @@
  #include <pcb.h>
  #include <sys_req.h>
 
+#ifndef INTERRUPT_CONTROL_H
+#define INTERRUPT_CONTROL_H
+
+extern struct dcb* dcb_array[4];
+
+// other declarations...
+
+#endif // INTERRUPT_CONTROL_H
+
 struct dcb {
     int device; // associated device with dcb
     int allocation_status; // is resource in use, i.e. is device COM1 busy (1) or not busy (0)
