@@ -39,6 +39,7 @@ struct iocb {
     op_code IO_op; // i.e. READ or WRITE
     char buf[100];
     int buf_size;
+   // struct iocb* next;
 };
 
 extern int serial_devno(device dev);
