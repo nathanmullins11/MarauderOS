@@ -117,9 +117,13 @@ struct context* sys_call(struct context* context_ptr)
         char* buffer = (char*)context_ptr->ECX;
         int buf_len = context_ptr->EDX;
         int array_position = serial_devno(dev_int);
-        (void)array_position;
+        struct dcb* temp_dcb = dcb_array[array_position];
+        if(temp_dcb == NULL)
+        {
+            return context_ptr;
+        }
         // check if device is busy
-        if(dcb_array[array_position] == NULL)
+        if(temp_dcb->allocation_status == 0)
         {
             // device not busy, call write driver function
             serial_write(dev_int, buffer, buf_len);
