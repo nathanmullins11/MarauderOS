@@ -4,19 +4,12 @@
  */
 
 // global variable for flag identifying if an event needs handled
- int global_event_flag;
+extern int global_event_flag;
 
  #include <pcb.h>
  #include <sys_req.h>
 
-#ifndef INTERRUPT_CONTROL_H
-#define INTERRUPT_CONTROL_H
-
 extern struct dcb* dcb_array[4];
-
-// other declarations...
-
-#endif // INTERRUPT_CONTROL_H
 
 struct dcb {
     int device; // associated device with dcb
@@ -47,6 +40,8 @@ struct iocb {
     char buf[100];
     int buf_size;
 };
+
+extern int serial_devno(device dev);
 
 /**
  * @brief 

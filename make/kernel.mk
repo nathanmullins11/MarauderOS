@@ -23,4 +23,5 @@ KERNEL_OBJECTS=\
   kernel/pcb.o \
   kernel/context_switch.o \
   kernel/serial_isr.o \
-  kernel/io_scheduler.o
+  kernel/io_scheduler.o \
+  kernel/interrupt_control.o

@@ -1,3 +1,4 @@
+#include "memory.h"
 #include "mpx/device.h"
 #include "mpx/io.h"
 #include "sys_req.h"
@@ -10,9 +11,6 @@
 
 // declare assembly function
 extern void serial_isr(void*);
-
-// global variables for DCB of dev
-struct dcb* dcb_array[4] = {NULL,NULL,NULL, NULL}; // COM1, COM2, COM3, COM4
 
 enum uart_registers {
 	RBR = 0,	// Receive Buffer
@@ -29,7 +27,7 @@ enum uart_registers {
 	SCR = 7,	// Scratch
 };
 
-static int serial_devno(device dev)
+int serial_devno(device dev)
 {
 	switch (dev) {
 	case COM1: return 0;
@@ -91,8 +89,11 @@ int serial_open(device dev, int speed) // return 1 for success, anything else fo
         // else speed is valid
     }
 
-    struct dcb* dev_dcb = NULL; // initialize dcb for device after checks have passed
-
+    struct dcb* dev_dcb = sys_alloc_mem(sizeof(struct dcb)); // initialize dcb for device after checks have passed
+    if (dev_dcb == NULL)
+    {
+        return 0; // error allcating mem for dcb
+    }
     // initialize DCB for dev
     dev_dcb->device = dno; // set device in use to corresponding COM
     dev_dcb->event_flag = 0; // set event flag to 0;

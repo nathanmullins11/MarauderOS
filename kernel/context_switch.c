@@ -1,11 +1,12 @@
 #include "memory.h"
+#include "mpx/device.h"
 #include "mpx/io.h"
 #include "processes.h"
 #include <sys_req.h>
-#include <context_switch.h>
 #include <string.h>
 #include <comhand.h>
 #include <interrupt_control.h>
+#include <io_scheduler.h>
 
 /* global PCB pointer for currently running process */
 struct pcb* global_current_process = NULL;
@@ -28,12 +29,20 @@ enum uart_registers {
 	SCR = 7,	// Scratch
 };
 
+// global variables for DCB of dev
+struct dcb* dcb_array[4] = {NULL,NULL,NULL, NULL}; // COM1, COM2, COM3, COM4
+
 struct context* sys_call(struct context* context_ptr)
 {
     // reset global current process to NULL when queue is empty
     if(global_ready_queue->front == NULL)
     {
         global_current_process = NULL;
+    }
+
+    if(dcb_array[0] == NULL)
+    {
+        serial_open(COM1, 600);
     }
 
     // if operation code is IDLE
@@ -99,56 +108,31 @@ struct context* sys_call(struct context* context_ptr)
 
         // if ready not suspended queue is empty i.e last process running issues an exit requests and no processes are left in ready queue
         return global_context_ptr;
-    } else if (context_ptr->EAX == WRITE)
+    }  else if (context_ptr->EAX == WRITE)
     {
-        // Ensure that the input parameters are valid
-        int dno = context_ptr->EBX;
-        char* buf = (char*)context_ptr->ECX;
-        size_t len = (size_t)context_ptr->EDX;
-
-        // Ensure that the port is currently open and idle
-        // if (dcb_array[dno] == NULL)
-        // {
-        //     return context_ptr; // Handle the error appropriately
-        // }
-
-        struct dcb* temp_dcb = NULL; //dcb_array[dno];
-
-        if (temp_dcb->cur_op != IDLE)
+        /* device is located in EBX as int, i.e. COM1 = 1016 = 0x3f8
+           buffer is in ECX, buffer size is in EDX */
+        // set variables for each
+        int dev_int = context_ptr->EBX;
+        char* buffer = (char*)context_ptr->ECX;
+        int buf_len = context_ptr->EDX;
+        int array_position = serial_devno(dev_int);
+        (void)array_position;
+        // check if device is busy
+        if(dcb_array[array_position] == NULL)
         {
-            return context_ptr; // Handle the error appropriately
+            // device not busy, call write driver function
+            serial_write(dev_int, buffer, buf_len);
+        } else {
+            // device is busy, request must be scheduled by I/O scheduler
+            io_scheduler(context_ptr);
         }
 
-        // Install the buffer pointer and counters in the DCB, and set the current status to writing
-        temp_dcb->rw_buf = buf;
-        temp_dcb->rw_buf_length = len;
-        temp_dcb->cur_op = WRITE;
-
-        // clear the caller's event flag
-        temp_dcb->event_flag = 0;
-
-        // Get the first character from the requestor's buffer and store it in the output register
-        outb(dno, temp_dcb->rw_buf[temp_dcb->rw_index]);
-        temp_dcb->rw_index++;
-
-        // Enable write interrupts by setting bit 1 of the Interrupt Enable register.
-        // This must be done by setting the register to the logical OR of its previous contents and 0x02.
-        outb(dno + IER, inb(dno + IER) | 0x02);
-
-        // Move the process to BLOCKED state and dispatch a new process as though the requested operation was IDLE
-        // Note: You need to implement the I/O scheduler for this part
-        // For simplicity, we'll just return the current process context for now
-        return context_ptr;
-
+        // return context_ptr;
     } else if (context_ptr->EAX == READ)
     {
-        // Similar logic as for WRITE operation
-        // ...
 
-        // Move the process to BLOCKED state and dispatch a new process as though the requested operation was IDLE
-        // Note: You need to implement the I/O scheduler for this part
-        // For simplicity, we'll just return the current process context for now
-        return context_ptr;
+        //return context_ptr;
     }
     
     context_ptr->EAX = -1;
