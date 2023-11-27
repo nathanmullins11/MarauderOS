@@ -1,3 +1,4 @@
+#include "memory.h"
 #include "mpx/device.h"
 #include "mpx/io.h"
 #include "sys_req.h"
@@ -10,9 +11,6 @@
 
 // declare assembly function
 extern void serial_isr(void*);
-
-// global variables for DCB of dev
-struct dcb* dcb_array[4] = {NULL,NULL,NULL, NULL}; // COM1, COM2, COM3, COM4
 
 enum uart_registers {
 	RBR = 0,	// Receive Buffer
@@ -29,7 +27,7 @@ enum uart_registers {
 	SCR = 7,	// Scratch
 };
 
-static int serial_devno(device dev)
+int serial_devno(device dev)
 {
 	switch (dev) {
 	case COM1: return 0;
@@ -91,8 +89,12 @@ int serial_open(device dev, int speed) // return 1 for success, anything else fo
         // else speed is valid
     }
 
-    struct dcb* dev_dcb = NULL; // initialize dcb for device after checks have passed
-
+    struct dcb* dev_dcb = sys_alloc_mem(sizeof(struct dcb)); // initialize dcb for device after checks have passed
+    dev_dcb->rw_buf = sys_alloc_mem(sizeof(dev_dcb->rw_buf));
+    if (dev_dcb == NULL)
+    {
+        return 0; // error allcating mem for dcb
+    }
     // initialize DCB for dev
     dev_dcb->device = dno; // set device in use to corresponding COM
     dev_dcb->event_flag = 0; // set event flag to 0;
@@ -278,26 +280,24 @@ int serial_write(device dev, char *buf, size_t len)
     }
 
     // set temp var for dcb
-    struct dcb* temp_dcb = dcb_array[dno];
+    struct dcb* temp_dcb = sys_alloc_mem(sizeof(struct dcb));
+    temp_dcb = dcb_array[dno];
     if (temp_dcb->cur_op != IDLE) 
     {
         // if status of dcb is not idle
         return -304; // device busy, i.e. not idle
     }
-
     /* #3  Install the buffer pointer and counters in the DCB, and set the current status to writing.*/
     temp_dcb->rw_index = 0; // Set index to 0 to start from the beginning of the buffer
     temp_dcb->rw_buf_length = len; // Store the length of the buffer
     memcpy(temp_dcb->rw_buf, buf, len); // Install the buffer pointer
     temp_dcb->cur_op = WRITE; // Set the current operation to WRITE
-
     /* #4 cleat the caller's event flag */
     temp_dcb->event_flag = 0; // clear event flag
-
     /* #5  Get the first character from the requestor’s buffer and store it in the output register */
     outb(dev, temp_dcb->rw_buf[temp_dcb->rw_index]);
     temp_dcb->rw_index++;
-
+    print("g");
     /* #6  Enable write interrupts by setting bit 1 of the Interrupt Enable register. This must be done by setting
     // Retrieve the current value of the Interrupt Enable register */
     int current_ier = inb(dev + IER);

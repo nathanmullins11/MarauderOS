@@ -4,7 +4,6 @@
 #include <sys_req.h>
 #include <context_switch.h>
 #include <string.h>
-#include <pcb.h>
 #include <comhand.h>
 
 int validate_io_request(struct context* context_ptr)
@@ -43,8 +42,11 @@ void io_scheduler(struct context* context_ptr)
     }
 
     int device_id = context_ptr->EBX;
-    struct dcb* device_dcb = &dcb_array[device_id];
-    
+    // device_id = hex value of one of the devices, need to convert to 0-3
+    int id_to_arr_pos = serial_devno(device_id);
+    struct dcb* device_dcb = dcb_array[id_to_arr_pos];
+    // must define global device array somewhere!?! 
+    // 
     // check if device is busy
     if (device_dcb->allocation_status == 0)
     {
@@ -70,6 +72,7 @@ void io_scheduler(struct context* context_ptr)
 
         // free memory associated with iocb
         sys_free_mem(iocb);
+
     }
     else // device is busy, must add to waiting queue
     {
@@ -86,3 +89,4 @@ void io_scheduler(struct context* context_ptr)
     }
     // go back to sys_call to dispatch next process
 }
+
