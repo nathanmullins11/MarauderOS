@@ -344,12 +344,65 @@ void serial_interrupt(void) {
 
 }
 
-void serial_input_interrupt(struct dcb *dcb) 
-{
-    (void)dcb;
+void serial_input_interrupt(struct dcb *dcb) {
+    // read a character from the input register 
+    char *in_char = dcb->rw_buf;
+
+    // check current status
+    if (dcb->cur_op != READ) {
+        // if the current status is not READ, store char in the ring buffer
+        // check if ring is full 
+        if ( (dcb->ring_tail - 1) == dcb->ring_head ) {
+            // if full, then discard character
+
+        } else {
+            // otherwise, put in ring buffer
+            dcb->ring_buf[dcb->ring_chars_transferred] = *in_char;
+            dcb->ring_buf_size = dcb->ring_chars_transferred + 1;
+        }
+
+        // return to first level handler, with no indication of complete
+        return;
+    } else {
+        // current status is READ, store in requestors input buffer
+        int dev = dcb->device;
+        dcb_array[dev]->rw_buf = in_char;
+    }
+
+    // check if count complete and character is not new line
+    if ((dcb->ring_chars_transferred == dcb->ring_buf_size) && (strcmp(in_char, "\n") != 0)) {
+        // return without indication of completion
+        return;
+    } else {
+        // transfer complete, set to IDLE and set event flag
+        dcb->cur_op = IDLE;
+        dcb->event_flag = 0;
+        return;
+    }
 }
 
-void serial_output_interrupt(struct dcb *dcb) 
-{
-    (void)dcb;
+void serial_output_interrupt(struct dcb *dcb) {
+    // check if status is not writing
+    if (dcb->cur_op != WRITE) {
+        // return with no indication of complete
+        return;
+    }
+
+    // check if count has not been exhausted
+    if (dcb->ring_chars_transferred != dcb->ring_buf_size) {
+        // get requestors char and store it in output register
+        int dev = dcb->device;
+        dcb->rw_buf = dcb_array[dev]->rw_buf;
+
+        return;
+    } else {
+        // otherwise all characters have been transfered
+        dcb->cur_op = IDLE;
+        dcb->event_flag = 0;
+
+        int dev = dcb->device;
+        outb(dev + IER, 0x00);
+
+        return;
+    }
 }
