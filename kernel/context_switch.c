@@ -1,10 +1,12 @@
 #include "memory.h"
+#include "mpx/device.h"
+#include "mpx/io.h"
 #include "processes.h"
 #include <sys_req.h>
-#include <context_switch.h>
 #include <string.h>
-#include <pcb.h>
 #include <comhand.h>
+#include <interrupt_control.h>
+#include <io_scheduler.h>
 
 /* global PCB pointer for currently running process */
 struct pcb* global_current_process = NULL;
@@ -12,12 +14,35 @@ struct pcb* global_current_process = NULL;
 /* global/static context pointer representing context from first time sys_call() is entered */
 struct context* global_context_ptr = NULL;
 
+enum uart_registers {
+	RBR = 0,	// Receive Buffer
+	THR = 0,	// Transmitter Holding
+	DLL = 0,	// Divisor Latch LSB
+	IER = 1,	// Interrupt Enable
+	DLM = 1,	// Divisor Latch MSB
+	IIR = 2,	// Interrupt Identification
+	FCR = 2,	// FIFO Control
+	LCR = 3,	// Line Control
+	MCR = 4,	// Modem Control
+	LSR = 5,	// Line Status
+	MSR = 6,	// Modem Status
+	SCR = 7,	// Scratch
+};
+
+// global variables for DCB of dev
+struct dcb* dcb_array[4] = {NULL,NULL,NULL, NULL}; // COM1, COM2, COM3, COM4
+
 struct context* sys_call(struct context* context_ptr)
 {
     // reset global current process to NULL when queue is empty
     if(global_ready_queue->front == NULL)
     {
         global_current_process = NULL;
+    }
+
+    if(dcb_array[0] == NULL)
+    {
+        serial_open(COM1, 600);
     }
 
     // if operation code is IDLE
@@ -83,12 +108,31 @@ struct context* sys_call(struct context* context_ptr)
 
         // if ready not suspended queue is empty i.e last process running issues an exit requests and no processes are left in ready queue
         return global_context_ptr;
-    } else if (context_ptr->EAX == WRITE)
+    }  else if (context_ptr->EAX == WRITE)
     {
+        /* device is located in EBX as int, i.e. COM1 = 1016 = 0x3f8
+           buffer is in ECX, buffer size is in EDX */
+        // set variables for each
+        int dev_int = context_ptr->EBX;
+        char* buffer = (char*)context_ptr->ECX;
+        int buf_len = context_ptr->EDX;
+        int array_position = serial_devno(dev_int);
+        (void)array_position;
+        // check if device is busy
+        if(dcb_array[array_position] == NULL)
+        {
+            // device not busy, call write driver function
+            serial_write(dev_int, buffer, buf_len);
+        } else {
+            // device is busy, request must be scheduled by I/O scheduler
+            io_scheduler(context_ptr);
+        }
 
+        // return context_ptr;
     } else if (context_ptr->EAX == READ)
     {
 
+        //return context_ptr;
     }
     
     context_ptr->EAX = -1;
