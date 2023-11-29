@@ -284,7 +284,7 @@ int serial_write(device dev, char *buf, size_t len)
     // set temp var for dcb
     struct dcb* temp_dcb = sys_alloc_mem(sizeof(struct dcb));
     temp_dcb = dcb_array[dno];
-    if (temp_dcb == NULL)  // CHECK THIS
+    if (temp_dcb->cur_op != IDLE)  // CHECK THIS
     {
         // if status of dcb is not idle
         return -304; // device busy, i.e. not idle
@@ -311,7 +311,7 @@ int serial_write(device dev, char *buf, size_t len)
 
 void serial_interrupt(void) {
 
-	cli();	//disable interrupts
+	//cli();	//disable interrupts
 	if (dcb_array[0]->event_flag == 1) {
         
         // Read Interrupt ID

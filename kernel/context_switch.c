@@ -43,12 +43,6 @@ struct context* sys_call(struct context* context_ptr)
     int dev_int = context_ptr->EBX;
     int array_position = serial_devno(dev_int);
 
-        // BE REMOVED LATER
-    if(dcb_array[array_position] == NULL)
-    {
-        serial_open(COM1, 600);
-    }
-
     char* buffer = (char*)context_ptr->ECX;
     int buf_len = context_ptr->EDX;
     struct dcb* temp_dcb = dcb_array[array_position];
@@ -196,7 +190,7 @@ struct context* sys_call(struct context* context_ptr)
         }
     }
     
-    context_ptr->EAX = -1;
+    //context_ptr->EAX = -1;
     return context_ptr;
 
 }
