@@ -135,7 +135,27 @@ struct context* sys_call(struct context* context_ptr)
         // return context_ptr;
     } else if (context_ptr->EAX == READ)
     {
-
+        /* device is located in EBX as int, i.e. COM1 = 1016 = 0x3f8
+           buffer is in ECX, buffer size is in EDX */
+        // set variables for each
+        int dev_int = context_ptr->EBX;
+        char* buffer = (char*)context_ptr->ECX;
+        int buf_len = context_ptr->EDX;
+        int array_position = serial_devno(dev_int);
+        struct dcb* temp_dcb = dcb_array[array_position];
+        if(temp_dcb == NULL)
+        {
+            return context_ptr;
+        }
+        // check if device is busy
+        if(temp_dcb->allocation_status == 0)
+        {
+            // device not busy, call write driver function
+            serial_read(dev_int, buffer, buf_len);
+        } else {
+            // device is busy, request must be scheduled by I/O scheduler
+            io_scheduler(context_ptr);
+        }
         //return context_ptr;
     }
     
