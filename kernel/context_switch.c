@@ -137,6 +137,54 @@ struct context* sys_call(struct context* context_ptr)
         {
             // device not busy, call write driver function
             serial_write(dev_int, buffer, buf_len);
+            // check size of rw buf length, == 1 get next pcb, > 1 - block cur pcb and get next pcb
+            if(temp_dcb->rw_buf_length == 1)
+            {
+                struct pcb* current_process = global_current_process;
+                // done, put back onto pcb queue
+                // remove first from queue and store in temp variable
+                struct pcb* next_process = global_ready_queue->front->pcb;
+                pcb_remove(next_process);
+                
+                // increment global current process
+                global_current_process = next_process;
+
+                // add the current PCB back to the ready queue
+                if(current_process != NULL)
+                {
+                    // update stack pointer
+                    current_process->process_ptr->stack_ptr = context_ptr;
+                    // insert the currently running process back into appropriate queue so next process can run
+                    pcb_insert(current_process);
+
+                    // return pointer to stack, which contains context of process to be run next
+                }
+
+                return (struct context*)next_process->process_ptr->stack_ptr;
+            }
+            if(temp_dcb->rw_buf_length > 1)
+            {
+                struct pcb* current_process = global_current_process;
+                current_process->process_ptr->pcb_state = BLOCKED_NOT_SUSPENDED;
+                // done, put back onto pcb queue
+                // remove first from queue and store in temp variable
+                struct pcb* next_process = global_ready_queue->front->pcb;
+                pcb_remove(next_process);
+                
+                // increment global current process
+                global_current_process = next_process;
+
+                // add the current PCB back to the ready queue
+                if(current_process != NULL)
+                {
+                    // update stack pointer
+                    current_process->process_ptr->stack_ptr = context_ptr;
+                    // insert the currently running process back into appropriate queue so next process can run
+                    pcb_insert(current_process);
+                }
+
+                return (struct context*)next_process->process_ptr->stack_ptr;
+            }
         } else {
             // put current process in blocked state
             global_current_process->process_ptr->pcb_state = BLOCKED_NOT_SUSPENDED;

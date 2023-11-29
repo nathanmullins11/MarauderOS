@@ -129,7 +129,8 @@ int serial_open(device dev, int speed) // return 1 for success, anything else fo
     // Enable appropriate PIC mask register???
     cli(); // Disable interrupts to prevent any issues during modification
     int mask = inb(0x21); // Read current mask value
-    mask &= ~(1 << 7); // Enable hardware IRQ 8 (assuming it's represented by bit 7)
+    mask &= ~(0x10);
+    //mask &= ~(1 << 7); // Enable hardware IRQ 8 (assuming it's represented by bit 7)
     outb(0x21, mask); // Write modified mask value back to the PIC
     sti(); // Enable interrupts again
 
@@ -282,13 +283,14 @@ int serial_write(device dev, char *buf, size_t len)
     }
 
     // set temp var for dcb
-    struct dcb* temp_dcb = sys_alloc_mem(sizeof(struct dcb));
-    temp_dcb = dcb_array[dno];
-    if (temp_dcb->cur_op != IDLE)  // CHECK THIS
-    {
-        // if status of dcb is not idle
-        return -304; // device busy, i.e. not idle
-    }
+    // struct dcb* temp_dcb = sys_alloc_mem(sizeof(struct dcb));
+    struct dcb* temp_dcb = dcb_array[dno];
+    // CHECK THIS
+    // if (temp_dcb->cur_op == IDLE)  // CHECK THIS
+    // {
+    //     // if status of dcb is not idle
+    //     return -304; // device busy, i.e. not idle
+    // }
     /* #3  Install the buffer pointer and counters in the DCB, and set the current status to writing.*/
     temp_dcb->rw_index = 0; // Set index to 0 to start from the beginning of the buffer
     temp_dcb->rw_buf_length = len; // Store the length of the buffer
@@ -299,50 +301,45 @@ int serial_write(device dev, char *buf, size_t len)
     /* #5  Get the first character from the requestor’s buffer and store it in the output register */
     outb(dev, temp_dcb->rw_buf[temp_dcb->rw_index]);
     temp_dcb->rw_index++;
+    // Set the bit 1 by logical OR with 0x02 and write back to the register
+    cli();
     /* #6  Enable write interrupts by setting bit 1 of the Interrupt Enable register. This must be done by setting
     // Retrieve the current value of the Interrupt Enable register */
     int current_ier = inb(dev + IER);
-    // Set the bit 1 by logical OR with 0x02 and write back to the register
     outb(dev + IER, current_ier | 0x02);
+    sti();
 
     return 0;
 }
 
 
 void serial_interrupt(void) {
-
 	//cli();	//disable interrupts
-	if (dcb_array[0]->event_flag == 1) {
-        
+	// if (dcb_array[0]->event_flag == 1) {
+    //outb(COM1, 'g');
         // Read Interrupt ID
-       int interrupt_ID = inb(COM1 + IIR);
-
+       int interrupt_ID = inb(COM1 + IIR) & 7; 
+       if((interrupt_ID & 1) != 0)
+       {
+            return;
+       }
         // Check bit 1 and 2 for correct interrupt transfer
         if (interrupt_ID >> 1 == 0 && interrupt_ID >> 2 == 0) { // Modem Status Interrupt
-
-        } else if (interrupt_ID >> 1 == 0 && interrupt_ID >> 2 == 0) { // Output Interrupt
-
+            inb(COM1+MSR);
+        } else if (((interrupt_ID >> 1) == 1) && ((interrupt_ID >> 2) == 0)) { // Output Interrupt
+            
          serial_output_interrupt(dcb_array[0]);
 
-        } else if (interrupt_ID >> 1 == 0 && interrupt_ID >> 2 == 0) { // Input Interrupt
+        } else if (interrupt_ID >> 1 == 0 && interrupt_ID >> 2 == 1) { // Input Interrupt
 
           serial_input_interrupt(dcb_array[0]);
 
-        } else if (interrupt_ID >> 1 == 0 && interrupt_ID >> 2 == 0) { // Line Status Interrupt
-
+        } else if (interrupt_ID >> 1 == 1 && interrupt_ID >> 2 == 1) { // Line Status Interrupt
+             inb(COM1+LSR);
         } 
+    // }
 
-
-    } else if (dcb_array[1]->event_flag == 1) {
-        
-    } else if (dcb_array[2]->event_flag == 1) {
-        
-    } else if (dcb_array[3]->event_flag == 1) {
-        
-    } else {
-        return;
-    }
-
+    outb(0x20,0x20); // clear
 }
 
 void serial_input_interrupt(struct dcb *dcb) {
