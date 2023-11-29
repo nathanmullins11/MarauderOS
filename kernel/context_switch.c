@@ -40,9 +40,30 @@ struct context* sys_call(struct context* context_ptr)
         global_current_process = NULL;
     }
 
-    if(dcb_array[0] == NULL)
+    int dev_int = context_ptr->EBX;
+    int array_position = serial_devno(dev_int);
+
+        // BE REMOVED LATER
+    if(dcb_array[array_position] == NULL)
     {
         serial_open(COM1, 600);
+    }
+
+    char* buffer = (char*)context_ptr->ECX;
+    int buf_len = context_ptr->EDX;
+    struct dcb* temp_dcb = dcb_array[array_position];
+
+    // check for event flags
+    if(temp_dcb != NULL && temp_dcb->event_flag == 1)
+    { 
+        // remove finished io process from blocked queue, change state to ready, and place back in ready queue
+        if(temp_dcb->IOCBs->front != NULL)
+        {
+            struct pcb* finished_pcb = &temp_dcb->IOCBs->front->iocb->IO_pcb;
+            finished_pcb->process_ptr->pcb_state = READY_NOT_SUSPENDED;
+            pcb_remove(finished_pcb);
+            pcb_insert(&temp_dcb->IOCBs->front->iocb->IO_pcb);
+        }
     }
 
     // if operation code is IDLE
@@ -113,11 +134,6 @@ struct context* sys_call(struct context* context_ptr)
         /* device is located in EBX as int, i.e. COM1 = 1016 = 0x3f8
            buffer is in ECX, buffer size is in EDX */
         // set variables for each
-        int dev_int = context_ptr->EBX;
-        char* buffer = (char*)context_ptr->ECX;
-        int buf_len = context_ptr->EDX;
-        int array_position = serial_devno(dev_int);
-        struct dcb* temp_dcb = dcb_array[array_position];
         if(temp_dcb == NULL)
         {
             return context_ptr;
@@ -128,8 +144,22 @@ struct context* sys_call(struct context* context_ptr)
             // device not busy, call write driver function
             serial_write(dev_int, buffer, buf_len);
         } else {
+            // put current process in blocked state
+            global_current_process->process_ptr->pcb_state = BLOCKED_NOT_SUSPENDED;
+            pcb_insert(global_current_process);
+
+            // remove first from queue and store in temp variable
+            struct pcb* temp_pcb = global_ready_queue->front->pcb;
+            pcb_remove(temp_pcb);
+
+            // save context of current PCB by updating stack pointer
+            global_current_process = temp_pcb;
+
             // device is busy, request must be scheduled by I/O scheduler
             io_scheduler(context_ptr);
+
+            // return pointer to stack, which contains context of process to be run next
+            return (struct context*)temp_pcb->process_ptr->stack_ptr;
         }
 
         // return context_ptr;
@@ -138,11 +168,6 @@ struct context* sys_call(struct context* context_ptr)
         /* device is located in EBX as int, i.e. COM1 = 1016 = 0x3f8
            buffer is in ECX, buffer size is in EDX */
         // set variables for each
-        int dev_int = context_ptr->EBX;
-        char* buffer = (char*)context_ptr->ECX;
-        int buf_len = context_ptr->EDX;
-        int array_position = serial_devno(dev_int);
-        struct dcb* temp_dcb = dcb_array[array_position];
         if(temp_dcb == NULL)
         {
             return context_ptr;
@@ -153,8 +178,23 @@ struct context* sys_call(struct context* context_ptr)
             // device not busy, call write driver function
             serial_read(dev_int, buffer, buf_len);
         } else {
+            // put current process in blocked state
+            global_current_process->process_ptr->pcb_state = BLOCKED_NOT_SUSPENDED;
+            // move current process to appropriate queue
+            pcb_insert(global_current_process);
+
+            // remove first from queue and store in temp variable
+            struct pcb* temp_pcb = global_ready_queue->front->pcb;
+            pcb_remove(temp_pcb);
+
+            // save context of current PCB by updating stack pointer
+            global_current_process = temp_pcb;
+
             // device is busy, request must be scheduled by I/O scheduler
             io_scheduler(context_ptr);
+
+            // return pointer to stack, which contains context of process to be run next
+            return (struct context*)temp_pcb->process_ptr->stack_ptr;
         }
         //return context_ptr;
     }

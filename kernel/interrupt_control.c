@@ -91,6 +91,8 @@ int serial_open(device dev, int speed) // return 1 for success, anything else fo
 
     struct dcb* dev_dcb = sys_alloc_mem(sizeof(struct dcb)); // initialize dcb for device after checks have passed
     dev_dcb->rw_buf = sys_alloc_mem(sizeof(dev_dcb->rw_buf));
+    dev_dcb->IOCBs = create_iocb_queue();
+    // dev_dcb->IOCBs = sys_alloc_mem(sizeof(struct queue));
     if (dev_dcb == NULL)
     {
         return 0; // error allcating mem for dcb
@@ -297,7 +299,6 @@ int serial_write(device dev, char *buf, size_t len)
     /* #5  Get the first character from the requestor’s buffer and store it in the output register */
     outb(dev, temp_dcb->rw_buf[temp_dcb->rw_index]);
     temp_dcb->rw_index++;
-    print("g");
     /* #6  Enable write interrupts by setting bit 1 of the Interrupt Enable register. This must be done by setting
     // Retrieve the current value of the Interrupt Enable register */
     int current_ier = inb(dev + IER);
@@ -406,3 +407,24 @@ void serial_output_interrupt(struct dcb *dcb) {
         return;
     }
 }
+
+struct iocb_queue* create_iocb_queue(void)
+{
+        // Allocate memory for the queue structure
+    struct iocb_queue* new_queue = (struct iocb_queue*)sys_alloc_mem(sizeof(struct iocb_queue));
+
+    // Initialize the front and rear pointers to NULL since the queue is empty
+    if (new_queue != NULL) {
+        new_queue->front = (struct iocb_node*)sys_alloc_mem(sizeof(struct iocb_node));
+        new_queue->rear = new_queue->front;
+        if (new_queue->front != NULL) {
+            new_queue->front->next = NULL;
+            new_queue->front->prev = NULL;
+            new_queue->front->iocb = NULL;   
+        }
+    }
+    
+    return new_queue; // Return the pointer to the new queue
+}
+
+
