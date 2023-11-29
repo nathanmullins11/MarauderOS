@@ -1,10 +1,10 @@
 bits 32
 global serial_isr
 
-extern serial_init
+extern serial_interrupt
 
 serial_isr:
     cli
-    call serial_init
+    call serial_interrupt
     sti
     iret
