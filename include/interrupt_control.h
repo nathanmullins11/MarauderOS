@@ -24,7 +24,7 @@ struct dcb {
     int ring_buf_size; // # of requested chars or buffer size
     int ring_chars_transferred; // # of chars already transferred
 
-    struct queue* IOCBs; // pointer to head of queue storing IOCB
+    struct iocb_queue* IOCBs; // pointer to head of queue storing IOCB
     char *rw_buf; // pointer buffer to hold chars being read or written
     int rw_buf_length; // length of rw buffer
     int rw_index; // current index in rw buffer
@@ -41,6 +41,19 @@ struct iocb {
     int buf_size;
    // struct iocb* next;
 };
+
+struct iocb_queue {
+    struct iocb_node* front;
+    struct iocb_node* rear;
+};
+
+struct iocb_node {
+  struct node* next;
+  struct node* prev;
+  struct iocb* iocb;
+};
+
+struct iocb_queue* create_iocb_queue(void);
 
 extern int serial_devno(device dev);
 

@@ -54,11 +54,11 @@ void io_scheduler(struct context* context_ptr)
         device_dcb->allocation_status = 1; // set device to busy
 
         struct iocb* iocb = sys_alloc_mem(sizeof(struct iocb));
-      //  iocb->IO_pcb = *global_current_process;
-        iocb->IO_dcb = *device_dcb;
-        iocb->IO_op = (context_ptr->EAX == READ) ? READ : WRITE;
-        memcpy(iocb->buf, (char*)context_ptr->ECX, context_ptr->EDX);
-        iocb->buf_size = context_ptr->EDX;
+        // iocb->IO_pcb = *pcb_find(global_current_process->name_arr);
+        // iocb->IO_dcb = *device_dcb;
+        // iocb->IO_op = (context_ptr->EAX == READ) ? READ : WRITE;
+        // memcpy(iocb->buf, (char*)context_ptr->ECX, context_ptr->EDX);
+        // iocb->buf_size = context_ptr->EDX;
         
         // call appropriate driver procedure
         if (context_ptr->EAX == READ)
@@ -77,6 +77,7 @@ void io_scheduler(struct context* context_ptr)
     else // device is busy, must add to waiting queue
     {
         struct iocb* iocb = sys_alloc_mem(sizeof(struct iocb));
+        device_dcb->IOCBs->front->iocb = iocb;
        // iocb->IO_pcb = *global_current_process;
         iocb->IO_dcb = *device_dcb;
         iocb->IO_op = (context_ptr->EAX == READ) ? READ : WRITE;
@@ -84,8 +85,7 @@ void io_scheduler(struct context* context_ptr)
         iocb->buf_size = context_ptr->EDX;
 
         // enqueue
-        // iocb->next = global_ready_queue;
-        // global_ready_queue = iocb;
+        
     }
     // go back to sys_call to dispatch next process
 }

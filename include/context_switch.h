@@ -34,3 +34,5 @@ struct context* sys_call(struct context* context_ptr);
 
 extern struct context* global_context_ptr;
 
+extern struct pcb* global_current_process;
+
