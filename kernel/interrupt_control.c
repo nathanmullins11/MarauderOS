@@ -8,6 +8,7 @@
 #include <comhand.h>
 #include <string.h>
 #include <mpx/device.h>
+#include <context_switch.h>
 
 // declare assembly function
 extern void serial_isr(void*);
@@ -89,10 +90,10 @@ int serial_open(device dev, int speed) // return 1 for success, anything else fo
         // else speed is valid
     }
 
-    struct dcb* dev_dcb = sys_alloc_mem(sizeof(struct dcb)); // initialize dcb for device after checks have passed
-    dev_dcb->rw_buf = sys_alloc_mem(sizeof(dev_dcb->rw_buf));
-    dev_dcb->IOCBs = create_iocb_queue();
-    // dev_dcb->IOCBs = sys_alloc_mem(sizeof(struct queue));
+    struct dcb* dev_dcb = (struct dcb*)sys_alloc_mem(sizeof(struct dcb)); // initialize dcb for device after checks have passed
+    dev_dcb->rw_buf = (char*)sys_alloc_mem(100);
+    struct iocb_queue* temp_q = create_iocb_queue();
+    dev_dcb->IOCBs = temp_q;
     if (dev_dcb == NULL)
     {
         return 0; // error allcating mem for dcb
@@ -106,12 +107,12 @@ int serial_open(device dev, int speed) // return 1 for success, anything else fo
     dev_dcb->ring_head = 0;
     dev_dcb->ring_tail = 0;
     dev_dcb->ring_buf_size = sizeof(dev_dcb->ring_buf);
-    dev_dcb->IOCBs = NULL;
+    // dev_dcb->IOCBs = NULL;
     dev_dcb->rw_buf_length = 0;
     dev_dcb->rw_index = 0;
 
     // place created dcb in appropriate index
-    dcb_array[COM_num] = dev_dcb;
+    dcb_array[COM_num] = dev_dcb; 
 
     idt_install(COM_state, serial_isr);
 
@@ -160,7 +161,7 @@ int serial_close(device dev) {
         dcb_array[dno] = NULL;
     }
 
-        // Disable appropriate PIC mask register???   Bit Value ????????
+    // Disable appropriate PIC mask register???   Bit Value ????????
     cli(); // Disable interrupts to prevent any issues during modification
     int mask = inb(0x21); // Read current mask value
     mask |= (1 << 7); // Enable hardware IRQ 8 (assuming it's represented by bit 7)
@@ -171,7 +172,7 @@ int serial_close(device dev) {
     outb(dev + IER, 0x00);   // Clear Interrupt Enable Register
     outb(dev + MSR, 0x00);   // Clear Modem Status Register
 
-        return 0;
+    return 0;
 	
 }
 
@@ -297,10 +298,13 @@ int serial_write(device dev, char *buf, size_t len)
     memcpy(temp_dcb->rw_buf, buf, len); // Install the buffer pointer
     temp_dcb->cur_op = WRITE; // Set the current operation to WRITE
     /* #4 cleat the caller's event flag */
+
     temp_dcb->event_flag = 0; // clear event flag
+
     /* #5  Get the first character from the requestor’s buffer and store it in the output register */
     outb(dev, temp_dcb->rw_buf[temp_dcb->rw_index]);
     temp_dcb->rw_index++;
+
     // Set the bit 1 by logical OR with 0x02 and write back to the register
     cli();
     /* #6  Enable write interrupts by setting bit 1 of the Interrupt Enable register. This must be done by setting
@@ -314,21 +318,18 @@ int serial_write(device dev, char *buf, size_t len)
 
 
 void serial_interrupt(void) {
-	//cli();	//disable interrupts
-	// if (dcb_array[0]->event_flag == 1) {
-    //outb(COM1, 'g');
-        // Read Interrupt ID
-       int interrupt_ID = inb(COM1 + IIR) & 7; 
-       if((interrupt_ID & 1) != 0)
-       {
-            return;
-       }
-        // Check bit 1 and 2 for correct interrupt transfer
-        if (interrupt_ID >> 1 == 0 && interrupt_ID >> 2 == 0) { // Modem Status Interrupt
+    // Read Interrupt ID
+    int interrupt_ID = inb(COM1 + IIR) & 7; 
+   if((interrupt_ID & 1) != 0)
+    {
+        return;
+    }
+    // Check bit 1 and 2 for correct interrupt transfer
+    if (interrupt_ID >> 1 == 0 && interrupt_ID >> 2 == 0) { // Modem Status Interrupt
             inb(COM1+MSR);
-        } else if (((interrupt_ID >> 1) == 1) && ((interrupt_ID >> 2) == 0)) { // Output Interrupt
+    } else if (((interrupt_ID >> 1) == 1) && ((interrupt_ID >> 2) == 0)) { // Output Interrupt
             
-         serial_output_interrupt(dcb_array[0]);
+        serial_output_interrupt(dcb_array[0]);
 
         } else if (interrupt_ID >> 1 == 0 && interrupt_ID >> 2 == 1) { // Input Interrupt
 
@@ -337,7 +338,6 @@ void serial_interrupt(void) {
         } else if (interrupt_ID >> 1 == 1 && interrupt_ID >> 2 == 1) { // Line Status Interrupt
              inb(COM1+LSR);
         } 
-    // }
 
     outb(0x20,0x20); // clear
 }
@@ -387,41 +387,58 @@ void serial_output_interrupt(struct dcb *dcb) {
     }
 
     // check if count has not been exhausted
-    if (dcb->ring_chars_transferred != dcb->ring_buf_size) {
+    if (dcb->rw_index < dcb->rw_buf_length) {
         // get requestors char and store it in output register
         int dev = dcb->device;
         dcb->rw_buf = dcb_array[dev]->rw_buf;
+        outb(COM1, dcb->rw_buf[dcb->rw_index]);
+        dcb->rw_index++;
+
 
         return;
     } else {
         // otherwise all characters have been transfered
         dcb->cur_op = IDLE;
-        dcb->event_flag = 0;
+        dcb->event_flag = 1;
 
         int dev = dcb->device;
         outb(dev + IER, 0x00);
+
+        // move current process back to ready queue so paused process can go directly back into execution
+        pcb_insert(global_current_process);
 
         return;
     }
 }
 
-struct iocb_queue* create_iocb_queue(void)
-{
-        // Allocate memory for the queue structure
+struct iocb_queue* create_iocb_queue(void) {
+    // Allocate memory for the queue structure
     struct iocb_queue* new_queue = (struct iocb_queue*)sys_alloc_mem(sizeof(struct iocb_queue));
 
     // Initialize the front and rear pointers to NULL since the queue is empty
     if (new_queue != NULL) {
-        new_queue->front = (struct iocb_node*)sys_alloc_mem(sizeof(struct iocb_node));
-        new_queue->rear = new_queue->front;
-        if (new_queue->front != NULL) {
-            new_queue->front->next = NULL;
-            new_queue->front->prev = NULL;
-            new_queue->front->iocb = NULL;   
-        }
+        new_queue->front = NULL;
+        new_queue->rear = NULL;
     }
-    
+
     return new_queue; // Return the pointer to the new queue
+}
+
+
+struct iocb_node* create_iocb_node(struct iocb* iocb) 
+{
+    struct iocb_node* new_node = (struct iocb_node*)sys_alloc_mem(sizeof(struct iocb_node));
+
+    if (new_node == NULL) {
+        // Handle memory allocation failure
+        return NULL;
+    }
+
+    new_node->iocb = iocb;
+    new_node->next = NULL;
+    new_node->prev = NULL;
+
+    return new_node;
 }
 
 

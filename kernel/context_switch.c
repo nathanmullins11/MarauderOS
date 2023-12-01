@@ -47,16 +47,25 @@ struct context* sys_call(struct context* context_ptr)
     int buf_len = context_ptr->EDX;
     struct dcb* temp_dcb = dcb_array[array_position];
 
+    // check all dcbs for io completion status if so unblock pcb and either put back in ready queue or execute process
     // check for event flags
     if(temp_dcb != NULL && temp_dcb->event_flag == 1)
     { 
         // remove finished io process from blocked queue, change state to ready, and place back in ready queue
         if(temp_dcb->IOCBs->front != NULL)
         {
-            struct pcb* finished_pcb = &temp_dcb->IOCBs->front->iocb->IO_pcb;
-            finished_pcb->process_ptr->pcb_state = READY_NOT_SUSPENDED;
+            struct pcb* finished_pcb = temp_dcb->pcb_ptr;
+            // remove paused process from blocked queue
             pcb_remove(finished_pcb);
-            pcb_insert(&temp_dcb->IOCBs->front->iocb->IO_pcb);
+            finished_pcb->process_ptr->pcb_state = READY_NOT_SUSPENDED;
+
+            // set event flag low to signal io completion has been handled
+            temp_dcb->event_flag = 0;
+
+            // place paused process back into execution
+            global_current_process = finished_pcb;
+            return (struct context*) global_current_process->process_ptr->stack_ptr;
+            //pcb_insert(finished_pcb);
         }
     }
 
@@ -125,88 +134,94 @@ struct context* sys_call(struct context* context_ptr)
         return global_context_ptr;
     }  else if (context_ptr->EAX == WRITE)
     {
-        /* device is located in EBX as int, i.e. COM1 = 1016 = 0x3f8
-           buffer is in ECX, buffer size is in EDX */
+        // save context_ptr into current pcb - stack top
+        global_current_process->process_ptr->stack_ptr = context_ptr;
+        // set status of PCB to blocked 
+        global_current_process->process_ptr->pcb_state = BLOCKED_NOT_SUSPENDED;
+        // place current pcb into blocked queue
+        pcb_insert(global_current_process);
+        /* device is located in EBX as int, i.e. COM1 = 1016 = 0x3f8, buffer is in ECX, buffer size is in EDX */
         // set variables for each
         if(temp_dcb == NULL)
         {
             return context_ptr;
         }
+
+        // call io scheduler
+        io_scheduler(context_ptr);
+
+        // return blocked process context
+
+
         // check if device is busy
-        if(temp_dcb->allocation_status == 0)
-        {
+        // if(temp_dcb->allocation_status == 0)
+        // {
             // device not busy, call write driver function
-            serial_write(dev_int, buffer, buf_len);
-            // check size of rw buf length, == 1 get next pcb, > 1 - block cur pcb and get next pcb
-            if(temp_dcb->rw_buf_length == 1)
-            {
-                struct pcb* current_process = global_current_process;
-                // done, put back onto pcb queue
-                // remove first from queue and store in temp variable
-                struct pcb* next_process = global_ready_queue->front->pcb;
-                pcb_remove(next_process);
-                
-                // increment global current process
-                global_current_process = next_process;
+         //   io_scheduler(context_ptr);
+            // check for i/o completion
+            // if(temp_dcb != NULL && temp_dcb->event_flag == 1)
+            // { 
+            //     // remove finished io process from blocked queue, change state to ready, and place back in ready queue
+            //     if(temp_dcb->pcb_ptr != NULL)
+            //     {
+            //         // get pcb from dcb
+            //         struct pcb* finished_pcb = temp_dcb->pcb_ptr;
+            //         // remove from blocked queue
+            //         pcb_remove(finished_pcb);
+            //         // set status to ready
+            //         finished_pcb->process_ptr->pcb_state = READY_NOT_SUSPENDED;
+            //         // insert back into appropriate queue
+            //         pcb_insert(finished_pcb);
+            //     }
+            // }
+            // // if dcb is done writing characters
+            // if(temp_dcb->rw_index == temp_dcb->rw_buf_length)
+            // {
+            //     struct pcb* current_process = global_current_process;
+            //     if(global_ready_queue->front != NULL)
+            //     {
+            //         // get next process to execute
+            //         struct pcb* next_process = global_ready_queue->front->pcb;
+            //         pcb_remove(next_process);
+                    
+            //         // increment global current process
+            //         global_current_process = next_process;
+            //     } else {
+            //         return global_context_ptr;
+            //     }
 
-                // add the current PCB back to the ready queue
-                if(current_process != NULL)
-                {
-                    // update stack pointer
-                    current_process->process_ptr->stack_ptr = context_ptr;
-                    // insert the currently running process back into appropriate queue so next process can run
-                    pcb_insert(current_process);
+            //     // add the current PCB back to the ready queue
+            //     if(current_process != NULL)
+            //     {
+            //         // update stack pointer
+            //         current_process->process_ptr->stack_ptr = context_ptr;
+            //         // insert the currently running process back into appropriate queue so next process can run
+            //         pcb_insert(current_process);
+            //     }
+            //     struct pcb* next_process = global_current_process;
+            //     return (struct context*)next_process->process_ptr->stack_ptr;
+            // }
+        // } else {
+        //     // put current process in blocked state
+        //     global_current_process->process_ptr->pcb_state = BLOCKED_NOT_SUSPENDED;
+        //     pcb_insert(global_current_process);
 
-                    // return pointer to stack, which contains context of process to be run next
-                }
+        //     // remove first from queue and store in temp variable
+        //     struct pcb* temp_pcb = global_ready_queue->front->pcb;
+        //     pcb_remove(temp_pcb);
 
-                return (struct context*)next_process->process_ptr->stack_ptr;
-            }
-            if(temp_dcb->rw_buf_length > 1)
-            {
-                struct pcb* current_process = global_current_process;
-                current_process->process_ptr->pcb_state = BLOCKED_NOT_SUSPENDED;
-                // done, put back onto pcb queue
-                // remove first from queue and store in temp variable
-                struct pcb* next_process = global_ready_queue->front->pcb;
-                pcb_remove(next_process);
-                
-                // increment global current process
-                global_current_process = next_process;
+        //     // save context of current PCB by updating stack pointer
+        //     global_current_process = temp_pcb;
 
-                // add the current PCB back to the ready queue
-                if(current_process != NULL)
-                {
-                    // update stack pointer
-                    current_process->process_ptr->stack_ptr = context_ptr;
-                    // insert the currently running process back into appropriate queue so next process can run
-                    pcb_insert(current_process);
-                }
+        //     // device is busy, request must be scheduled by I/O scheduler
+        //     io_scheduler(context_ptr);
 
-                return (struct context*)next_process->process_ptr->stack_ptr;
-            }
-        } else {
-            // put current process in blocked state
-            global_current_process->process_ptr->pcb_state = BLOCKED_NOT_SUSPENDED;
-            pcb_insert(global_current_process);
-
-            // remove first from queue and store in temp variable
-            struct pcb* temp_pcb = global_ready_queue->front->pcb;
-            pcb_remove(temp_pcb);
-
-            // save context of current PCB by updating stack pointer
-            global_current_process = temp_pcb;
-
-            // device is busy, request must be scheduled by I/O scheduler
-            io_scheduler(context_ptr);
-
-            // return pointer to stack, which contains context of process to be run next
-            return (struct context*)temp_pcb->process_ptr->stack_ptr;
-        }
+        //     // return pointer to stack, which contains context of process to be run next
+        //     return (struct context*)temp_pcb->process_ptr->stack_ptr;
+        // }
     } else if (context_ptr->EAX == READ)
     {
-        /* device is located in EBX as int, i.e. COM1 = 1016 = 0x3f8
-           buffer is in ECX, buffer size is in EDX */
+        /* device is located in EBX as int, i.e. COM1 = 1016 = 0x3f8, buffer is in ECX, buffer size is in EDX */
         // set variables for each
         if(temp_dcb == NULL)
         {

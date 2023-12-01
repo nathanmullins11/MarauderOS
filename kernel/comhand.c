@@ -23,7 +23,7 @@ void print(char *out) {
 void comhand(void)
 {
 	// print welcoming message
-	char msg[] = "Welcome to MarauderOS | Use 'help' command to see list of commands\n";
+	const char* msg = "Welcome to MarauderOS | Use 'help' command to see list of commands\n";
 
 	// secondary welcome message
 	// char* picture_msg =
@@ -37,7 +37,8 @@ void comhand(void)
     // "                                                                   \x1b[0m\n";
 
 	// sys_req(WRITE, COM1, picture_msg, strlen(picture_msg));
-	sys_req(WRITE, COM1, msg, sizeof(msg));
+	sys_req(WRITE, COM1, msg, strlen(msg));
+	// sys_free_mem((void*) msg);
 
 	// sys_free_mem(picture_msg);
 

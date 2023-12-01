@@ -29,15 +29,17 @@ struct dcb {
     int rw_buf_length; // length of rw buffer
     int rw_index; // current index in rw buffer
 
+    struct pcb* pcb_ptr; // store current process
+
     // read operation is an in buffer
     // write operation is an out buffer
 };
 
 struct iocb {
-    struct pcb IO_pcb;
-    struct dcb IO_dcb;
+    struct pcb* IO_pcb;
+    struct dcb* IO_dcb; // may not need
     op_code IO_op; // i.e. READ or WRITE
-    char buf[100];
+    char* buffer;
     int buf_size;
    // struct iocb* next;
 };
@@ -48,12 +50,14 @@ struct iocb_queue {
 };
 
 struct iocb_node {
-  struct node* next;
-  struct node* prev;
+  struct iocb_node* next;
+  struct iocb_node* prev;
   struct iocb* iocb;
 };
 
 struct iocb_queue* create_iocb_queue(void);
+
+struct iocb_node* create_iocb_node(struct iocb* iocb);
 
 extern int serial_devno(device dev);
 
