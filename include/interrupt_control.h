@@ -111,3 +111,10 @@ void serial_input_interrupt(struct dcb *dcb);
  * @param dcb 
  */
 void serial_output_interrupt(struct dcb *dcb);
+
+/**
+ * @brief remove specified iocb from dcbs iocb queue
+ * 
+ * @param pcb 
+ */
+void iocb_remove(struct pcb* pcb, struct dcb* dcb);

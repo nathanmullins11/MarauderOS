@@ -13,6 +13,8 @@
 // declare assembly function
 extern void serial_isr(void*);
 
+int i = 0;
+
 enum uart_registers {
 	RBR = 0,	// Receive Buffer
 	THR = 0,	// Transmitter Holding
@@ -331,7 +333,7 @@ void serial_interrupt(void) {
             
         serial_output_interrupt(dcb_array[0]);
 
-        } else if (interrupt_ID >> 1 == 0 && interrupt_ID >> 2 == 1) { // Input Interrupt
+        } else if ( interrupt_ID == 4 ) { // Input Interrupt
 
           serial_input_interrupt(dcb_array[0]);
 
@@ -344,7 +346,8 @@ void serial_interrupt(void) {
 
 void serial_input_interrupt(struct dcb *dcb) {
     // read a character from the input register 
-    char *in_char = dcb->rw_buf;
+    char in_char = inb(COM1);
+    outb(COM1, in_char);
 
     // check current status
     if (dcb->cur_op != READ) {
@@ -355,8 +358,8 @@ void serial_input_interrupt(struct dcb *dcb) {
 
         } else {
             // otherwise, put in ring buffer
-            dcb->ring_buf[dcb->ring_chars_transferred] = *in_char;
-            dcb->ring_buf_size = dcb->ring_chars_transferred + 1;
+            dcb->ring_buf[i] = in_char;
+            i++;
         }
 
         // return to first level handler, with no indication of complete
@@ -364,11 +367,12 @@ void serial_input_interrupt(struct dcb *dcb) {
     } else {
         // current status is READ, store in requestors input buffer
         int dev = dcb->device;
-        dcb_array[dev]->rw_buf = in_char;
+        dcb_array[dev]->rw_buf[i] = in_char;
+        i++;
     }
 
     // check if count complete and character is not new line
-    if ((dcb->ring_chars_transferred == dcb->ring_buf_size) && (strcmp(in_char, "\n") != 0)) {
+    if ((dcb->ring_chars_transferred == dcb->ring_buf_size) && (strcmp(&in_char, "\n") != 0)) {
         // return without indication of completion
         return;
     } else {
@@ -405,7 +409,15 @@ void serial_output_interrupt(struct dcb *dcb) {
         outb(dev + IER, 0x00);
 
         // move current process back to ready queue so paused process can go directly back into execution
-        pcb_insert(global_current_process);
+        // pcb_insert(global_current_process);
+
+        // set allocation status of device back to open
+        dcb->allocation_status = 0;
+
+        dcb->IOCBs->front->iocb = NULL;
+
+        // remove paused process from iocb queue
+       // iocb_remove(dcb->IOCBs->front->iocb->IO_pcb, dcb);
 
         return;
     }
@@ -439,6 +451,37 @@ struct iocb_node* create_iocb_node(struct iocb* iocb)
     new_node->prev = NULL;
 
     return new_node;
+}
+
+void iocb_remove(struct pcb* pcb, struct dcb* dcb)
+{
+    // if no other iocbs are in queue
+    if (dcb->IOCBs->front == NULL) {
+        return; // Queue is already empty
+    }
+
+    // Check if the first node contains the PCB to be removed
+    if (dcb->IOCBs->front->iocb->IO_pcb == pcb) {
+        struct iocb_node* temp = dcb->IOCBs->front;
+        dcb->IOCBs->front = temp->next;
+        sys_free_mem(temp->iocb); // Free memory allocated for iocb
+        sys_free_mem(temp); // Free memory allocated for iocb_node
+        return;
+    }
+
+    // Otherwise, iterate through the queue to find the matching PCB
+    struct iocb_node* current = dcb->IOCBs->front;
+
+    while (current->next != NULL) {
+        if (current->next->iocb->IO_pcb == pcb) {
+            struct iocb_node* temp = current->next;
+            current->next = temp->next;
+            sys_free_mem(temp->iocb); // Free memory allocated for iocb
+            sys_free_mem(temp); // Free memory allocated for iocb_node
+            return;
+        }
+        current = current->next;
+    }
 }
 
 

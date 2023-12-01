@@ -99,14 +99,12 @@ void io_scheduler(struct context* context_ptr)
             serial_write(device_id, device_dcb->rw_buf, device_dcb->rw_buf_length);
         }
 
-        // free memory associated with dcb?
-        // sys_free_mem(device_dcb);
-
     } else {
         struct iocb* iocb = sys_alloc_mem(sizeof(struct iocb));
         struct iocb_node* new_node = create_iocb_node(iocb);
         iocb->IO_pcb = global_current_process;
         iocb->IO_dcb = device_dcb;
+        iocb->buffer = (char*)sys_alloc_mem(100);
         iocb->IO_op = (context_ptr->EAX == READ) ? READ : WRITE;
         memcpy(iocb->buffer, (char*)context_ptr->ECX, context_ptr->EDX);
         iocb->buf_size = context_ptr->EDX;
