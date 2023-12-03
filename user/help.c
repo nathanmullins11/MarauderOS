@@ -5,6 +5,7 @@
 #include <string.h>
 
 void help(const char *cmd) {
+    (void)cmd;
     // build help strings for each command
     const char *msg_version = "Command: version\n\nDescription:\n  Prints the current version of MarauderOS and last build date to the terminal.\n\nUsage:\n  version\n";
     const char *msg_shutdown = "Command: shutdown\n\nDescription:\n  Exits MarauderOS, ask for confirmation before initiating shutdown.\n\nUsage:\n  shutdown\n\nAdditional Notes:\n  Running `shutdown!` will immediately exit the OS without confirmation\n";
@@ -23,6 +24,7 @@ void help(const char *cmd) {
 
     if (strcmp(cmd, "version") == 0) {
         // print help message for 'version' command
+         const char *msg_version = "Command: version\n\nDescription:\n  Prints the current version of MarauderOS and last build date to the terminal.\n\nUsage:\n  version\n";
         sys_req(WRITE, COM1, msg_version, strlen(msg_version));
     } else if (strcmp(cmd, "shutdown") == 0) {
         // print help message for 'shutdown' command
@@ -54,10 +56,10 @@ void help(const char *cmd) {
     } else if (strcmp(cmd, "alarm") == 0) {
         // print help message for yield command
         sys_req(WRITE, COM1, msg_alarm, strlen(msg_alarm));
-    } else {
-        // if not parameters -> print all help messages
-        sys_req(WRITE, COM1, msg_all, strlen(msg_all));
-    }
+   } else {
+      //  if not parameters -> print all help messages
+       sys_req(WRITE, COM1, msg_all, strlen(msg_all));
+   }
 
     // free memory
     sys_free_mem((void *)msg_version);

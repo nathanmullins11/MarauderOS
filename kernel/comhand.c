@@ -12,9 +12,9 @@
 #include <time.h>
 #include <help.h>
 #include <mpx/io.h>
-#include <pcb.h>
 #include <shutdown.h>
 #include <alarms.h>
+#include <interrupt_control.h>
 
 void print(char *out) {
 	sys_req(WRITE, COM1, out, strlen(out));
@@ -26,17 +26,17 @@ void comhand(void)
 	const char* msg = "Welcome to MarauderOS | Use 'help' command to see list of commands\n";
 
 	// secondary welcome message
-	// char* picture_msg =
-	// "\x1b[34m         __  __                                 _                ____    _____\n"
-	// "	|  |/  |                               | |              / __ |  / ____|\n"
-	// "	| |  / |  __ _  _ __   __ _  _   _   __| |  ___  _ __  | |  | || (___  \n"
-	// "	| |||| | / _` || '__| / _` || | | | / _` | / _ ||  __| | |  | | |___ | \n"
-	// "	| |  | || (_| || |   | (_| || |_| || (_| ||  __/| |    | |__| | ____) |\n"
-	// "	|_|  |_| |__,_||_|    |__,_| |__,_| |_,_| |___| |_|     |____/ |_____/ \n"
-    // "                                                                   \n"
-    // "                                                                   \x1b[0m\n";
+	char* picture_msg =
+	"\x1b[34m         __  __                                 _                ____    _____\n"
+	"	|  |/  |                               | |              / __ |  / ____|\n"
+	"	| |  / |  __ _  _ __   __ _  _   _   __| |  ___  _ __  | |  | || (___  \n"
+	"	| |||| | / _` || '__| / _` || | | | / _` | / _ ||  __| | |  | | |___ | \n"
+	"	| |  | || (_| || |   | (_| || |_| || (_| ||  __/| |    | |__| | ____) |\n"
+	"	|_|  |_| |__,_||_|    |__,_| |__,_| |_,_| |___| |_|     |____/ |_____/ \n"
+    "                                                                   \n"
+    "                                                                   \x1b[0m\n";
 
-	// sys_req(WRITE, COM1, picture_msg, strlen(picture_msg));
+	sys_req(WRITE, COM1, picture_msg, strlen(picture_msg));
 	sys_req(WRITE, COM1, msg, strlen(msg));
 	// sys_free_mem((void*) msg);
 
@@ -61,12 +61,24 @@ void comhand(void)
 	// loop forever until shutdown
     for ( ;; ) 
     {
+		//outb(COM1, '\n');
+		outb(COM1, '>');
+		outb(COM1, ' ');
 		// create buffer to hold user input and read using READ op-code
     	char buf[100] = {0};
-        int size_buffer = sys_req(READ, COM1, buf, sizeof(buf));
+
+		// set buf to dcb_rw buf
+		for(size_t i = 0; i < strlen(dcb_array[0]->rw_buf); i++)
+		{
+			buf[i] = dcb_array[0]->rw_buf[i];
+		}
+
+		buf[strlen(buf)] = '\0';
+		
+        sys_req(READ, COM1, buf, strlen(buf));
 
 		// check if the buffer is ended with a null terminator before evaluating content
-		if (buf[size_buffer] == '\0') {
+		if (buf[strlen(buf)] == '\0') {
 
 			// get the user's command from input
 			command = strtok(buf, " ");

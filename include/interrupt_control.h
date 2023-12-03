@@ -31,6 +31,8 @@ struct dcb {
 
     struct pcb* pcb_ptr; // store current process
 
+    char* read_interrupt_buf;
+
     // read operation is an in buffer
     // write operation is an out buffer
 };
