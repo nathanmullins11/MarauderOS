@@ -4,46 +4,60 @@ global sys_call_isr
 ;;; System call interrupt handler. To be implemented in Module R3.
 extern sys_call
 sys_call_isr:
-	;;; push reverse order of struct
-	; push segment registers
-	push SS
-	push GS
-	push FS
-	push ES
-	push DS
-	
-	; push gen purpose registers
-	push EBP
-	push EDI
-	push ESI
-	push EDX
-	push ECX
-	push EBX
-	push EAX
-	push ESP
-	push ESP
+    ; push reverse order of struct
+    ; push segment registers
+    push SS
+    push GS
+    push FS
+    push ES
+    push DS
 
-	; call function
-	call sys_call
+    ; push gen purpose registers
+    push EBP
+    push EDI
+    push ESI
+    push EDX
+    push ECX
+    push EBX
+    push EAX
+    push ESP
+    push ESP
 
-	; set stack pointer based on return value 
-	mov ESP, EAX
+    ; call function
+    call sys_call
 
-	; pop gen purpose registers
-	pop ESP
-	pop EAX
-	pop EBX
-	pop ECX
-	pop EDX
-	pop ESI
-	pop EDI
-	pop EBP
+    ; set stack pointer based on return value 
+    mov ESP, EAX
 
-	; pop segment registers
-	pop DS
-	pop ES
-	pop FS
-	pop GS
-	pop SS
+    ; pop gen purpose registers
+    pop ESP
+    pop EAX
+    pop EBX
+    pop ECX
+    pop EDX
+    pop ESI
+    pop EDI
+    pop EBP
 
-	iret
+    ; pop segment registers
+    pop DS
+    pop ES
+    pop FS
+    pop GS
+    pop SS
+
+    iret
+
+;; Add a clear separation (you can add comments if needed)
+
+	bits 32
+	global serial_isr
+
+	extern serial_interrupt
+
+	serial_isr:
+		cli
+		call serial_interrupt
+		sti
+		iret
+

@@ -23,23 +23,24 @@ void print(char *out) {
 void comhand(void)
 {
 	// print welcoming message
-	char msg[] = "Welcome to MarauderOS | Use 'help' command to see list of commands\n";
+	const char* msg = "Welcome to MarauderOS | Use 'help' command to see list of commands\n";
 
 	// secondary welcome message
-	char* picture_msg =
-	"\x1b[34m         __  __                                 _                ____    _____\n"
-	"	|  |/  |                               | |              / __ |  / ____|\n"
-	"	| |  / |  __ _  _ __   __ _  _   _   __| |  ___  _ __  | |  | || (___  \n"
-	"	| |||| | / _` || '__| / _` || | | | / _` | / _ ||  __| | |  | | |___ | \n"
-	"	| |  | || (_| || |   | (_| || |_| || (_| ||  __/| |    | |__| | ____) |\n"
-	"	|_|  |_| |__,_||_|    |__,_| |__,_| |_,_| |___| |_|     |____/ |_____/ \n"
-    "                                                                   \n"
-    "                                                                   \x1b[0m\n";
+	// char* picture_msg =
+	// "\x1b[34m         __  __                                 _                ____    _____\n"
+	// "	|  |/  |                               | |              / __ |  / ____|\n"
+	// "	| |  / |  __ _  _ __   __ _  _   _   __| |  ___  _ __  | |  | || (___  \n"
+	// "	| |||| | / _` || '__| / _` || | | | / _` | / _ ||  __| | |  | | |___ | \n"
+	// "	| |  | || (_| || |   | (_| || |_| || (_| ||  __/| |    | |__| | ____) |\n"
+	// "	|_|  |_| |__,_||_|    |__,_| |__,_| |_,_| |___| |_|     |____/ |_____/ \n"
+    // "                                                                   \n"
+    // "                                                                   \x1b[0m\n";
 
-	sys_req(WRITE, COM1, picture_msg, strlen(picture_msg));
-	sys_req(WRITE, COM1, msg, sizeof(msg));
+	// sys_req(WRITE, COM1, picture_msg, strlen(picture_msg));
+	sys_req(WRITE, COM1, msg, strlen(msg));
+	// sys_free_mem((void*) msg);
 
-	sys_free_mem(picture_msg);
+	// sys_free_mem(picture_msg);
 
 	// error messages
 	char error_msg_inc_param[] = "\x1b[31mERR: Invalid parameter | use `help` command\x1b[0m\n";
