@@ -93,7 +93,7 @@ int serial_open(device dev, int speed) // return 1 for success, anything else fo
     }
 
     struct dcb* dev_dcb = (struct dcb*)sys_alloc_mem(sizeof(struct dcb)); // initialize dcb for device after checks have passed
-    dev_dcb->rw_buf = (char*)sys_alloc_mem(100);
+    dev_dcb->rw_buf = (char*)sys_alloc_mem(600);
     struct iocb_queue* temp_q = create_iocb_queue();
     dev_dcb->IOCBs = temp_q;
     if (dev_dcb == NULL)
@@ -223,10 +223,10 @@ int serial_read(device dev, char *buf, size_t len)
 
     /* #5 copy chars from ring bug to rw buf*/
     cli(); // disable interrupts
-    for(size_t i = 0; i < sizeof(temp_dcb->ring_buf); i++)
+    for(size_t i = 0; i < strlen(temp_dcb->ring_buf); i++)
     {
         // has requested count of chars been reached
-        if(i == len)
+        if(i == sizeof(temp_dcb->ring_buf))
         {
             break;
         }
@@ -255,6 +255,8 @@ int serial_read(device dev, char *buf, size_t len)
     /* #7 set dcb status to idle, set event flag, return actual count */
     temp_dcb->cur_op = IDLE; // set status IDLE
     temp_dcb->event_flag = 1; // set event flag
+    temp_dcb->allocation_status = 0; 
+
     return temp_dcb->rw_buf_length;
 }
 
@@ -309,7 +311,7 @@ int serial_write(device dev, char *buf, size_t len)
 
     // Set the bit 1 by logical OR with 0x02 and write back to the register
     cli();
-    /* #6  Enable write interrupts by setting bit 1 of the Interrupt Enable register. This must be done by setting
+    /* #6  Enable write/read interrupts by setting bit 1 of the Interrupt Enable register. This must be done by setting
     // Retrieve the current value of the Interrupt Enable register */
     int current_ier = inb(dev + IER);
     outb(dev + IER, current_ier | 0x02);
@@ -341,12 +343,49 @@ void serial_interrupt(void) {
              inb(COM1+LSR);
         } 
 
-    outb(0x20,0x20); // clear
+    outb(0x20,0x20); // clear interrupt
 }
 
 void serial_input_interrupt(struct dcb *dcb) {
-    // read a character from the input register 
+    // read a character from the input register
     char in_char = inb(COM1);
+
+    // KEYBOARD HANDLING
+    
+    // check for enter sequence
+    if(in_char == '\r')
+    {
+        // set event flag high 
+        dcb->event_flag = 1;
+
+        // set status to idle
+        dcb->cur_op = IDLE;
+
+        // if ring buffer not empty, put contents in rw buf
+        // Assuming dcb_ring is a pointer to your DCB structure
+        if (dcb->ring_chars_transferred > 0) {
+            // Copy the contents of ring_buf to dcb_rw_buf
+            memcpy(dcb->rw_buf, dcb->ring_buf, dcb->ring_chars_transferred);
+
+            // Update other relevant information in dcb_rw_buf
+            dcb->rw_buf_length = dcb->ring_chars_transferred;
+            dcb->rw_index = 0;
+
+            // Reset ring_buf since you've transferred its contents
+            dcb->ring_chars_transferred = 0;
+            dcb->ring_head = 0;
+            dcb->ring_tail = 0;
+            dcb->ring_buf_size = sizeof(dcb->ring_buf);
+        }
+
+        // clear iocb queue;
+        dcb->IOCBs->front->iocb = NULL;
+
+        outb(COM1, '\n');
+
+        // 
+        return;
+    }
     outb(COM1, in_char);
 
     // check current status
@@ -355,11 +394,10 @@ void serial_input_interrupt(struct dcb *dcb) {
         // check if ring is full 
         if ( (dcb->ring_tail - 1) == dcb->ring_head ) {
             // if full, then discard character
-
         } else {
             // otherwise, put in ring buffer
-            dcb->ring_buf[i] = in_char;
-            i++;
+            dcb->ring_buf[dcb->ring_chars_transferred] = in_char;
+            dcb->ring_chars_transferred++;
         }
 
         // return to first level handler, with no indication of complete
@@ -416,8 +454,17 @@ void serial_output_interrupt(struct dcb *dcb) {
 
         dcb->IOCBs->front->iocb = NULL;
 
+        memset(dcb->rw_buf, 0, strlen(dcb->rw_buf));
+
         // remove paused process from iocb queue
        // iocb_remove(dcb->IOCBs->front->iocb->IO_pcb, dcb);
+
+       // reset the indexes for buffer
+       dcb->rw_index = 0;
+       dcb->ring_chars_transferred = 0;
+       dcb->ring_head = 0;
+       dcb->ring_tail = 0;
+
 
         return;
     }
@@ -483,5 +530,7 @@ void iocb_remove(struct pcb* pcb, struct dcb* dcb)
         current = current->next;
     }
 }
+
+
 
 

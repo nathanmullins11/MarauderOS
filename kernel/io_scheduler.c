@@ -45,12 +45,15 @@ void io_scheduler(struct context* context_ptr)
     // device_id = hex value of one of the devices, need to convert to 0-3
     int id_to_arr_pos = serial_devno(device_id);
     struct dcb* device_dcb = dcb_array[id_to_arr_pos];
+    // CLEAR BEFORE COPYING MEM OVER
+    memset(device_dcb->rw_buf, 0, strlen(device_dcb->rw_buf));
+
     memcpy(device_dcb->rw_buf, (char*)context_ptr->ECX, context_ptr->EDX);
     device_dcb->rw_buf_length = context_ptr->EDX;
     device_dcb->pcb_ptr = global_current_process;
 
     // check if device is busy
-    if (device_dcb->allocation_status == 0)
+    if (device_dcb->allocation_status == 0) //&& device_dcb->IOCBs->front == NULL)
     {
         // device is not busy, process request immediately
         device_dcb->allocation_status = 1; // set device to busy
@@ -58,7 +61,7 @@ void io_scheduler(struct context* context_ptr)
         /* create IOCB to hold paused pcb */
         struct iocb* iocb = sys_alloc_mem(sizeof(struct iocb));
         struct iocb_node* new_node = create_iocb_node(iocb);
-        iocb->buffer = (char*)sys_alloc_mem(100);
+        iocb->buffer = (char*)sys_alloc_mem(600);
         iocb->IO_pcb = global_current_process;
         iocb->IO_dcb = device_dcb;
         iocb->IO_op = (context_ptr->EAX == READ) ? READ : WRITE;
@@ -83,6 +86,14 @@ void io_scheduler(struct context* context_ptr)
         // call appropriate driver procedure
         if (context_ptr->EAX == READ)
         {
+            // load next process
+            if(global_ready_queue->front != NULL)
+            {
+                struct pcb* next = global_ready_queue->front->pcb;
+                pcb_remove(next);
+                global_current_process = next;
+            }
+            
             serial_read(device_id, device_dcb->rw_buf, device_dcb->rw_buf_length);
 
         } else if (context_ptr->EAX == WRITE)
