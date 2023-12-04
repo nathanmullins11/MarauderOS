@@ -66,16 +66,15 @@ void comhand(void)
 		outb(COM1, ' ');
 		// create buffer to hold user input and read using READ op-code
     	char buf[100] = {0};
+		
+        sys_req(READ, COM1, buf, strlen(buf));
 
-		// set buf to dcb_rw buf
 		for(size_t i = 0; i < strlen(dcb_array[0]->rw_buf); i++)
 		{
 			buf[i] = dcb_array[0]->rw_buf[i];
 		}
 
 		buf[strlen(buf)] = '\0';
-		
-        sys_req(READ, COM1, buf, strlen(buf));
 
 		// check if the buffer is ended with a null terminator before evaluating content
 		if (buf[strlen(buf)] == '\0') {
@@ -110,10 +109,21 @@ void comhand(void)
 						char msg[] = "Are you sure you want to shutdown? (y/n)\n";
 						sys_req(WRITE, COM1, msg, strlen(msg));
 
+						dcb_array[0]->ring_chars_transferred = 0;
+						memset(dcb_array[0]->ring_buf, 0, strlen(dcb_array[0]->ring_buf));
+
 						// get user input
 						char choice[100] = {0};
-						int size_choice = sys_req(READ, COM1, choice, sizeof(choice));
-						if (choice[size_choice] == '\0') {
+						sys_req(READ, COM1, choice, sizeof(choice));
+
+						for(size_t i = 0; i < strlen(dcb_array[0]->rw_buf); i++)
+						{
+							choice[i] = dcb_array[0]->rw_buf[i];
+						}
+
+						choice[strlen(choice)] = '\0';
+						
+						if (choice[strlen(choice)] == '\0') {
 							// check if yes
 							if ( strcmp(choice, "y") == 0 ) {
 								// call shutdown method
@@ -193,6 +203,9 @@ void comhand(void)
 
 									// pass into set date function
 									set_date(day, month, year);
+									// clear buffers
+									memset(dcb_array[0]->ring_buf, 0, strlen(dcb_array[0]->ring_buf));
+									memset(dcb_array[0]->rw_buf, 0, strlen(dcb_array[0]->rw_buf));
 								} else {
 									// no value to pass into functon
 									sys_req(WRITE, COM1, error_msg_empty_param, strlen(error_msg_empty_param));
@@ -237,6 +250,9 @@ void comhand(void)
 								char *param = strtok(NULL, " ");
 								if (param) { 
 									set_time(param); 
+									// clear buffers
+									memset(dcb_array[0]->ring_buf, 0, strlen(dcb_array[0]->ring_buf));
+									memset(dcb_array[0]->rw_buf, 0, strlen(dcb_array[0]->rw_buf));
 								} else {
 									// no value to pass into functon
 									sys_req(WRITE, COM1, error_msg_empty_param, strlen(error_msg_empty_param));
@@ -413,16 +429,25 @@ void comhand(void)
 								char msg[] = "Enter an alarm message of 100 characters or less:\n";
 								sys_req(WRITE, COM1, msg, strlen(msg));
 
+								dcb_array[0]->ring_chars_transferred = 0;
+								memset(dcb_array[0]->ring_buf, 0, strlen(dcb_array[0]->ring_buf));
+
 								// get user input
 								char temp_buf[100] = {0};
-								int size_message = sys_req(READ, COM1, temp_buf, sizeof(temp_buf));
+								sys_req(READ, COM1, temp_buf, sizeof(temp_buf));
+
+								for(size_t i = 0; i < strlen(dcb_array[0]->rw_buf); i++)
+								{
+									temp_buf[i] = dcb_array[0]->rw_buf[i];
+								}
+
 								temp_buf[strlen(temp_buf)] = '\0';
 								//message = temp_buf;
-								memcpy(message, temp_buf, size_message);
+							//	memcpy(message, temp_buf, strlen(temp_buf));
 
 								// check if the first character is a space or empty
 								// if not then parse message and pass into function
-								if (isspace((int)message[0]) == 1 || message[0] == '\0') {
+								if (isspace((int)temp_buf[0]) == 1 || message[0] == '\0') {
 									char err_spaces[] = "\x1b[31mERR: Alarm name cannot be empty\x1b[0m\n";
 									print(err_spaces);
 								} else {

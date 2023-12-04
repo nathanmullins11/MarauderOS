@@ -223,7 +223,7 @@ int serial_read(device dev, char *buf, size_t len)
 
     /* #5 copy chars from ring bug to rw buf*/
     cli(); // disable interrupts
-    for(size_t i = 0; i < sizeof(temp_dcb->ring_buf); i++)
+    for(size_t i = 0; i < strlen(temp_dcb->ring_buf); i++)
     {
         // has requested count of chars been reached
         if(i == sizeof(temp_dcb->ring_buf))
@@ -351,7 +351,7 @@ void serial_input_interrupt(struct dcb *dcb) {
     char in_char = inb(COM1);
 
     // KEYBOARD HANDLING
-
+    
     // check for enter sequence
     if(in_char == '\r')
     {
@@ -464,7 +464,7 @@ void serial_output_interrupt(struct dcb *dcb) {
        dcb->ring_chars_transferred = 0;
        dcb->ring_head = 0;
        dcb->ring_tail = 0;
-       
+
 
         return;
     }
@@ -530,5 +530,7 @@ void iocb_remove(struct pcb* pcb, struct dcb* dcb)
         current = current->next;
     }
 }
+
+
 
 
