@@ -12,9 +12,9 @@
 #include <time.h>
 #include <help.h>
 #include <mpx/io.h>
-#include <pcb.h>
 #include <shutdown.h>
 #include <alarms.h>
+#include <interrupt_control.h>
 
 void print(char *out) {
 	sys_req(WRITE, COM1, out, strlen(out));
@@ -23,7 +23,7 @@ void print(char *out) {
 void comhand(void)
 {
 	// print welcoming message
-	char msg[] = "Welcome to MarauderOS | Use 'help' command to see list of commands\n";
+	const char* msg = "Welcome to MarauderOS | Use 'help' command to see list of commands\n";
 
 	// secondary welcome message
 	char* picture_msg =
@@ -37,9 +37,10 @@ void comhand(void)
     "                                                                   \x1b[0m\n";
 
 	sys_req(WRITE, COM1, picture_msg, strlen(picture_msg));
-	sys_req(WRITE, COM1, msg, sizeof(msg));
+	sys_req(WRITE, COM1, msg, strlen(msg));
+	// sys_free_mem((void*) msg);
 
-	sys_free_mem(picture_msg);
+	// sys_free_mem(picture_msg);
 
 	// error messages
 	char error_msg_inc_param[] = "\x1b[31mERR: Invalid parameter | use `help` command\x1b[0m\n";
@@ -60,12 +61,23 @@ void comhand(void)
 	// loop forever until shutdown
     for ( ;; ) 
     {
+		//outb(COM1, '\n');
+		outb(COM1, '>');
+		outb(COM1, ' ');
 		// create buffer to hold user input and read using READ op-code
     	char buf[100] = {0};
-        int size_buffer = sys_req(READ, COM1, buf, sizeof(buf));
+		
+        sys_req(READ, COM1, buf, strlen(buf));
+
+		for(size_t i = 0; i < strlen(dcb_array[0]->rw_buf); i++)
+		{
+			buf[i] = dcb_array[0]->rw_buf[i];
+		}
+
+		buf[strlen(buf)] = '\0';
 
 		// check if the buffer is ended with a null terminator before evaluating content
-		if (buf[size_buffer] == '\0') {
+		if (buf[strlen(buf)] == '\0') {
 
 			// get the user's command from input
 			command = strtok(buf, " ");
@@ -97,16 +109,31 @@ void comhand(void)
 						char msg[] = "Are you sure you want to shutdown? (y/n)\n";
 						sys_req(WRITE, COM1, msg, strlen(msg));
 
+						dcb_array[0]->ring_chars_transferred = 0;
+						memset(dcb_array[0]->ring_buf, 0, strlen(dcb_array[0]->ring_buf));
+
 						// get user input
 						char choice[100] = {0};
-						int size_choice = sys_req(READ, COM1, choice, sizeof(choice));
-						if (choice[size_choice] == '\0') {
+						sys_req(READ, COM1, choice, sizeof(choice));
+
+						for(size_t i = 0; i < strlen(dcb_array[0]->rw_buf); i++)
+						{
+							choice[i] = dcb_array[0]->rw_buf[i];
+						}
+
+						choice[strlen(choice)] = '\0';
+						
+						if (choice[strlen(choice)] == '\0') {
 							// check if yes
 							if ( strcmp(choice, "y") == 0 ) {
 								// call shutdown method
 								shutdown();
 							} else if ( strcmp(choice, "n") == 0 ) {
 								// do nothing, return to normal operation
+								dcb_array[0]->ring_chars_transferred = 0;
+								memset(dcb_array[0]->ring_buf, 0, strlen(dcb_array[0]->ring_buf));
+								memset(dcb_array[0]->rw_buf, 0, strlen(dcb_array[0]->rw_buf));
+								dcb_array[0]->allocation_status = 0;
 							} else {
 								// invalid input
 								char error_msg[] = "\x1b[31mERR: Invalid input\x1b[0m\n";
@@ -180,6 +207,9 @@ void comhand(void)
 
 									// pass into set date function
 									set_date(day, month, year);
+									// clear buffers
+									memset(dcb_array[0]->ring_buf, 0, strlen(dcb_array[0]->ring_buf));
+									memset(dcb_array[0]->rw_buf, 0, strlen(dcb_array[0]->rw_buf));
 								} else {
 									// no value to pass into functon
 									sys_req(WRITE, COM1, error_msg_empty_param, strlen(error_msg_empty_param));
@@ -224,6 +254,9 @@ void comhand(void)
 								char *param = strtok(NULL, " ");
 								if (param) { 
 									set_time(param); 
+									// clear buffers
+									memset(dcb_array[0]->ring_buf, 0, strlen(dcb_array[0]->ring_buf));
+									memset(dcb_array[0]->rw_buf, 0, strlen(dcb_array[0]->rw_buf));
 								} else {
 									// no value to pass into functon
 									sys_req(WRITE, COM1, error_msg_empty_param, strlen(error_msg_empty_param));
@@ -400,16 +433,25 @@ void comhand(void)
 								char msg[] = "Enter an alarm message of 100 characters or less:\n";
 								sys_req(WRITE, COM1, msg, strlen(msg));
 
+								dcb_array[0]->ring_chars_transferred = 0;
+								memset(dcb_array[0]->ring_buf, 0, strlen(dcb_array[0]->ring_buf));
+
 								// get user input
 								char temp_buf[100] = {0};
-								int size_message = sys_req(READ, COM1, temp_buf, sizeof(temp_buf));
+								sys_req(READ, COM1, temp_buf, sizeof(temp_buf));
+
+								for(size_t i = 0; i < strlen(dcb_array[0]->rw_buf); i++)
+								{
+									temp_buf[i] = dcb_array[0]->rw_buf[i];
+								}
+
 								temp_buf[strlen(temp_buf)] = '\0';
 								//message = temp_buf;
-								memcpy(message, temp_buf, size_message);
+							//	memcpy(message, temp_buf, strlen(temp_buf));
 
 								// check if the first character is a space or empty
 								// if not then parse message and pass into function
-								if (isspace((int)message[0]) == 1 || message[0] == '\0') {
+								if (isspace((int)temp_buf[0]) == 1 || message[0] == '\0') {
 									char err_spaces[] = "\x1b[31mERR: Alarm name cannot be empty\x1b[0m\n";
 									print(err_spaces);
 								} else {

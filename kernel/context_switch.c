@@ -35,28 +35,38 @@ struct dcb* dcb_array[4] = {NULL,NULL,NULL, NULL}; // COM1, COM2, COM3, COM4
 struct context* sys_call(struct context* context_ptr)
 {
     // reset global current process to NULL when queue is empty
-    if(global_ready_queue->front == NULL)
-    {
-        global_current_process = NULL;
-    }
+    // if(global_ready_queue->front == NULL)
+    // {
+    //     global_current_process = NULL;
+    // }
 
-    int dev_int = context_ptr->EBX;
-    int array_position = serial_devno(dev_int);
+ //   int dev_int = context_ptr->EBX;
+   // int array_position = serial_devno(dev_int);
 
-    char* buffer = (char*)context_ptr->ECX;
-    int buf_len = context_ptr->EDX;
-    struct dcb* temp_dcb = dcb_array[array_position];
+    // char* buffer = (char*)context_ptr->ECX;
+    // int buf_len = context_ptr->EDX;
+    struct dcb* temp_dcb = dcb_array[0];//dcb_array[array_position];
 
+    // check all dcbs for io completion status if so unblock pcb and either put back in ready queue or execute process
     // check for event flags
-    if(temp_dcb != NULL && temp_dcb->event_flag == 1)
+    if(temp_dcb != NULL && temp_dcb->event_flag == 1 && context_ptr->EAX != EXIT)
     { 
         // remove finished io process from blocked queue, change state to ready, and place back in ready queue
         if(temp_dcb->IOCBs->front != NULL)
         {
-            struct pcb* finished_pcb = &temp_dcb->IOCBs->front->iocb->IO_pcb;
-            finished_pcb->process_ptr->pcb_state = READY_NOT_SUSPENDED;
+            struct pcb* finished_pcb = temp_dcb->pcb_ptr;
+            // remove paused process from blocked queue
             pcb_remove(finished_pcb);
-            pcb_insert(&temp_dcb->IOCBs->front->iocb->IO_pcb);
+            finished_pcb->process_ptr->pcb_state = READY_NOT_SUSPENDED;
+            // place paused process back into ready queue
+            pcb_insert(finished_pcb);
+
+            // set event flag low to signal io completion has been handled
+            temp_dcb->event_flag = 0;
+
+            temp_dcb->IOCBs->front->iocb = NULL;
+
+        //     return (struct context*) global_current_process->process_ptr->stack_ptr;
         }
     }
 
@@ -125,69 +135,43 @@ struct context* sys_call(struct context* context_ptr)
         return global_context_ptr;
     }  else if (context_ptr->EAX == WRITE)
     {
-        /* device is located in EBX as int, i.e. COM1 = 1016 = 0x3f8
-           buffer is in ECX, buffer size is in EDX */
+        // save context_ptr into current pcb - stack top
+        global_current_process->process_ptr->stack_ptr = context_ptr;
+        // set status of PCB to blocked 
+        global_current_process->process_ptr->pcb_state = BLOCKED_NOT_SUSPENDED;
+        // place current pcb into blocked queue
+        pcb_insert(global_current_process);
+        /* device is located in EBX as int, i.e. COM1 = 1016 = 0x3f8, buffer is in ECX, buffer size is in EDX */
         // set variables for each
         if(temp_dcb == NULL)
         {
             return context_ptr;
         }
-        // check if device is busy
-        if(temp_dcb->allocation_status == 0)
-        {
-            // device not busy, call write driver function
-            serial_write(dev_int, buffer, buf_len);
-        } else {
-            // put current process in blocked state
-            global_current_process->process_ptr->pcb_state = BLOCKED_NOT_SUSPENDED;
-            pcb_insert(global_current_process);
 
-            // remove first from queue and store in temp variable
-            struct pcb* temp_pcb = global_ready_queue->front->pcb;
-            pcb_remove(temp_pcb);
+        // call io scheduler
+        io_scheduler(context_ptr);
 
-            // save context of current PCB by updating stack pointer
-            global_current_process = temp_pcb;
-
-            // device is busy, request must be scheduled by I/O scheduler
-            io_scheduler(context_ptr);
-
-            // return pointer to stack, which contains context of process to be run next
-            return (struct context*)temp_pcb->process_ptr->stack_ptr;
-        }
+        // return blocked process context
+        return (struct context*)global_current_process->process_ptr->stack_ptr;
     } else if (context_ptr->EAX == READ)
     {
-        /* device is located in EBX as int, i.e. COM1 = 1016 = 0x3f8
-           buffer is in ECX, buffer size is in EDX */
+        // save context_ptr into current pcb - stack top
+        global_current_process->process_ptr->stack_ptr = context_ptr;
+        // set status of PCB to blocked 
+        global_current_process->process_ptr->pcb_state = BLOCKED_NOT_SUSPENDED;
+        // place current pcb into blocked queue
+        pcb_insert(global_current_process);
+        /* device is located in EBX as int, i.e. COM1 = 1016 = 0x3f8, buffer is in ECX, buffer size is in EDX */
         // set variables for each
         if(temp_dcb == NULL)
         {
             return context_ptr;
         }
-        // check if device is busy
-        if(temp_dcb->allocation_status == 0)
-        {
-            // device not busy, call write driver function
-            serial_read(dev_int, buffer, buf_len);
-        } else {
-            // put current process in blocked state
-            global_current_process->process_ptr->pcb_state = BLOCKED_NOT_SUSPENDED;
-            // move current process to appropriate queue
-            pcb_insert(global_current_process);
 
-            // remove first from queue and store in temp variable
-            struct pcb* temp_pcb = global_ready_queue->front->pcb;
-            pcb_remove(temp_pcb);
+        // call io scheduler
+        io_scheduler(context_ptr);
 
-            // save context of current PCB by updating stack pointer
-            global_current_process = temp_pcb;
-
-            // device is busy, request must be scheduled by I/O scheduler
-            io_scheduler(context_ptr);
-
-            // return pointer to stack, which contains context of process to be run next
-            return (struct context*)temp_pcb->process_ptr->stack_ptr;
-        }
+        return (struct context*)global_current_process->process_ptr->stack_ptr;
     }
     
     //context_ptr->EAX = -1;

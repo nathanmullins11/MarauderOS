@@ -176,6 +176,9 @@ void enqueue_reg(char *status, struct pcb *pcb)
             // If the queue is empty, set both front and rear to the new node.
             global_ready_queue->front = new_node;
             global_ready_queue->rear = new_node;
+        } else if(global_ready_queue->rear->pcb == pcb)
+        {
+            return;
         }
         else
         {
@@ -192,6 +195,9 @@ void enqueue_reg(char *status, struct pcb *pcb)
             // If the queue is empty, set both front and rear to the new node.
             global_suspended_ready_queue->front = new_node;
             global_suspended_ready_queue->rear = new_node;
+        } else if(global_suspended_ready_queue->rear->pcb == pcb)
+        {
+            return;
         }
         else
         {
@@ -208,6 +214,9 @@ void enqueue_reg(char *status, struct pcb *pcb)
             // If the queue is empty, set both front and rear to the new node.
             global_blocked_queue->front = new_node;
             global_blocked_queue->rear = new_node;
+        } else if(global_blocked_queue->rear->pcb == pcb)
+        {
+            return;
         }
         else
         {
@@ -224,6 +233,9 @@ void enqueue_reg(char *status, struct pcb *pcb)
             // If the queue is empty, set both front and rear to the new node.
             global_suspended_blocked_queue->front = new_node;
             global_suspended_blocked_queue->rear = new_node;
+        } else if(global_suspended_blocked_queue->rear->pcb == pcb)
+        {
+            return;
         }
         else
         {

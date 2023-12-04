@@ -260,7 +260,7 @@ void create_pcb(const char *name, int class, int priority) {
     pcb_insert(new_pcb);
 
     // print statement for successful creation
-    print("\x1b[33mINFO: PCB Created\x1b[0m\n");
+    //print("\x1b[33mINFO: PCB Created\x1b[0m\n");
 }
 
 void block_pcb(const char *name) {
