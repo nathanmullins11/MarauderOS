@@ -39,15 +39,15 @@ enum uart_registers {
 int serial_devno(device dev)
 {
 	switch (dev) {
-	case COM1: return 0;
-	case COM2: return 1;
-	case COM3: return 2;
-	case COM4: return 3;
+        case COM1: return 0;
+        case COM2: return 1;
+        case COM3: return 2;
+        case COM4: return 3;
 	}
 	return -1;
 }
 
-int serial_open(device dev, int speed) // return 1 for success, anything else for failure
+int serial_open(device dev, int speed)
 {
     // variable for array of devices
     int COM_num;
@@ -241,6 +241,7 @@ int serial_read(device dev, char *buf, size_t len)
         {
             break;
         }
+
         // transfer char
         buf[i] = temp_dcb->ring_buf[i];
         // empty associated index
@@ -338,7 +339,7 @@ void serial_interrupt(void) {
     if (interrupt_ID >> 1 == 0 && interrupt_ID >> 2 == 0) { // Modem Status Interrupt
             inb(COM1+MSR);
     } else if (((interrupt_ID >> 1) == 1) && ((interrupt_ID >> 2) == 0)) { // Output Interrupt
-            
+        
         serial_output_interrupt(dcb_array[0]);
 
         } else if ( interrupt_ID == 4 ) { // Input Interrupt
@@ -388,7 +389,16 @@ void serial_input_interrupt(struct dcb *dcb) {
             // place null terminator at end of buffer
             dcb->rw_buf[dcb->rw_index] = '\0';
         }
-    } 
+    }
+
+    // Arrow keys, delete key, esc key
+    else if (in_char == '\033' || in_char == 27) {
+        // discard these keys for now
+        inb(COM1);
+        inb(COM1);
+
+        in_char = '\0';
+    }
     
     // other chars
     else if (in_char > 0) {

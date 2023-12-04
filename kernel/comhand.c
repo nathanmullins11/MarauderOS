@@ -16,6 +16,8 @@
 #include <alarms.h>
 #include <interrupt_control.h>
 
+int j = 0;
+
 void print(char *out) {
 	sys_req(WRITE, COM1, out, strlen(out));
 }
@@ -61,9 +63,12 @@ void comhand(void)
 	// loop forever until shutdown
     for ( ;; ) 
     {
-		//outb(COM1, '\n');
-		// outb(COM1, '>');
-		// outb(COM1, ' ');
+		if (j % 2 == 0) {
+			outb(COM1, '>');
+			outb(COM1, ' ');
+		}
+		j++;
+		
 		// create buffer to hold user input and read using READ op-code
     	char buf[100] = {0};
 		
