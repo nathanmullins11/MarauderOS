@@ -62,8 +62,8 @@ void comhand(void)
     for ( ;; ) 
     {
 		//outb(COM1, '\n');
-		outb(COM1, '>');
-		outb(COM1, ' ');
+		// outb(COM1, '>');
+		// outb(COM1, ' ');
 		// create buffer to hold user input and read using READ op-code
     	char buf[100] = {0};
 		

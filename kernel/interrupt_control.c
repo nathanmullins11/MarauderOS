@@ -15,6 +15,12 @@ extern void serial_isr(void*);
 
 int i = 0;
 
+// vars for input handling
+char buffer[100] = {0};
+char temp_buf[100] = {0};
+int index = 0;
+size_t count = 100;
+
 enum uart_registers {
 	RBR = 0,	// Receive Buffer
 	THR = 0,	// Transmitter Holding
@@ -347,10 +353,76 @@ void serial_interrupt(void) {
 }
 
 void serial_input_interrupt(struct dcb *dcb) {
+    int cursor = dcb->rw_index;
+
     // read a character from the input register
     char in_char = inb(COM1);
 
-    // KEYBOARD HANDLING
+    /* KEYBOARD HANDLING */
+    // backspace
+    if (in_char == 127) {
+        if (dcb->rw_index > 0 && cursor > 0) {
+            // move cursor back
+            outb(COM1, '\b');
+            cursor--;
+
+            // shift characters in buffer left
+            for (int j = cursor; j < dcb->rw_index - 1; j++) {
+                dcb->rw_buf[j] = dcb->rw_buf[j + 1];
+                dcb->ring_buf[j] = dcb->ring_buf[j+1];
+                outb(COM1, dcb->rw_buf[j]);  // print updated char to terminal
+            }
+
+            // overwrite last char with space
+            dcb->rw_buf[dcb->rw_index - 1] = ' ';
+            dcb->ring_buf[dcb->rw_index - 1] = ' ';
+            outb(COM1, ' ');
+
+            // move cursor back to correct position
+            for (int temp_cursor = dcb->rw_index; temp_cursor > cursor; temp_cursor--) {
+                outb(COM1, '\b');
+            }
+
+            // decrement index
+            dcb->rw_index--;
+            // place null terminator at end of buffer
+            dcb->rw_buf[dcb->rw_index] = '\0';
+        }
+    } 
+    
+    // other chars
+    else if (in_char > 0) {
+        if (dcb->rw_index == 0) {
+            outb(COM1, in_char);
+            dcb->rw_buf[cursor] = in_char;
+            dcb->rw_index++;
+            cursor++;
+        } else {
+            // move characters to the right of the cursor
+            for (int j = dcb->rw_index; j >= cursor; j--)
+            {
+                dcb->rw_buf[j + 1] = dcb->rw_buf[j];
+            }
+
+            dcb->rw_buf[cursor] = in_char;
+
+            // print the updated characters
+            for (int j = cursor; j <= dcb->rw_index; j++)
+            {
+                outb(COM1, dcb->rw_buf[j]);
+            }
+
+            // move cursor back to correct position
+            for (int temp_cursor = dcb->rw_index; temp_cursor > cursor; temp_cursor--)
+            {
+                outb(COM1, '\b');
+            }
+
+            // increment index and cursor
+            dcb->rw_index++;
+            cursor++;
+        }
+    }
     
     // check for enter sequence
     if(in_char == '\r')
@@ -386,7 +458,7 @@ void serial_input_interrupt(struct dcb *dcb) {
         // 
         return;
     }
-    outb(COM1, in_char);
+    // outb(COM1, in_char);
 
     // check current status
     if (dcb->cur_op != READ) {
