@@ -130,6 +130,10 @@ void comhand(void)
 								shutdown();
 							} else if ( strcmp(choice, "n") == 0 ) {
 								// do nothing, return to normal operation
+								dcb_array[0]->ring_chars_transferred = 0;
+								memset(dcb_array[0]->ring_buf, 0, strlen(dcb_array[0]->ring_buf));
+								memset(dcb_array[0]->rw_buf, 0, strlen(dcb_array[0]->rw_buf));
+								dcb_array[0]->allocation_status = 0;
 							} else {
 								// invalid input
 								char error_msg[] = "\x1b[31mERR: Invalid input\x1b[0m\n";
