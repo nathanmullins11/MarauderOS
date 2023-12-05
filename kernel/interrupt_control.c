@@ -361,7 +361,7 @@ void serial_input_interrupt(struct dcb *dcb) {
 
     /* KEYBOARD HANDLING */
     // backspace
-    if (in_char == 127) {
+    if (in_char == 127 || in_char == '\177') {
         if (dcb->rw_index > 0 && cursor > 0) {
             // move cursor back
             outb(COM1, '\b');
@@ -399,6 +399,41 @@ void serial_input_interrupt(struct dcb *dcb) {
 
         in_char = '\0';
     }
+
+    // check for enter sequence
+    else if(in_char == '\r')
+    {
+        // set event flag high 
+        dcb->event_flag = 1;
+
+        // set status to idle
+        dcb->cur_op = IDLE;
+
+        // if ring buffer not empty, put contents in rw buf
+        // Assuming dcb_ring is a pointer to your DCB structure
+        if (dcb->ring_chars_transferred > 0) {
+            // Copy the contents of ring_buf to dcb_rw_buf
+            memcpy(dcb->rw_buf, dcb->ring_buf, dcb->ring_chars_transferred);
+
+            // Update other relevant information in dcb_rw_buf
+            dcb->rw_buf_length = dcb->ring_chars_transferred;
+            dcb->rw_index = 0;
+
+            // Reset ring_buf since you've transferred its contents
+            dcb->ring_chars_transferred = 0;
+            dcb->ring_head = 0;
+            dcb->ring_tail = 0;
+            dcb->ring_buf_size = sizeof(dcb->ring_buf);
+        }
+
+        // clear iocb queue;
+        dcb->IOCBs->front->iocb = NULL;
+
+        outb(COM1, '\n');
+
+        // 
+        return;
+    }
     
     // other chars
     else if (in_char > 0) {
@@ -434,40 +469,7 @@ void serial_input_interrupt(struct dcb *dcb) {
         }
     }
     
-    // check for enter sequence
-    if(in_char == '\r')
-    {
-        // set event flag high 
-        dcb->event_flag = 1;
-
-        // set status to idle
-        dcb->cur_op = IDLE;
-
-        // if ring buffer not empty, put contents in rw buf
-        // Assuming dcb_ring is a pointer to your DCB structure
-        if (dcb->ring_chars_transferred > 0) {
-            // Copy the contents of ring_buf to dcb_rw_buf
-            memcpy(dcb->rw_buf, dcb->ring_buf, dcb->ring_chars_transferred);
-
-            // Update other relevant information in dcb_rw_buf
-            dcb->rw_buf_length = dcb->ring_chars_transferred;
-            dcb->rw_index = 0;
-
-            // Reset ring_buf since you've transferred its contents
-            dcb->ring_chars_transferred = 0;
-            dcb->ring_head = 0;
-            dcb->ring_tail = 0;
-            dcb->ring_buf_size = sizeof(dcb->ring_buf);
-        }
-
-        // clear iocb queue;
-        dcb->IOCBs->front->iocb = NULL;
-
-        outb(COM1, '\n');
-
-        // 
-        return;
-    }
+    
     // outb(COM1, in_char);
 
     // check current status
@@ -476,6 +478,8 @@ void serial_input_interrupt(struct dcb *dcb) {
         // check if ring is full 
         if ( (dcb->ring_tail - 1) == dcb->ring_head ) {
             // if full, then discard character
+        } else if (in_char == '\r' || in_char != '\177') { 
+            // do not add escape characters
         } else {
             // otherwise, put in ring buffer
             dcb->ring_buf[dcb->ring_chars_transferred] = in_char;
@@ -487,7 +491,9 @@ void serial_input_interrupt(struct dcb *dcb) {
     } else {
         // current status is READ, store in requestors input buffer
         int dev = dcb->device;
-        dcb_array[dev]->rw_buf[i] = in_char;
+        if (in_char != '\r' || in_char != '\177') {
+            dcb_array[dev]->rw_buf[i] = in_char;
+        }
         i++;
     }
 
