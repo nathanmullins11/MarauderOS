@@ -19,7 +19,8 @@ void help(const char *cmd) {
     const char *msg_loadr3 = "Command: load_r3\n\nDescription:\n  Loads five faux processes into the ready queue. These processes print to the terminal.\n\nUsage:\n  load_r3\n";
     const char *msg_yield = "Command: yield\n\nDescription:\n  Command handler yields to the CPU, runs any processes in the ready queue.\n\nUsage:\n  yield\n";
     const char *msg_alarm = "Command: alarm\n\nDescription:\n  Creates an alarm process to display a message at a specified time.\n\nUsage:\n  alarm [options] [argument]\n\nOptions:\n  -t,\tThe time the alarm goes off in hh:mm:ss format\n\nExample:\n  alarm -t 09:41:00\n\nAdditional Notes:\n  An alarm has an associated message, once the user runs the alarm -t [time] command, the OS will\n  prompt the user to input the message\n";
-    const char *msg_all = "Available Commands | type `help [command]` for more detailed help\n - version\n - shutdown\n - getdate\n - setdate\n - gettime\n - settime\n - pcb\n - load_r3\n - alarm\n";
+    const char *msg_clear = "Command: clear\n\nDescription:\n  Clears the display.\n\nUsage:\n  clear\n";
+    const char *msg_all = "Available Commands | type `help [command]` for more detailed help\n - version\n - shutdown\n - getdate\n - setdate\n - gettime\n - settime\n - pcb\n - load_r3\n - alarm\n - clear\n";
 
     if (strcmp(cmd, "version") == 0) {
         // print help message for 'version' command
@@ -54,6 +55,9 @@ void help(const char *cmd) {
     } else if (strcmp(cmd, "alarm") == 0) {
         // print help message for yield command
         sys_req(WRITE, COM1, msg_alarm, strlen(msg_alarm));
+    } else if (strcmp(cmd, "clear") == 0) {
+        // print help message for yield command
+        sys_req(WRITE, COM1, msg_clear, strlen(msg_clear));
     } else {
         // if not parameters -> print all help messages
         sys_req(WRITE, COM1, msg_all, strlen(msg_all));
