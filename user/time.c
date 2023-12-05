@@ -9,8 +9,7 @@
 #include <mpx/interrupts.h>
 
 void get_date (void) {
-    
-   // Read Day
+    // Read Day
     outb(0x70, 0x07);
     unsigned char day = inb(0x71);
 
@@ -36,59 +35,58 @@ void get_date (void) {
     char date[9];
     if (hexToDec(month) < 10) {
         //initialize index
-    date[0] = monthReadable[0];
-    date[1] = monthReadable[1];
+        date[0] = monthReadable[0];
+        date[1] = monthReadable[1];
 
-    // swap to ones place and add a zero infront
+        // swap to ones place and add a zero infront
         date[1] = date[0];
         date[0] = '0'; 
     } else {
         //print normal
-    date[0] = monthReadable[0];
-    date[1] = monthReadable[1];
+        date[0] = monthReadable[0];
+        date[1] = monthReadable[1];
     }
    
     date[2] = '-';
     if (hexToDec(day) < 10) {
         //initialize index
-    date[3] = dayReadable[0];
-    date[4] = dayReadable[1];
+        date[3] = dayReadable[0];
+        date[4] = dayReadable[1];
 
-    // swap to ones place and add a zero infront
+        // swap to ones place and add a zero infront
         date[4] = date[3];
         date[3] = '0'; 
     } else {
         //print normal
-    date[3] = dayReadable[0];
-    date[4] = dayReadable[1];
+        date[3] = dayReadable[0];
+        date[4] = dayReadable[1];
     }
+    
     date[5] = '-';
-     if (hexToDec(year) < 10) {
+    
+    if (hexToDec(year) < 10) {
         //initialize index
-    date[6] = yearReadable[0];
-    date[7] = yearReadable[1];
+        date[6] = yearReadable[0];
+        date[7] = yearReadable[1];
 
-    // swap to ones place and add a zero infront
+        // swap to ones place and add a zero infront
         date[7] = date[6];
         date[6] = '0'; 
     } else {
         //print normal
-    date[6] = yearReadable[0];
-    date[7] = yearReadable[1];
+        date[6] = yearReadable[0];
+        date[7] = yearReadable[1];
     }
     date[8] = '\0';
 
-
-  
 	sys_req(WRITE, COM1, date , sizeof(date) );
 
     char newLine[1];
-   newLine[0] = '\n';
+    newLine[0] = '\n';
 	sys_req(WRITE, COM1, newLine , sizeof(newLine) ) ;
 }
 
 void set_date(uint8_t day, uint8_t month, uint8_t year) {
-
     // input check
     if ((month == 1 || month == 3 || month == 5 || month == 7 || month == 8 || month == 10 || month == 12) && (day < 1 || day > 31)) { //months with 31 days
         // day out of range
@@ -120,24 +118,21 @@ void set_date(uint8_t day, uint8_t month, uint8_t year) {
     uint8_t hexMonth = decToHex(month);
     uint8_t hexYear = decToHex(year);
 
-
     //needs input filtering
+    cli();
+    outb(0x70,0x07);
+    outb(0x71,hexDay);
+    sti(); 
 
-     cli();
-      outb(0x70,0x07);
-      outb(0x71,hexDay);
-      sti(); 
+    cli(); 
+    outb(0x70,0x08);
+    outb(0x71,hexMonth);
+    sti(); 
 
-       cli(); 
-      outb(0x70,0x08);
-      outb(0x71,hexMonth);
-      sti(); 
-
-     cli(); 
-      outb(0x70,0x09);
-      outb(0x71,hexYear);
-      sti(); 
-
+    cli(); 
+    outb(0x70,0x09);
+    outb(0x71,hexYear);
+    sti(); 
 }
 
 void get_time(void)
@@ -292,17 +287,3 @@ uint8_t decToHex(int decimal)
 {
     return (uint8_t)((decimal / 10) << 4 | (decimal % 10));
 }
-
-
-/*int strncmp(const char* str1, const char* str2, size_t n) 
-{
-    for (size_t i = 0; i < n; i++) 
-    {
-        if (str1[i] != str2[i]) 
-        {
-            return (int)(str1[i]) - (int)(str2[i]);
-        }
-    }
-    return 0; // The first n characters match
-}
-**/

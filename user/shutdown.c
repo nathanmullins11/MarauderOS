@@ -32,7 +32,6 @@ void shutdown(void) {
     }
 
     sys_req(WRITE, COM1, msg_bye, strlen(msg_bye));
-   // sys_free_mem(msg_bye);
 
     /* Call sys_req(exit) */
     sys_req(EXIT);

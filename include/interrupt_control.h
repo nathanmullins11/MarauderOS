@@ -16,7 +16,7 @@ struct dcb {
     int device;              // associated device with dcb
     int allocation_status;   // is resource in use? (busy=1)
     op_code cur_op;       // WRITE, READ, IDLE, EXIT
-    int event_flag;         // event needs handled - used by sys_call to handle an I/O request (1) if I/O needs to be handled, (0) otherwise
+    int event_flag;         // event needs handled (1=I/0 needs handled)
 
     /* vars for ring buffer */
     /*
