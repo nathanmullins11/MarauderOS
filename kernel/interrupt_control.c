@@ -15,12 +15,6 @@ extern void serial_isr(void*);
 
 int i = 0;
 
-// vars for input handling
-char buffer[100] = {0};
-char temp_buf[100] = {0};
-int index = 0;
-size_t count = 100;
-
 enum uart_registers {
 	RBR = 0,	// Receive Buffer
 	THR = 0,	// Transmitter Holding
@@ -55,11 +49,13 @@ int serial_open(device dev, int speed)
     // check if dev is valid, i.e. COM1, COM2, COM3, or COM4
     int dno = serial_devno(dev);
 	if (dno == -1) {
-		return -101; // invalid event flag pointer ??
+        // invalid event flag pointer
+		return -101; 
 	}
 
     int COM_state;
     (void)COM_state;
+
     if(dno == 0)
     {
         COM_state = 0x24; // COM1 interrupt vector
@@ -95,27 +91,30 @@ int serial_open(device dev, int speed)
     if(speed != 110 && speed != 150 && speed != 300 && speed != 600 && speed != 1200 && speed != 2400 && speed != 4800 && speed != 9600 && speed != 19200)
     {
         return -102; // code for invalid baud rate divisor
-        // else speed is valid
     }
 
-    struct dcb* dev_dcb = (struct dcb*)sys_alloc_mem(sizeof(struct dcb)); // initialize dcb for device after checks have passed
+    // initialize dcb for device after checks have passed
+    struct dcb* dev_dcb = (struct dcb*)sys_alloc_mem(sizeof(struct dcb));
     dev_dcb->rw_buf = (char*)sys_alloc_mem(600);
     struct iocb_queue* temp_q = create_iocb_queue();
     dev_dcb->IOCBs = temp_q;
+
     if (dev_dcb == NULL)
     {
-        return 0; // error allcating mem for dcb
+        // error allcating mem for dcb
+        return 0; 
     }
+
     // initialize DCB for dev
     dev_dcb->device = dno; // set device in use to corresponding COM
     dev_dcb->event_flag = 0; // set event flag to 0;
     dev_dcb->cur_op = IDLE; // set initial status IDLE
+
     /* initialize buffer parameters */
     dev_dcb->ring_chars_transferred = 0;
     dev_dcb->ring_head = 0;
     dev_dcb->ring_tail = 0;
     dev_dcb->ring_buf_size = sizeof(dev_dcb->ring_buf);
-    // dev_dcb->IOCBs = NULL;
     dev_dcb->rw_buf_length = 0;
     dev_dcb->rw_index = 0;
 
@@ -127,19 +126,20 @@ int serial_open(device dev, int speed)
     // Compute the required baud rate - formula given
     int baud_rate_div = 115200 / (long) speed;
 
-    outb(dev + LCR, 0x80);	// set line control register
+    // set line control register
+    outb(dev + LCR, 0x80);
 
-    // store high and low order bytes of baud rate divisor into MSB and LSB registers respectively*/
+    // store high and low order bytes of baud rate divisor into MSB and LSB registers respectively
     outb(dev + DLL, baud_rate_div & 0xFF); // LSB
     outb(dev + DLM, (baud_rate_div >> 8) & 0xFF); // MSB
 
-    outb(dev + LCR, 0x03); // set Line Control Register again
+    // set Line Control Register again
+    outb(dev + LCR, 0x03); 
 
-    // Enable appropriate PIC mask register???
+    // Enable appropriate PIC mask register
     cli(); // Disable interrupts to prevent any issues during modification
     int mask = inb(0x21); // Read current mask value
     mask &= ~(0x10);
-    //mask &= ~(1 << 7); // Enable hardware IRQ 8 (assuming it's represented by bit 7)
     outb(0x21, mask); // Write modified mask value back to the PIC
     sti(); // Enable interrupts again
 
@@ -154,22 +154,21 @@ int serial_open(device dev, int speed)
 
 int serial_close(device dev) {
 
-    //Returns 1 for error, 0 for no error
-
-     // check if dev is valid, i.e. COM1, COM2, COM3, or COM4
+    // check if dev is valid, i.e. COM1, COM2, COM3, or COM4
     int dno = serial_devno(dev);
 	if (dno == -1) {
 		return 1;
     }
 
+    // check if the device is open
     if (dcb_array[dno] == NULL) {
         print("-201   serial port not open");
         return 1;  
-    }else {
+    } else {
         dcb_array[dno] = NULL;
     }
 
-    // Disable appropriate PIC mask register???   Bit Value ????????
+    // Disable appropriate PIC mask register
     cli(); // Disable interrupts to prevent any issues during modification
     int mask = inb(0x21); // Read current mask value
     mask |= (1 << 7); // Enable hardware IRQ 8 (assuming it's represented by bit 7)
@@ -181,62 +180,71 @@ int serial_close(device dev) {
     outb(dev + MSR, 0x00);   // Clear Modem Status Register
 
     return 0;
-	
 }
 
 int serial_read(device dev, char *buf, size_t len)
 {
-    /* validate parameters */
-    int dno = serial_devno(dev); // check if dev is valid, i.e. COM1, COM2, COM3, or COM4
-	if (dno == -1) {
-		return -101; // invalid event flag pointer ??
+    /* step 1: validate parameters */
+    // check if dev is valid, i.e. COM1, COM2, COM3, or COM4
+    int dno = serial_devno(dev); 
+	if (dno == -1)
+    {
+        // invalid event flag pointer
+		return -101;
 	}
 
     // check if buf address is NULL
     if(buf == NULL)
     {
-        return -302; // invalid buffer address
+        // invalid buffer address
+        return -302; 
     }
 
     // len must be > 0 
     if(len < 0)
     {
-        return -304; // invalid count address/ count value
+        // invalid count address/ count value
+        return -304; 
     }
 
-    /* #2 ensure port open and status = IDLE */
-    if(dcb_array[dno] == NULL) // check index of array associated with dev
+    /* step 2: ensure port open and status = IDLE */
+    // check index of array associated with dev; if NULL, port is closed
+    if(dcb_array[dno] == NULL) 
     {
-        // if NULL, then port is closed
-        return -301; // code for port not open
+        // code for port not open
+        return -301; 
     }
 
     // set temp var for dcb
     struct dcb* temp_dcb = dcb_array[dno];
+
+    // if status of dcb is not idle
     if (temp_dcb->cur_op != IDLE) 
     {
-        // if status of dcb is not idle
-        return -304; // device busy, i.e. not idle
+        // device busy, i.e. not idle
+        return -304; 
     }
 
-    /* #3 initialize input buf variables and set status to reading*/
+    /* step 3: initialize input buf variables and set status to reading */
     temp_dcb->rw_buf_length = 0; // # of chars to be read
     temp_dcb->rw_index = buf[0]; // set index to first # in buf array
     temp_dcb->cur_op = READ; // set status to reading
 
-    /* #4 clear the callers flag event*/
-    temp_dcb->event_flag = 0; // clear event flag
+    /* step 4: clear the callers flag event */
+    // clear event flag
+    temp_dcb->event_flag = 0; 
 
-    /* #5 copy chars from ring bug to rw buf*/
-    cli(); // disable interrupts
+    /* step 4: copy chars from ring bug to rw buf */
+    cli();
     for(size_t i = 0; i < strlen(temp_dcb->ring_buf); i++)
     {
-        // has requested count of chars been reached
+        // has requested count of chars been reached?
         if(i == sizeof(temp_dcb->ring_buf))
         {
             break;
         }
-        // has an enter key been found
+
+        // has an enter key been found?
         if(temp_dcb->ring_buf[i] == 13)
         {
             break;
@@ -244,22 +252,27 @@ int serial_read(device dev, char *buf, size_t len)
 
         // transfer char
         buf[i] = temp_dcb->ring_buf[i];
+
         // empty associated index
         temp_dcb->ring_buf[i] = '\0';
+
         // update variables associated with ring buf & buf
         temp_dcb->ring_chars_transferred++;
         temp_dcb->rw_buf_length++;
         temp_dcb->rw_index++;
     }
-    sti(); // re-enable interrupts
 
-    /* #6 If more characters are needed, return. If the block is complete, continue with step 7 */
+    // re-enable interrupts
+    sti(); 
+
+    /* step 7: If more characters are needed, return. If the block is complete, continue with step 7 */
     if((size_t) temp_dcb->rw_buf_length < len)
     {
-        return 0; // rw_buf_length = # of chars transfered, so if it less than len more chars are needed
+        // rw_buf_length = # of chars transfered, so if it less than len more chars are needed
+        return 0; 
     }
 
-    /* #7 set dcb status to idle, set event flag, return actual count */
+    /* step 7: set dcb status to idle, set event flag, return actual count */
     temp_dcb->cur_op = IDLE; // set status IDLE
     temp_dcb->event_flag = 1; // set event flag
     temp_dcb->allocation_status = 0; 
@@ -269,57 +282,59 @@ int serial_read(device dev, char *buf, size_t len)
 
 int serial_write(device dev, char *buf, size_t len)
 {
-    /* validate parameters */
-    int dno = serial_devno(dev); // check if dev is valid, i.e. COM1, COM2, COM3, or COM4
+    /* step 1: validate parameters */
+    int dno = serial_devno(dev);
+    
+    // check if dev is valid, i.e. COM1, COM2, COM3, or COM4
 	if (dno == -1) {
-		return -101; // invalid event flag pointer ??
+        // invalid event flag pointer
+		return -101;
 	}
 
     // check if buf address is NULL
     if(buf == NULL)
     {
-        return -302; // invalid buffer address
+        // invalid buffer address
+        return -302; 
     }
 
     // len must be > 0 
     if(len < 0)
     {
-        return -304; // invalid count address/ count value
+        // invalid count address/ count value
+        return -304; 
     }
 
-    /* #2 ensure port open and status=IDLE */
-    if(dcb_array[dno] == NULL) // check index of array associated with dev
+    /* step 2: ensure port open and status=IDLE */
+    // check index of array associated with dev; if NULL, port is closed
+    if(dcb_array[dno] == NULL) 
     {
-        // if NULL, then port is closed
-        return -301; // code for port not open
+        // code for port not open
+        return -301; 
     }
 
     // set temp var for dcb
-    // struct dcb* temp_dcb = sys_alloc_mem(sizeof(struct dcb));
     struct dcb* temp_dcb = dcb_array[dno];
-    // CHECK THIS
-    // if (temp_dcb->cur_op == IDLE)  // CHECK THIS
-    // {
-    //     // if status of dcb is not idle
-    //     return -304; // device busy, i.e. not idle
-    // }
-    /* #3  Install the buffer pointer and counters in the DCB, and set the current status to writing.*/
+    
+    /* step 3: Install the buffer pointer and counters in the DCB, and set the current status to writing */
     temp_dcb->rw_index = 0; // Set index to 0 to start from the beginning of the buffer
     temp_dcb->rw_buf_length = len; // Store the length of the buffer
     memcpy(temp_dcb->rw_buf, buf, len); // Install the buffer pointer
     temp_dcb->cur_op = WRITE; // Set the current operation to WRITE
-    /* #4 cleat the caller's event flag */
 
-    temp_dcb->event_flag = 0; // clear event flag
+    /* step 4: cleat the caller's event flag */
+    // clear event flag
+    temp_dcb->event_flag = 0; 
 
-    /* #5  Get the first character from the requestor’s buffer and store it in the output register */
+    /* step 5: Get the first character from the requestor’s buffer and store it in the output register */
     outb(dev, temp_dcb->rw_buf[temp_dcb->rw_index]);
     temp_dcb->rw_index++;
 
     // Set the bit 1 by logical OR with 0x02 and write back to the register
     cli();
-    /* #6  Enable write/read interrupts by setting bit 1 of the Interrupt Enable register. This must be done by setting
-    // Retrieve the current value of the Interrupt Enable register */
+
+    /* step 6: Enable write/read interrupts by setting bit 1 of the Interrupt Enable register */
+    // Retrieve the current value of the Interrupt Enable register
     int current_ier = inb(dev + IER);
     outb(dev + IER, current_ier | 0x02);
     sti();
@@ -331,26 +346,28 @@ int serial_write(device dev, char *buf, size_t len)
 void serial_interrupt(void) {
     // Read Interrupt ID
     int interrupt_ID = inb(COM1 + IIR) & 7; 
-   if((interrupt_ID & 1) != 0)
+    if((interrupt_ID & 1) != 0)
     {
         return;
     }
+
     // Check bit 1 and 2 for correct interrupt transfer
-    if (interrupt_ID >> 1 == 0 && interrupt_ID >> 2 == 0) { // Modem Status Interrupt
-            inb(COM1+MSR);
-    } else if (((interrupt_ID >> 1) == 1) && ((interrupt_ID >> 2) == 0)) { // Output Interrupt
-        
+    if (interrupt_ID >> 1 == 0 && interrupt_ID >> 2 == 0) { 
+        // Modem Status Interrupt
+        inb(COM1+MSR);
+    } else if (((interrupt_ID >> 1) == 1) && ((interrupt_ID >> 2) == 0)) { 
+        // Output Interrupt
         serial_output_interrupt(dcb_array[0]);
+    } else if ( interrupt_ID == 4 ) {
+        // Input Interrupt
+        serial_input_interrupt(dcb_array[0]);
+    } else if (interrupt_ID >> 1 == 1 && interrupt_ID >> 2 == 1) {
+        // Line Status Interrupt
+        inb(COM1+LSR);
+    } 
 
-        } else if ( interrupt_ID == 4 ) { // Input Interrupt
-
-          serial_input_interrupt(dcb_array[0]);
-
-        } else if (interrupt_ID >> 1 == 1 && interrupt_ID >> 2 == 1) { // Line Status Interrupt
-             inb(COM1+LSR);
-        } 
-
-    outb(0x20,0x20); // clear interrupt
+    // clear interrupt
+    outb(0x20,0x20); 
 }
 
 void serial_input_interrupt(struct dcb *dcb) {
@@ -431,7 +448,6 @@ void serial_input_interrupt(struct dcb *dcb) {
 
         outb(COM1, '\n');
 
-        // 
         return;
     }
     
@@ -468,9 +484,6 @@ void serial_input_interrupt(struct dcb *dcb) {
             cursor++;
         }
     }
-    
-    
-    // outb(COM1, in_char);
 
     // check current status
     if (dcb->cur_op != READ) {
@@ -524,18 +537,14 @@ void serial_output_interrupt(struct dcb *dcb) {
         outb(COM1, dcb->rw_buf[dcb->rw_index]);
         dcb->rw_index++;
 
-
         return;
     } else {
-        // otherwise all characters have been transfered
+        // otherwise all characters have been transferred
         dcb->cur_op = IDLE;
         dcb->event_flag = 1;
 
         int dev = dcb->device;
         outb(dev + IER, 0x00);
-
-        // move current process back to ready queue so paused process can go directly back into execution
-        // pcb_insert(global_current_process);
 
         // set allocation status of device back to open
         dcb->allocation_status = 0;
@@ -544,15 +553,11 @@ void serial_output_interrupt(struct dcb *dcb) {
 
         memset(dcb->rw_buf, 0, strlen(dcb->rw_buf));
 
-        // remove paused process from iocb queue
-       // iocb_remove(dcb->IOCBs->front->iocb->IO_pcb, dcb);
-
-       // reset the indexes for buffer
-       dcb->rw_index = 0;
-       dcb->ring_chars_transferred = 0;
-       dcb->ring_head = 0;
-       dcb->ring_tail = 0;
-
+        // reset the indexes for buffer
+        dcb->rw_index = 0;
+        dcb->ring_chars_transferred = 0;
+        dcb->ring_head = 0;
+        dcb->ring_tail = 0;
 
         return;
     }
@@ -568,7 +573,8 @@ struct iocb_queue* create_iocb_queue(void) {
         new_queue->rear = NULL;
     }
 
-    return new_queue; // Return the pointer to the new queue
+    // Return the pointer to the new queue
+    return new_queue; 
 }
 
 
@@ -618,7 +624,3 @@ void iocb_remove(struct pcb* pcb, struct dcb* dcb)
         current = current->next;
     }
 }
-
-
-
-

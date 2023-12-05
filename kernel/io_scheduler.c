@@ -11,23 +11,27 @@ int validate_io_request(struct context* context_ptr)
     // validate I/O operation
     if (context_ptr->EAX != READ && context_ptr->EAX != WRITE)
     {
-        return -1; // invalid operation
+        // invalid operation
+        return -1;
     }
 
     int device_id = context_ptr->EBX;
     if (device_id < 0)
     {
-        return -2; // invalid device ID
+        // invalid device ID
+        return -2;
     }
 
     char* buffer = (char*)context_ptr->ECX;
     int size = context_ptr->EDX;
     if (buffer == NULL || size <= 0)
     {
-        return -3; // invalid buffer
+        // invalid buffer
+        return -3; 
     }
 
-    return 0; // valid parameters
+    // valid parameters
+    return 0; 
 }
 
 
@@ -42,9 +46,11 @@ void io_scheduler(struct context* context_ptr)
     }
 
     int device_id = context_ptr->EBX;
+
     // device_id = hex value of one of the devices, need to convert to 0-3
     int id_to_arr_pos = serial_devno(device_id);
     struct dcb* device_dcb = dcb_array[id_to_arr_pos];
+
     // CLEAR BEFORE COPYING MEM OVER
     memset(device_dcb->rw_buf, 0, strlen(device_dcb->rw_buf));
 
@@ -53,7 +59,7 @@ void io_scheduler(struct context* context_ptr)
     device_dcb->pcb_ptr = global_current_process;
 
     // check if device is busy
-    if (device_dcb->allocation_status == 0) //&& device_dcb->IOCBs->front == NULL)
+    if (device_dcb->allocation_status == 0)
     {
         // device is not busy, process request immediately
         device_dcb->allocation_status = 1; // set device to busy

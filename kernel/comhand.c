@@ -16,6 +16,7 @@
 #include <alarms.h>
 #include <interrupt_control.h>
 
+// variable used for printing > symbol
 int j = 0;
 
 void print(char *out) {
@@ -38,11 +39,9 @@ void comhand(void)
     "                                                                   \n"
     "                                                                   \x1b[0m\n";
 
+	// print logo and welcome message
 	sys_req(WRITE, COM1, picture_msg, strlen(picture_msg));
 	sys_req(WRITE, COM1, msg, strlen(msg));
-	// sys_free_mem((void*) msg);
-
-	// sys_free_mem(picture_msg);
 
 	// error messages
 	char error_msg_inc_param[] = "\x1b[31mERR: Invalid parameter | use `help` command\x1b[0m\n";
@@ -57,12 +56,14 @@ void comhand(void)
 	// pointer to store command from user input
 	char *command;
 
+	// define pointers to store parameters for various commands
 	char* time = (char*)sys_alloc_mem(100 * sizeof(char));
 	char* message = (char*)sys_alloc_mem(100 * sizeof(char));
 
 	// loop forever until shutdown
     for ( ;; ) 
     {
+		// print input indent 
 		if (j % 2 == 0) {
 			outb(COM1, '>');
 			outb(COM1, ' ');
@@ -72,8 +73,10 @@ void comhand(void)
 		// create buffer to hold user input and read using READ op-code
     	char buf[100] = {0};
 		
+		// read from input
         sys_req(READ, COM1, buf, strlen(buf));
 
+		// copy contents into dcb buffer
 		for(size_t i = 0; i < strlen(dcb_array[0]->rw_buf); i++)
 		{
 			buf[i] = dcb_array[0]->rw_buf[i];
@@ -364,7 +367,7 @@ void comhand(void)
 							delete_pcb(name);
 						} else if (strcmp(param, "-b") == 0) {
 							// PCB block
-							//block_pcb(name);
+							// block_pcb(name);
 							/* Deprecated in R6 */
 							char *error_msg_dep = "\x1b[31mERR: Feature no longer supported\x1b[0m\n";
 							sys_req(WRITE, COM1, error_msg_dep, strlen(error_msg_dep));
@@ -451,8 +454,6 @@ void comhand(void)
 								}
 
 								temp_buf[strlen(temp_buf)] = '\0';
-								//message = temp_buf;
-							//	memcpy(message, temp_buf, strlen(temp_buf));
 
 								// check if the first character is a space or empty
 								// if not then parse message and pass into function
