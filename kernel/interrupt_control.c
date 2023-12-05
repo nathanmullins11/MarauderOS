@@ -54,7 +54,7 @@ int serial_open(device dev, int speed)
 	}
 
     int COM_state;
-    (void)COM_state;
+    //(void)COM_state;
 
     if(dno == 0)
     {
@@ -351,16 +351,26 @@ void serial_interrupt(void) {
         return;
     }
 
+    // store current dcb into temp pointer
+    int dcb_index = check_cur_dcb();
+    // if invalid index, return
+    if(dcb_index < 0)
+    {
+        return;
+    }
+    
+    struct dcb* temp_dcb = dcb_array[dcb_index];
+
     // Check bit 1 and 2 for correct interrupt transfer
     if (interrupt_ID >> 1 == 0 && interrupt_ID >> 2 == 0) { 
         // Modem Status Interrupt
         inb(COM1+MSR);
     } else if (((interrupt_ID >> 1) == 1) && ((interrupt_ID >> 2) == 0)) { 
         // Output Interrupt
-        serial_output_interrupt(dcb_array[0]);
+        serial_output_interrupt(temp_dcb);
     } else if ( interrupt_ID == 4 ) {
         // Input Interrupt
-        serial_input_interrupt(dcb_array[0]);
+        serial_input_interrupt(temp_dcb);
     } else if (interrupt_ID >> 1 == 1 && interrupt_ID >> 2 == 1) {
         // Line Status Interrupt
         inb(COM1+LSR);
@@ -403,8 +413,10 @@ void serial_input_interrupt(struct dcb *dcb) {
 
             // decrement index
             dcb->rw_index--;
+            dcb->ring_chars_transferred--;
             // place null terminator at end of buffer
             dcb->rw_buf[dcb->rw_index] = '\0';
+            dcb->ring_buf[dcb->ring_chars_transferred] = '\0';
         }
     }
 
@@ -502,11 +514,11 @@ void serial_input_interrupt(struct dcb *dcb) {
         return;
     } else {
         // current status is READ, store in requestors input buffer
-        int dev = dcb->device;
+       // int dev = dcb->device;
         if (in_char != '\r' || in_char != '\177') {
-            dcb_array[dev]->rw_buf[i] = in_char;
+           // dcb_array[dev]->rw_buf[i] = in_char;
         }
-        i++;
+       // i++;
     }
 
     // check if count complete and character is not new line
@@ -621,5 +633,21 @@ void iocb_remove(struct pcb* pcb, struct dcb* dcb)
             return;
         }
         current = current->next;
+    }
+}
+
+int check_cur_dcb(void)
+{
+    if(dcb_array[0] != NULL)
+    {
+        return 0;
+    } else if (dcb_array[1] != NULL) {
+        return 1;
+    } else if (dcb_array[2] != NULL) {
+        return 2;
+    } else if (dcb_array[3] != NULL) {
+        return 3;
+    } else {
+        return -1;
     }
 }

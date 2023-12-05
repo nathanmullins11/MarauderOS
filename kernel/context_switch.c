@@ -33,8 +33,16 @@ enum uart_registers {
 struct dcb* dcb_array[4] = {NULL,NULL,NULL, NULL}; // COM1, COM2, COM3, COM4
 
 struct context* sys_call(struct context* context_ptr) {
+
     // store current dcb into temp pointer
-    struct dcb* temp_dcb = dcb_array[0];
+    int dcb_index = check_cur_dcb();
+    // if invalid index, return
+    if(dcb_index < 0)
+    {
+        return context_ptr;
+    }
+    
+    struct dcb* temp_dcb = dcb_array[dcb_index];
 
     // check all dcbs for io completion status if so unblock pcb and either put back in ready queue or execute process
     // check for event flags
