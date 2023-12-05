@@ -65,7 +65,8 @@ int serial_open(device dev, int speed)
         }
         COM_num = 0;
     } else if (dno == 1) {
-        COM_state = 0x23; // COM2 interrupt vector
+        COM_state = 0x23; // COM2 interrupt vectornmullins
+        
         if(dcb_array[1] != NULL) // if dev is open
         {
             return -103;
