@@ -413,8 +413,7 @@ void serial_input_interrupt(struct dcb *dcb) {
         // discard these keys for now
         inb(COM1);
         inb(COM1);
-
-        in_char = '\0';
+        
     }
 
     // check for enter sequence
@@ -491,7 +490,7 @@ void serial_input_interrupt(struct dcb *dcb) {
         // check if ring is full 
         if ( (dcb->ring_tail - 1) == dcb->ring_head ) {
             // if full, then discard character
-        } else if (in_char == '\r' || in_char == '\177') { 
+        } else if (in_char == '\r' || in_char == '\177' || in_char == '\033') { 
             // do not add escape characters
         } else {
             // otherwise, put in ring buffer
