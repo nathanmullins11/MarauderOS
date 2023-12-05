@@ -440,6 +440,11 @@ void comhand(void)
 					
 				}
 
+				/* CLEAR */
+				else if (strcmp(command, "clear") == 0) {
+					print("\033[2J\033[1;1H");
+				}
+
 				/* Error */
 				else {
 					// command not recognized
