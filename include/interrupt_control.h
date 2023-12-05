@@ -169,3 +169,6 @@ struct iocb_node* create_iocb_node(struct iocb* iocb);
  * @return int device number, -1 if doesn't exist
  */
 extern int serial_devno(device dev);
+
+int check_cur_dcb(void);
+

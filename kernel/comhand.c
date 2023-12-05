@@ -15,6 +15,10 @@
 #include <shutdown.h>
 #include <alarms.h>
 #include <interrupt_control.h>
+#include <context_switch.h>
+
+// variable used for printing > symbol
+int j = 0;
 
 // variable used for printing > symbol
 int j = 0;
@@ -45,6 +49,7 @@ void comhand(void)
 	// print logo and welcome message
 	sys_req(WRITE, COM1, picture_msg, strlen(picture_msg));
 	sys_req(WRITE, COM1, msg, strlen(msg));
+
 	sys_req(WRITE, COM1, warn_msg, strlen(warn_msg));
 
 	// error messages
@@ -62,11 +67,21 @@ void comhand(void)
 
 	// define pointers to store parameters for various commands
 	char* time = (char*)sys_alloc_mem(100 * sizeof(char));
-	char* message = (char*)sys_alloc_mem(100 * sizeof(char));
+	// char* message = (char*)sys_alloc_mem(100 * sizeof(char));
 
 	// loop forever until shutdown
     for ( ;; ) 
     {
+		// store current dcb into temp pointer
+		int dcb_index = check_cur_dcb();
+		// if invalid index, return
+		if(dcb_index < 0)
+		{
+			return;
+		}
+    
+    struct dcb* temp_dcb = dcb_array[dcb_index];
+
 		// print input indent 
 		if (j % 2 == 0) {
 			outb(COM1, '>');
@@ -81,9 +96,10 @@ void comhand(void)
         sys_req(READ, COM1, buf, strlen(buf));
 
 		// copy contents into dcb buffer
-		for(size_t i = 0; i < strlen(dcb_array[0]->rw_buf); i++)
+		for(size_t i = 0; i < strlen(temp_dcb->rw_buf); i++)
+
 		{
-			buf[i] = dcb_array[0]->rw_buf[i];
+			buf[i] = temp_dcb->rw_buf[i];
 		}
 
 		buf[strlen(buf)] = '\0';
@@ -121,16 +137,17 @@ void comhand(void)
 						char msg[] = "Are you sure you want to shutdown? (y/n)\n";
 						sys_req(WRITE, COM1, msg, strlen(msg));
 
-						dcb_array[0]->ring_chars_transferred = 0;
-						memset(dcb_array[0]->ring_buf, 0, strlen(dcb_array[0]->ring_buf));
-
+						temp_dcb->ring_chars_transferred = 0;
+						memset(temp_dcb->ring_buf, 0, strlen(temp_dcb->ring_buf));
+						memset(temp_dcb->rw_buf, 0, strlen(temp_dcb->rw_buf));
+						temp_dcb->allocation_status = 0;
 						// get user input
 						char choice[100] = {0};
 						sys_req(READ, COM1, choice, sizeof(choice));
 
-						for(size_t i = 0; i < strlen(dcb_array[0]->rw_buf); i++)
+						for(size_t i = 0; i < strlen(temp_dcb->rw_buf); i++)
 						{
-							choice[i] = dcb_array[0]->rw_buf[i];
+							choice[i] = temp_dcb->rw_buf[i];
 						}
 
 						choice[strlen(choice)] = '\0';
@@ -142,14 +159,19 @@ void comhand(void)
 								shutdown();
 							} else if ( strcmp(choice, "n") == 0 ) {
 								// do nothing, return to normal operation
-								dcb_array[0]->ring_chars_transferred = 0;
-								memset(dcb_array[0]->ring_buf, 0, strlen(dcb_array[0]->ring_buf));
-								memset(dcb_array[0]->rw_buf, 0, strlen(dcb_array[0]->rw_buf));
-								dcb_array[0]->allocation_status = 0;
+								temp_dcb->ring_chars_transferred = 0;
+								memset(temp_dcb->ring_buf, 0, strlen(temp_dcb->ring_buf));
+								memset(temp_dcb->rw_buf, 0, strlen(temp_dcb->rw_buf));
+								temp_dcb->allocation_status = 0;
+								temp_dcb->rw_index = 0;
 							} else {
 								// invalid input
-								char error_msg[] = "\x1b[31mERR: Invalid input\x1b[0m\n";
-								sys_req(WRITE, COM1, error_msg, strlen(error_msg));
+								// char error_msg[] = "\x1b[31mERR: Invalid input\x1b[0m\n";
+								// sys_req(WRITE, COM1, error_msg, strlen(error_msg));
+								temp_dcb->ring_chars_transferred = 0;
+								memset(temp_dcb->ring_buf, 0, strlen(temp_dcb->ring_buf));
+								memset(temp_dcb->rw_buf, 0, strlen(temp_dcb->rw_buf));
+								temp_dcb->allocation_status = 0;
 							}
 						}
 					}
@@ -206,7 +228,7 @@ void comhand(void)
 							if ( strcmp(flag, "-d") == 0 ) {
 								// get param from flag and pass into function
 								char *param = strtok(NULL, " ");
-								if (param) {
+								if (param && (param[2] == '-' || param[5] == '-')) {
 									// extrapolate the day, month, and year
 									char *month_str = strtok(param, "-");
 									char *day_str = strtok(NULL, "-");
@@ -220,8 +242,8 @@ void comhand(void)
 									// pass into set date function
 									set_date(day, month, year);
 									// clear buffers
-									memset(dcb_array[0]->ring_buf, 0, strlen(dcb_array[0]->ring_buf));
-									memset(dcb_array[0]->rw_buf, 0, strlen(dcb_array[0]->rw_buf));
+									memset(temp_dcb->ring_buf, 0, strlen(temp_dcb->ring_buf));
+									memset(temp_dcb->rw_buf, 0, strlen(temp_dcb->rw_buf));
 								} else {
 									// no value to pass into functon
 									sys_req(WRITE, COM1, error_msg_empty_param, strlen(error_msg_empty_param));
@@ -267,8 +289,8 @@ void comhand(void)
 								if (param) { 
 									set_time(param); 
 									// clear buffers
-									memset(dcb_array[0]->ring_buf, 0, strlen(dcb_array[0]->ring_buf));
-									memset(dcb_array[0]->rw_buf, 0, strlen(dcb_array[0]->rw_buf));
+									memset(temp_dcb->ring_buf, 0, strlen(temp_dcb->ring_buf));
+									memset(temp_dcb->rw_buf, 0, strlen(temp_dcb->rw_buf));
 								} else {
 									// no value to pass into functon
 									sys_req(WRITE, COM1, error_msg_empty_param, strlen(error_msg_empty_param));
@@ -445,23 +467,24 @@ void comhand(void)
 								char msg[] = "Enter an alarm message of 100 characters or less:\n";
 								sys_req(WRITE, COM1, msg, strlen(msg));
 
-								dcb_array[0]->ring_chars_transferred = 0;
-								memset(dcb_array[0]->ring_buf, 0, strlen(dcb_array[0]->ring_buf));
+								temp_dcb->ring_chars_transferred = 0;
+								memset(temp_dcb->ring_buf, 0, strlen(temp_dcb->ring_buf));
 
 								// get user input
 								char temp_buf[100] = {0};
 								sys_req(READ, COM1, temp_buf, sizeof(temp_buf));
 
-								for(size_t i = 0; i < strlen(dcb_array[0]->rw_buf); i++)
+								for(size_t i = 0; i < strlen(temp_dcb->rw_buf); i++)
 								{
-									temp_buf[i] = dcb_array[0]->rw_buf[i];
+									temp_buf[i] = temp_dcb->rw_buf[i];
 								}
 
 								temp_buf[strlen(temp_buf)] = '\0';
 
 								// check if the first character is a space or empty
 								// if not then parse message and pass into function
-								if (isspace((int)temp_buf[0]) == 1 || message[0] == '\0') {
+								//if (isspace((int)temp_buf[0]) != 1 || message[0] != '\0') {
+								if(0) {
 									char err_spaces[] = "\x1b[31mERR: Alarm name cannot be empty\x1b[0m\n";
 									print(err_spaces);
 								} else {
@@ -479,10 +502,10 @@ void comhand(void)
 										temp_buf[0] = '\0'; // Null-terminate after '0'
 									}
 
-									if (message[strlen(message)] == '\0') {
+									//if (temp_dcb->rw_buf[strlen(temp_dcb->rw_buf)] == '\0') {
 										// message valid, pass into function
-										alarm(time, message);
-									}
+										alarm(time, temp_dcb->rw_buf);
+									//}
 								}
 							} else {
 								if(time_format_checker)
@@ -514,6 +537,13 @@ void comhand(void)
 			}
 
 		}
+
+		temp_dcb->ring_chars_transferred = 0;
+		memset(temp_dcb->ring_buf, 0, strlen(temp_dcb->ring_buf));
+		memset(temp_dcb->rw_buf, 0, strlen(temp_dcb->rw_buf));
+		temp_dcb->allocation_status = 0;
+		temp_dcb->rw_index = 0;
+
 		sys_req(IDLE);
     }
 }
