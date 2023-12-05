@@ -442,7 +442,7 @@ void serial_input_interrupt(struct dcb *dcb) {
 
         // if ring buffer not empty, put contents in rw buf
         // Assuming dcb_ring is a pointer to your DCB structure
-        if (dcb->ring_chars_transferred > 0) {
+        if (dcb->ring_chars_transferred > 0 && (strcmp(global_current_process->name_arr, "alarm0") == 0)) {
             // Copy the contents of ring_buf to dcb_rw_buf
             memcpy(dcb->rw_buf, dcb->ring_buf, dcb->ring_chars_transferred);
 
