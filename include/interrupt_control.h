@@ -171,3 +171,4 @@ struct iocb_node* create_iocb_node(struct iocb* iocb);
 extern int serial_devno(device dev);
 
 int check_cur_dcb(void);
+

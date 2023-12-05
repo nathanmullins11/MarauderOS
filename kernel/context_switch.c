@@ -41,7 +41,6 @@ struct context* sys_call(struct context* context_ptr) {
     {
         return context_ptr;
     }
-    
     struct dcb* temp_dcb = dcb_array[dcb_index];
 
     // check all dcbs for io completion status if so unblock pcb and either put back in ready queue or execute process

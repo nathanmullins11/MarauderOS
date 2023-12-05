@@ -56,6 +56,7 @@ int serial_open(device dev, int speed)
     int COM_state;
     //(void)COM_state;
 
+
     if(dno == 0)
     {
         COM_state = 0x24; // COM1 interrupt vector
@@ -352,6 +353,7 @@ void serial_interrupt(void) {
         return;
     }
 
+
     // store current dcb into temp pointer
     int dcb_index = check_cur_dcb();
     // if invalid index, return
@@ -359,9 +361,8 @@ void serial_interrupt(void) {
     {
         return;
     }
-    
     struct dcb* temp_dcb = dcb_array[dcb_index];
-
+  
     // Check bit 1 and 2 for correct interrupt transfer
     if (interrupt_ID >> 1 == 0 && interrupt_ID >> 2 == 0) { 
         // Modem Status Interrupt
@@ -426,7 +427,8 @@ void serial_input_interrupt(struct dcb *dcb) {
         // discard these keys for now
         inb(COM1);
         inb(COM1);
-        
+
+        in_char = '\0';
     }
 
     // check for enter sequence
@@ -503,7 +505,9 @@ void serial_input_interrupt(struct dcb *dcb) {
         // check if ring is full 
         if ( (dcb->ring_tail - 1) == dcb->ring_head ) {
             // if full, then discard character
+
         } else if (in_char == '\r' || in_char == '\177' || in_char == '\033') { 
+
             // do not add escape characters
         } else {
             // otherwise, put in ring buffer
@@ -520,6 +524,11 @@ void serial_input_interrupt(struct dcb *dcb) {
            // dcb_array[dev]->rw_buf[i] = in_char;
         }
        // i++;
+        int dev = dcb->device;
+        if (in_char != '\r' || in_char != '\177') {
+            dcb_array[dev]->rw_buf[i] = in_char;
+        }
+        i++;
     }
 
     // check if count complete and character is not new line

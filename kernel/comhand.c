@@ -20,6 +20,9 @@
 // variable used for printing > symbol
 int j = 0;
 
+// variable used for printing > symbol
+int j = 0;
+
 void print(char *out) {
 	sys_req(WRITE, COM1, out, strlen(out));
 }
@@ -28,6 +31,9 @@ void comhand(void)
 {
 	// print welcoming message
 	const char* msg = "Welcome to MarauderOS | Use 'help' command to see list of commands\n";
+
+	// warning message
+	const char* warn_msg = "\x1b[33m[WARN]\x1b[0m Please review `r6-warnings.md` in documentation (doc/r6-warnings.md) before use\n";
 
 	// secondary welcome message
 	char* picture_msg =
@@ -43,6 +49,8 @@ void comhand(void)
 	// print logo and welcome message
 	sys_req(WRITE, COM1, picture_msg, strlen(picture_msg));
 	sys_req(WRITE, COM1, msg, strlen(msg));
+
+	sys_req(WRITE, COM1, warn_msg, strlen(warn_msg));
 
 	// error messages
 	char error_msg_inc_param[] = "\x1b[31mERR: Invalid parameter | use `help` command\x1b[0m\n";
@@ -89,6 +97,7 @@ void comhand(void)
 
 		// copy contents into dcb buffer
 		for(size_t i = 0; i < strlen(temp_dcb->rw_buf); i++)
+
 		{
 			buf[i] = temp_dcb->rw_buf[i];
 		}
