@@ -20,7 +20,7 @@ void help(const char *cmd) {
     const char *msg_loadr3 = "Command: load_r3\n\nDescription:\n  Loads five faux processes into the ready queue. These processes print to the terminal.\n\nUsage:\n  load_r3\n";
     const char *msg_yield = "Command: yield\n\nDescription:\n  Command handler yields to the CPU, runs any processes in the ready queue.\n\nUsage:\n  yield\n";
     const char *msg_alarm = "Command: alarm\n\nDescription:\n  Creates an alarm process to display a message at a specified time.\n\nUsage:\n  alarm [options] [argument]\n\nOptions:\n  -t,\tThe time the alarm goes off in hh:mm:ss format\n\nExample:\n  alarm -t 09:41:00\n\nAdditional Notes:\n  An alarm has an associated message, once the user runs the alarm -t [time] command, the OS will\n  prompt the user to input the message\n";
-    const char *msg_all = "Available Commands | type `help [command]` for more detailed help\n - version\n - shutdown \x1b[33m[WARN]\x1b[0m\n - getdate\n - setdate\n - gettime\n - settime\n - pcb\n - load_r3 \x1b[33m[WARN]\x1b[0m\n - alarm \x1b[33m[WARN]\x1b[0m\n";
+    const char *msg_all = "Available Commands | type `help [command]` for more detailed help\n - version\n - shutdown\n - getdate\n - setdate\n - gettime\n - settime\n - pcb\n - load_r3 \x1b[33m[WARN]\x1b[0m\n - alarm \x1b[33m[WARN]\x1b[0m\n";
 
     if (strcmp(cmd, "version") == 0) {
         // print help message for 'version' command
