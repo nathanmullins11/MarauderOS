@@ -20,9 +20,6 @@
 // variable used for printing > symbol
 int j = 0;
 
-// variable used for printing > symbol
-int j = 0;
-
 void print(char *out) {
 	sys_req(WRITE, COM1, out, strlen(out));
 }

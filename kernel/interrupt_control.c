@@ -428,7 +428,7 @@ void serial_input_interrupt(struct dcb *dcb) {
         inb(COM1);
         inb(COM1);
 
-        in_char = '\0';
+     //   in_char = '\0';
     }
 
     // check for enter sequence
@@ -519,16 +519,9 @@ void serial_input_interrupt(struct dcb *dcb) {
         return;
     } else {
         // current status is READ, store in requestors input buffer
-       // int dev = dcb->device;
         if (in_char != '\r' || in_char != '\177') {
            // dcb_array[dev]->rw_buf[i] = in_char;
         }
-       // i++;
-        int dev = dcb->device;
-        if (in_char != '\r' || in_char != '\177') {
-            dcb_array[dev]->rw_buf[i] = in_char;
-        }
-        i++;
     }
 
     // check if count complete and character is not new line
