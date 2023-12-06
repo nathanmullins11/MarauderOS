@@ -170,5 +170,10 @@ struct iocb_node* create_iocb_node(struct iocb* iocb);
  */
 extern int serial_devno(device dev);
 
+/**
+ * @brief checks the dcb_array to determine the current device in use
+ * 
+ * @return int 0 for COM1, 1 for COM2, 2 for COM3, 3 for COM4, -1 for an error/invalid array index
+ */
 int check_cur_dcb(void);
 
