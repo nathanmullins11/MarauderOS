@@ -131,7 +131,7 @@ void comhand(void)
 						sys_req(WRITE, COM1, error_msg_inc_param, strlen(error_msg_inc_param));
 					} else {
 						// ask user if they want to shutdown
-						char msg[] = "Are you sure you want to shutdown? (y/n)\n";
+						char msg[] = "Are you sure you want to shutdown? (y/n)\n> ";
 						sys_req(WRITE, COM1, msg, strlen(msg));
 
 						temp_dcb->ring_chars_transferred = 0;
@@ -461,7 +461,7 @@ void comhand(void)
 
 							if (time && time_format_checker) {
 								// everything valid thus far, get command message
-								char msg[] = "Enter an alarm message of 100 characters or less:\n";
+								char msg[] = "Enter an alarm message of 100 characters or less:\n> ";
 								sys_req(WRITE, COM1, msg, strlen(msg));
 
 								temp_dcb->ring_chars_transferred = 0;
