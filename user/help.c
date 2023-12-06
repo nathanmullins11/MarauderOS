@@ -5,6 +5,7 @@
 #include <string.h>
 
 void help(const char *cmd) {
+    (void)cmd;
     // build help strings for each command
     const char *msg_version = "Command: version\n\nDescription:\n  Prints the current version of MarauderOS and last build date to the terminal.\n\nUsage:\n  version\n";
     const char *msg_shutdown = "Command: shutdown\n\nDescription:\n  Exits MarauderOS, ask for confirmation before initiating shutdown.\n\nUsage:\n  shutdown\n\nAdditional Notes:\n  Running `shutdown!` will immediately exit the OS without confirmation\n";
@@ -13,17 +14,18 @@ void help(const char *cmd) {
     const char *msg_gettime = "Command: gettime\n\nDescription:\n  Prints the current time of MarauderOS to the terminal, format in 24-hour GMT.\n\nUsage:\n  gettime\n";
     const char *msg_settime = "Command: settime\n\nDescription:\n  Sets the time of the MarauderOS, in 24-hour GMT format.\n\nUsage:\n  settime [options] [argument]\n\nOptions\n  -t,\tThe new time in hh:mm:ss format\n\nExample:\n  settime -t 09:41:00\n";
     const char *msg_pcb = "Command: pcb\n\nDescription:\n  Handles all Process Control Block (PCB) related commands and actions.\n\nUsage:\n  pcb [options] [process name] [suboptions] [suboption arguments]\n\n";
-    const char *msg_pcb2 = "Options:\n  -d,\tDeletes a specified PCB, cannot be a system process\n  -b,\tBlocks a specified PCB\n  -u,\tUnblocks a specified PCB\n  -s,\tSuspends a specified PCB\n  -r,\tResumes a specified PCB\n  -p,\tChanges an existing PCB's priority, requires --pri suboption\n  -l,\tLists PCB information, takes the following as arguments: ready, blocked, [process_name], or no argument\n  \tto show all processes\n\n";
+    const char *msg_pcb2 = "Options:\n  -d,\tDeletes a specified PCB, cannot be a system process\n  -s,\tSuspends a specified PCB\n  -r,\tResumes a specified PCB\n  -p,\tChanges an existing PCB's priority, requires --pri suboption\n  -l,\tLists PCB information, takes the following as arguments: ready, blocked, [process_name], or no argument\n  \tto show all processes\n\n";
     const char *msg_pcb3 = "Suboptions:\n  --pri,\tProcess's priority, an integer between 0 and 9, inclusive\n\n";
-    const char *msg_pcb4 = "Examples:\n  - Create a PCB:\t\tpcb -c NAME --class user --pri 4\n  - Delete a PCB:\t\tpcb -d NAME\n  - Change priority:\t\tpcb -p NAME --pri 1\n  - List all blocked processes:\tpcb -l blocked\n\nAdditional Notes:\n  Refer to the User Manuel for a more in-depth explanation\n  (https://github.com/WVU-CS450/Morgantown-Marauders-/blob/main/doc/UserManual.pdf)\n  INFO: Create PCB no longer supported as of v3.0\n";
+    const char *msg_pcb4 = "Examples:\n  - Create a PCB:\t\tpcb -c NAME --class user --pri 4\n  - Delete a PCB:\t\tpcb -d NAME\n  - Change priority:\t\tpcb -p NAME --pri 1\n  - List all blocked processes:\tpcb -l blocked\n\nAdditional Notes:\n  Refer to the User Manuel for a more in-depth explanation\n  (https://github.com/WVU-CS450/Morgantown-Marauders-/blob/main/doc/UserManual.pdf)\n  INFO: Create PCB no longer supported as of v3.0\n  INFO: Block and Unblock PCB no longer supported as of v5.0\n\n";
     const char *msg_loadr3 = "Command: load_r3\n\nDescription:\n  Loads five faux processes into the ready queue. These processes print to the terminal.\n\nUsage:\n  load_r3\n";
     const char *msg_yield = "Command: yield\n\nDescription:\n  Command handler yields to the CPU, runs any processes in the ready queue.\n\nUsage:\n  yield\n";
     const char *msg_alarm = "Command: alarm\n\nDescription:\n  Creates an alarm process to display a message at a specified time.\n\nUsage:\n  alarm [options] [argument]\n\nOptions:\n  -t,\tThe time the alarm goes off in hh:mm:ss format\n\nExample:\n  alarm -t 09:41:00\n\nAdditional Notes:\n  An alarm has an associated message, once the user runs the alarm -t [time] command, the OS will\n  prompt the user to input the message\n";
-    const char *msg_clear = "Command: clear\n\nDescription:\n  Clears the display.\n\nUsage:\n  clear\n";
-    const char *msg_all = "Available Commands | type `help [command]` for more detailed help\n - version\n - shutdown\n - getdate\n - setdate\n - gettime\n - settime\n - pcb\n - load_r3\n - alarm\n - clear\n";
+    const char *msg_clear = "Command clear\n\nDescription:\n Clears the terminal.\n\nUsage:\n  clear\n";
+    const char *msg_all = "Available Commands | type `help [command]` for more detailed help\n - version\n - shutdown\n - getdate\n - setdate\n - gettime\n - settime\n - pcb\n - load_r3 \x1b[33m[WARN]\x1b[0m\n - alarm \x1b[33m[WARN]\x1b[0m\n - clear\n";
 
     if (strcmp(cmd, "version") == 0) {
         // print help message for 'version' command
+         const char *msg_version = "Command: version\n\nDescription:\n  Prints the current version of MarauderOS and last build date to the terminal.\n\nUsage:\n  version\n";
         sys_req(WRITE, COM1, msg_version, strlen(msg_version));
     } else if (strcmp(cmd, "shutdown") == 0) {
         // print help message for 'shutdown' command
@@ -55,13 +57,13 @@ void help(const char *cmd) {
     } else if (strcmp(cmd, "alarm") == 0) {
         // print help message for yield command
         sys_req(WRITE, COM1, msg_alarm, strlen(msg_alarm));
-    } else if (strcmp(cmd, "clear") == 0) {
-        // print help message for yield command
-        sys_req(WRITE, COM1, msg_clear, strlen(msg_clear));
-    } else {
-        // if not parameters -> print all help messages
-        sys_req(WRITE, COM1, msg_all, strlen(msg_all));
-    }
+   } else if (strcmp(cmd, "clear") == 0) {
+        // print clear message
+        sys_req(WRITE, COM1,msg_clear, strlen(msg_clear));
+   } else {
+      //  if not parameters -> print all help messages
+       sys_req(WRITE, COM1, msg_all, strlen(msg_all));
+   }
 
     // free memory
     sys_free_mem((void *)msg_version);

@@ -3,11 +3,11 @@
 #include "sys_req.h"
 #include <alarms.h>
 #include <ctype.h>
-#include <pcb.h>
 #include <context_switch.h>
 #include <comhand.h>
 #include <string.h>
 #include <time.h>
+#include <interrupt_control.h>
 
 /* global variables for message and time */
 char* alarm_messages[5] = {NULL, NULL, NULL, NULL, NULL};
@@ -280,6 +280,27 @@ void print_message(void)
             alarm_processes[cur_alarm] = NULL;
             alarm_messages[cur_alarm] = NULL;
             alarm_times[cur_alarm] = NULL;
+
+            // store current dcb into temp pointer
+            int dcb_index = check_cur_dcb();
+            // if invalid index, return
+            if(dcb_index < 0)
+            {
+                return;
+            }
+            struct dcb* temp_dcb = dcb_array[dcb_index];
+
+            // prcoess is finished, so set event flag
+            temp_dcb->event_flag = 1;
+            temp_dcb->ring_chars_transferred = 0;
+            memset(temp_dcb->ring_buf, 0, strlen(temp_dcb->ring_buf));
+            memset(temp_dcb->rw_buf, 0, strlen(temp_dcb->rw_buf));
+            temp_dcb->allocation_status = 0;
+            temp_dcb->rw_index = 0;
+            temp_dcb->pcb_ptr = global_blocked_queue->front->pcb;
+
+            outb(COM1, '>');
+            outb(COM1, ' ');
 
             // exit/remove alarm
             sys_req(EXIT);

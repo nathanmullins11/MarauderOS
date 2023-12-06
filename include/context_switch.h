@@ -32,3 +32,13 @@ struct context { // STRUCT ORDER = POP ORDER
  */
 struct context* sys_call(struct context* context_ptr);
 
+/**
+ * @brief global context pointer to the first context when sys_call() is entered
+ */
+extern struct context* global_context_ptr;
+
+/**
+ * @brief global pcb pointer to the current running process
+ */
+extern struct pcb* global_current_process;
+
